@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { BUILDERS } from "../builders/index";
@@ -9,6 +10,7 @@ const USAGE = `taleform — build a vault's generated story resources
 
   taleform build [options]   regenerate everything that is stale
   taleform check [options]   change nothing; exit 1 if anything is stale or invalid
+  taleform pre-commit        build, then stage only outputs that carry no unrelated edits (git hook)
 
   --vault <dir>      the vault (default: nearest folder above cwd containing .obsidian)
   --mission <name>   only this mission (repeatable)
@@ -20,12 +22,24 @@ const USAGE = `taleform — build a vault's generated story resources
 class FsVault implements VaultIO {
   constructor(readonly root: string) {}
 
+  /** The core Templates folder: templates hold placeholders, not story data. */
+  private templates(): string | null {
+    try {
+      const cfg = JSON.parse(readFileSync(join(this.root, ".obsidian", "templates.json"), "utf8")) as { folder?: string };
+      return cfg.folder ? cfg.folder.replace(/^\/+|\/+$/g, "") : null;
+    } catch {
+      return null;
+    }
+  }
+
   async list(): Promise<string[]> {
     const out: string[] = [];
+    const skip = this.templates();
     const walk = (dir: string) => {
       for (const name of readdirSync(dir)) {
         if (name.startsWith(".") || name === "node_modules") continue;
         const full = join(dir, name);
+        if (skip && relative(this.root, full).split(sep).join("/") === skip) continue;
         if (statSync(full).isDirectory()) walk(full);
         else if (name.endsWith(".md") || name.endsWith(".canvas")) out.push(relative(this.root, full).split(sep).join("/"));
       }
@@ -52,9 +66,35 @@ function findVault(from: string): string | null {
   }
 }
 
+const git = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8" });
+const gitPaths = (cwd: string, ...args: string[]) => git(cwd, ...args, "-z").split("\0").filter(Boolean);
+
+/**
+ * Build before a commit, then stage only what cannot drag unrelated work along: a generated
+ * file nobody edits by hand (a map), or a note that was already in this commit with no other
+ * unstaged edits. Anything else is rebuilt but left for the author to stage. Never blocks.
+ */
+async function preCommit(root: string, options: BuildOptions): Promise<number> {
+  const top = git(root, "rev-parse", "--show-toplevel").trim();
+  const staged = new Set(gitPaths(top, "diff", "--cached", "--name-only"));
+  const dirty = new Set(gitPaths(top, "diff", "--name-only"));
+  const result = await build(new FsVault(root), BUILDERS, options, true);
+  const toRepo = (p: string) => relative(top, join(root, p)).split(sep).join("/");
+  const stage: string[] = [], leave: string[] = [];
+  for (const c of result.changes) {
+    const p = toRepo(c.path);
+    (c.path.endsWith(".canvas") || (staged.has(p) && !dirty.has(p)) ? stage : leave).push(p);
+  }
+  if (stage.length) git(top, "add", "--", ...stage);
+  for (const p of stage) process.stdout.write(`taleform: rebuilt and staged ${p}\n`);
+  for (const p of leave) process.stdout.write(`taleform: rebuilt ${p} (not staged: it has other edits or is not in this commit)\n`);
+  for (const p of result.problems.filter((x) => x.severity === "error")) process.stdout.write(`taleform: ERROR ${p.path ?? ""}: ${p.message}\n`);
+  return 0;
+}
+
 export async function main(argv: string[]): Promise<number> {
   const [cmd, ...rest] = argv;
-  if (cmd !== "build" && cmd !== "check") {
+  if (cmd !== "build" && cmd !== "check" && cmd !== "pre-commit") {
     process.stdout.write(USAGE);
     return cmd === "help" || cmd === "--help" ? 0 : 2;
   }
@@ -79,6 +119,7 @@ export async function main(argv: string[]): Promise<number> {
     return 2;
   }
 
+  if (cmd === "pre-commit") return preCommit(root, options);
   const result = await build(new FsVault(root), BUILDERS, options, cmd === "build");
   if (json) process.stdout.write(JSON.stringify(result, null, 2) + "\n");
   else report(result);

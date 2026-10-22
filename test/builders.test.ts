@@ -10,13 +10,13 @@ const seq = (n: string, kind: string, act: number, beat: number, prev: string, n
 
 function vault() {
   return new MemoryVault({
-    [MISSION]: note({ kind: "mission", resume: "[[Job 1.01 — Start]]" }, "# Job\n"),
+    [MISSION]: note({ kind: "mission" }, "# Job\n"),
     "Missions/Job/Act 1/Job Act 1 — Opening.md": seq("Job Act 1 — Act 1 — Opening", "act", 1, 0, "Job", "Job 1.01 — Start"),
     "Missions/Job/Act 1/Job 1.01 — Start.md": seq("Job 1.01 — ▶ Start", "beat", 1, 1, "Job Act 1 — Opening", "Job 1.02 — Side", { "beat-status": "played" }),
     "Missions/Job/Act 1/Job 1.02 — Side.md": seq("Job 1.02 — ◆ Side", "scene", 1, 2, "Job 1.01 — Start", "Job 1.03 — End", { optional: true }),
-    "Missions/Job/Act 1/Job 1.03 — End.md": seq("Job 1.03 — ▶ End", "beat", 1, 3, "Job 1.02 — Side", "Elsewhere#Arrival", { "xp-award": 2000 }),
+    "Missions/Job/Act 1/Job 1.03 — End.md": seq("Job 1.03 — ▶ End", "beat", 1, 3, "Job 1.02 — Side", "Elsewhere#Arrival", { awards: "\n  - xp: 2000\n    for: done" }),
     "Elsewhere.md": "# Elsewhere\n## Arrival\n",
-    "Unrelated.md": note({ kind: "beat", mission: "[[Other]]" }, "# Not ours\n"),
+    "Unrelated.md": note({ kind: "beat" }, "# Not ours\n"),
   });
 }
 

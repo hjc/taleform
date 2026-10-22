@@ -16,7 +16,13 @@ class ObsidianVault implements VaultIO {
   constructor(private readonly app: App) {}
 
   async list() {
-    return this.app.vault.getFiles().filter((f) => f.extension === "md" || f.extension === "canvas").map((f) => f.path);
+    // templates hold placeholders, not story data
+    const tpl = (this.app as unknown as { internalPlugins: { getEnabledPluginById(id: string): { options?: { folder?: string } } | null } })
+      .internalPlugins.getEnabledPluginById("templates")?.options?.folder?.replace(/^\/+|\/+$/g, "");
+    return this.app.vault
+      .getFiles()
+      .filter((f) => (f.extension === "md" || f.extension === "canvas") && !(tpl && (f.path === tpl || f.path.startsWith(`${tpl}/`))))
+      .map((f) => f.path);
   }
 
   async read(path: string) {

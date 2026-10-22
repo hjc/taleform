@@ -1,0 +1,28 @@
+{
+  "name": "taleform",
+  "version": "0.1.0",
+  "description": "Declarative storytelling infrastructure for Obsidian: typed frontmatter in, generated maps and views out.",
+  "license": "MIT",
+  "private": true,
+  "bin": {
+    "taleform": "dist/cli.cjs"
+  },
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm test && npm run build",
+    "deploy": "node scripts/deploy.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
+    "obsidian": "^1.14.4",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

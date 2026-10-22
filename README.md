@@ -15,15 +15,36 @@ declarations are the source of truth, and everything generated can be rebuilt at
 - **Builders never write frontmatter.** Frontmatter is source only, so a build can never
   feed back into itself.
 
-## Builders
+## The typed model
+
+| On | Property | Meaning |
+|---|---|---|
+| mission | `kind: mission`, `party-size`, `party-xp`, `handoff` | the mission; `party-xp` is XP each *now*, and every running total counts from it |
+| beat | `mission`, `kind`, `act`, `beat`, `beat-status`, `prev`, `next`, `optional` | the sequence |
+| beat | `awards`: a list of `{xp, type, for, per, max, note}` | typed XP (`type` is `story` or `optional`) |
+| beat | `entry`; `branches`: `{to, label}`; `outcomes`: `{if, then, to}` | what the map draws beyond the main line |
+
+- **Combat XP** is never typed. It is read from a beat's `encounter` code block and each
+  creature's stat-block `cr`.
+- **Resume** is derived: the furthest beat touched if it is `partial`, else the first planned,
+  non-optional beat after it.
+- **Lists of objects stay top-level**, because editors render nested ones as "[object Object]".
+- **Links are whole values**, so Obsidian tracks renames.
+
+## Builders (run order)
 
 | id | Output |
 |---|---|
+| `schema` | nothing: validates story frontmatter and names retired properties |
 | `navigation` | each sequence note's two-line header and its `## Next` footer |
-| `adventure-map` | `<Mission> — Adventure Map.canvas`: one card per beat (its H1 over its `^card` block), branches, IF cards, XP, resume, hand-off |
+| `awards` | the AWARD XP callouts under each beat's H1 |
+| `resume` | the mission note's `%% taleform:resume %%` region |
+| `ledger` | the mission note's `%% taleform:xp %%` region; warns when an Encounter line disagrees with its block |
+| `adventure-map` | `<Mission> — Adventure Map.canvas`: one card per beat, branches, IF cards, XP, resume, hand-off |
 
-Generated canvas nodes carry `"generated": "adventure-map"`. Anything you add by hand on
-the canvas is kept, and dragged positions survive a rebuild.
+- **Generated text in notes** lives between `%% taleform:<id> %%` markers.
+- **Generated canvas items** carry `"generated": "adventure-map"`.
+- **Everything else is the author's** and is never touched. Dragged positions survive a rebuild.
 
 ## Running
 
@@ -31,7 +52,10 @@ the canvas is kept, and dragged positions survive a rebuild.
   automatically after a note's metadata changes (toggle with *Toggle building on change*).
   Scripts can call `app.plugins.plugins.taleform.run(options, write)`.
 - **Headless:** `node dist/cli.cjs build|check [--vault dir] [--mission name] [--relayout] [--threads] [--json]`.
-  `check` changes nothing and exits 1 when anything is stale or invalid, so it can gate a commit.
+  `check` changes nothing and exits 1 when anything is stale or invalid.
+- **Git hook:** `taleform pre-commit` builds, then stages only the outputs that cannot drag
+  unrelated work along: a map, or a note that was already in the commit and has no other unstaged
+  edits. It never blocks a commit.
 
 ## Development
 

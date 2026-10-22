@@ -1,0 +1,9 @@
+{
+  "id": "taleform",
+  "name": "Taleform",
+  "version": "0.1.0",
+  "minAppVersion": "1.10.3",
+  "description": "Declarative storytelling infrastructure: typed frontmatter in, generated adventure maps, navigation and ledgers out.",
+  "author": "Hayden Chudy",
+  "isDesktopOnly": false
+}

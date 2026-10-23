@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nid() canvas node-ID helper lives in the Adventure Map builder, not src/core</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="nid() canvas node-ID helper lives in the Adventure Map builder, not src/core"
+  subtitle=""
+  status="draft"
+  date="2026-10-23">
+</plan-header>
+
+<main>
+
+  <plan-meta>
+    <plan-field key="type">issue</plan-field>
+    <plan-field key="reference-paths" hidden>src/builders,src/core,test</plan-field>
+    <plan-field key="class" tone="muted">quality</plan-field>
+    <plan-field key="reach" tone="muted">developer</plan-field>
+    <plan-field key="detection" tone="warn">silent</plan-field>
+    <plan-field key="source">abstraction-spotting shape I on the roadmap's Arc and Campaign Map builders</plan-field>
+    <plan-field key="impact" tone="info">medium</plan-field>
+    <plan-field key="urgency" tone="muted">low</plan-field>
+    <plan-field key="effort" tone="ok">small</plan-field>
+    <plan-field key="priority" tone="muted">p3</plan-field>
+  </plan-meta>
+
+  <plan-section id="overview" title="Overview">
+    <plan-callout type="danger">
+      <strong>The deterministic canvas node-ID helper <code>nid()</code> is exported from the Adventure Map builder, so the Arc and Campaign Map builders would have to import it from a sibling builder or copy it, and a diverging copy would churn that map's IDs on every build.</strong>
+      It has lived there since the typed story model landed. Nothing fails today: only one canvas builder exists. A duplicate that drifts is reported by nothing, because each map stays self-consistent.
+    </plan-callout>
+  
+</plan-section>
+
+  <plan-section id="root-cause" title="Root cause">
+    <p>
+      <code>nid</code> hashes its parts with <code>sha1</code> from <code>src/core/sha1.ts</code> and keeps 16 hex characters. The helper is generic, but it is defined and exported beside Adventure Map layout code, and <code>test/core.test.ts</code> imports it from the builder. Measured with <code>grep -rn "\bnid\b" src test</code>: one definition, 30 call sites in <code>adventureMap.ts</code> (one is the edge id at line 80), and one test import (<code>test/core.test.ts:3</code>). No other module uses it.
+    </p>
+    <plan-file path="src/builders/adventureMap.ts" lines="32">
+export const nid = (...parts: string[]) =&gt; sha1(parts.join("|")).slice(0, 16);
+    </plan-file>
+    <p>
+      The roadmap names Arc Map and Campaign Map builders (<a href="../roadmap.md"><code>docs/roadmap.md</code></a>, not yet designed). Each needs stable node IDs, since <code>CLAUDE.md</code> says IDs "must stay stable across builds, or maps churn". It would either import <code>nid</code> from <code>../builders/adventureMap</code> (a builder-to-builder dependency) or copy it. Two copies would hold one identity rule in two places: the separator, the 16-character slice and the hash input shape.
+    </p>
+    <p>
+      Related, not the subject: the same file also holds the <code>generated</code> marker (<code>MARK</code>, line 20, value <code>"adventure-map"</code>) and the hand-item merge (lines 288-293). They are shape I of the abstraction-spotting skill too, a primitive living in its first consumer. This issue covers <code>nid</code> only.
+    </p>
+  
+</plan-section>
+
+  <plan-section id="impact" title="Impact">
+    <plan-table>
+      <table>
+        <thead><tr><th>Area</th><th>What breaks</th><th>Consequence</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Arc / Campaign Map builders (planned)</td>
+            <td>Importing <code>nid</code> couples a new builder to the Adventure Map module; copying it forks the identity rule.</td>
+            <td>A copy that drifts (separator, slice length, input shape) changes node IDs on that map, so dragged positions are lost and edges are re-keyed. Reasoned, not measured: the DM's dragged layout is the casualty, and it is lost for good if it was never committed.</td>
+            <td><strong>Medium</strong>, latent</td>
+          </tr>
+          <tr>
+            <td><code>test/core.test.ts</code></td>
+            <td>The core test file imports a builder module to test an ID rule.</td>
+            <td>The test sits in the core suite but depends on <code>src/builders/</code>; moving the helper makes it a plain core import.</td>
+            <td><strong>Low</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="info">
+      The <code>MARK</code> constant and the hand-item merge in the same file are the related shape I findings. They belong to their own issue or to the Arc Map design, not to this fix.
+    </plan-callout>
+  
+</plan-section>
+
+  <plan-section id="remediation" title="Remediation">
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Step</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Move <code>nid</code> into <code>src/core/</code> and import it in <code>adventureMap.ts</code>.</td>
+            <td>Likely home is <code>canvas.ts</code> (it owns canvas shapes and <code>sameCanvas</code>) or beside <code>sha1</code> in <code>sha1.ts</code>. Undecided; <code>canvas.ts</code> is canvas-specific, <code>sha1.ts</code> is a hash primitive. Keep <code>src/core/</code> free of Obsidian imports.</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Point <code>test/core.test.ts:3</code> at the new location.</td>
+            <td>The existing <code>nid("legend")</code> assertion (<code>a4097e080c550462</code>) stays as the pinned vector.</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Prove no generated ID changed.</td>
+            <td>Run <code>npm run check</code>, then <code>node dist/cli.cjs check --vault "&lt;vault&gt;"</code>. Expect "up to date" and only the known 3.03 XP warning (14,700 vs 12,040); any diff means an ID moved. Read-only: never <code>build</code> in the live vault.</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  
+</plan-section>
+
+  <plan-section id="not-affected" title="What is not affected">
+    <plan-callout type="warn">
+      <strong>Not firing on the live vault.</strong> Baseline measured: <code>node dist/cli.cjs check --vault "C:/Users/hjc17/Documents/anima-automatum/Anima Automatum"</code> prints "up to date" with only the known 3.03 XP warning, and <code>npx vitest run test/core.test.ts</code> passes (8 tests). The helper's output is correct and stable; only its location is at issue. No generated ID, canvas or DM-facing text changes with the move. The planned hand-item merge and <code>MARK</code> are out of scope here.
+    </plan-callout>
+  
+</plan-section>
+
+  <plan-section id="open" title="Open">
+    <ul>
+      <li>Which core module owns <code>nid</code>: <code>canvas.ts</code> or <code>sha1.ts</code>. Not measured; a judgment on how Arc and Campaign builders will use it.</li>
+      <li>Whether <code>nid</code> should be a canvas-wide rule or take a per-builder namespace. Today each map is its own canvas, so IDs need only be unique within one map. Not measured against the Arc Map design, which does not exist yet.</li>
+      <li>Whether to extract <code>MARK</code> and the hand-item merge in the same change. Each carries a builder-specific value or loop, so that is a separate decision.</li>
+      <li>Triage: class is quality, not gap or latent. Nothing is missing or wrong today, and the move is a refactor serving the roadmap Arc and Campaign Map builders, which are undesigned with no approved PRD. That gives medium impact, low urgency and p3 (matrix p3, quality floor p3). Re-rate when the Arc Map PRD is approved.</li>
+    </ul>
+  
+</plan-section>
+
+
+</main>
+
+</body>
+</html>

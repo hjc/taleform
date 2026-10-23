@@ -227,7 +227,7 @@ const ROOTED = /^(?:\.claude|src|test|docs)\//;
    loop) and every context doc. Matched against the committable set so a new
    context doc is covered the day it lands and `CLAUDE.local.md` — gitignored
    by design — is not. */
-const ANCHOR_FILES = [/^CLAUDE\.md$/, /^docs\/sdlc\.md$/, /^\.claude\/context\/[^/]+\.md$/];
+const ANCHOR_FILES = [/^CLAUDE\.md$/, /^docs\/sdlc\.md$/, /^docs\/context\/[^/]+\.md$/];
 
 /* Files whose OUTBOUND citations `instrpaths` follows. A superset of
    ANCHOR_FILES: every skill body and reference, and every agent definition.
@@ -703,8 +703,8 @@ function runChecks() {
         table: tableNames(/^\|\s*Skill\s*\|\s*Purpose\s*\|\s*$/) },
       /* Context docs keep their extension in the table, agents and skills do
          not — compare each population in the spelling its own table uses. */
-      { label: 'context doc', home: '.claude/context/', section: '§4d', header: 'Doc | Covers',
-        disk: dirents(path.join(REPO, '.claude', 'context'))
+      { label: 'context doc', home: 'docs/context/', section: '§4d', header: 'Doc | Covers',
+        disk: dirents(path.join(REPO, 'docs', 'context'))
           .filter((e) => e.isFile() && e.name.endsWith('.md')).map((e) => e.name).sort(),
         table: tableNames(/^\|\s*Doc\s*\|\s*Covers\s*\|\s*$/) },
     ];
@@ -1167,7 +1167,7 @@ function runChecks() {
      reveals it — the evidence is elsewhere in the file.
 
      Covers the always-loaded root `CLAUDE.md`, `docs/sdlc.md` and
-     `.claude/context/*.md`. Deliberately narrow on
+     `docs/context/*.md`. Deliberately narrow on
      BOTH axes: only these files, and only pointers that NAME something (see
      DISTINCTIVE). A generic `see below` gestures at whatever follows and
      cannot dangle, so flagging it would be noise, and noise is how a checker
@@ -1426,14 +1426,17 @@ function runChecks() {
     let pointers = 0;
     let topics = 0;
 
+    let empty = 0;
     for (const d of dirs) {
       const dir = path.join(AGENT_MEMORY, d);
       const index = path.join(dir, 'MEMORY.md');
+      /* An empty directory is what an agent with `memory: project` leaves
+         behind when a dispatch learned nothing worth keeping. Git does not
+         track it and nothing reads it, so it is not a defect. */
+      if (fs.readdirSync(dir).length === 0) { empty++; continue; }
       if (!fs.existsSync(index)) {
-        /* An agent declaring `memory: project` with no MEMORY.md has a home
-           that can never be read; an empty directory is the same defect one
-           step earlier. */
-        bad.push(`${d}/ has no MEMORY.md — the directory exists but nothing can be indexed into it`);
+        /* Topic files with no MEMORY.md have a home that can never be read. */
+        bad.push(`${d}/ holds files but no MEMORY.md — nothing indexes them, so nothing will ever load them`);
         continue;
       }
       const src = read(index);
@@ -1459,7 +1462,8 @@ function runChecks() {
     assert(bad.length === 0,
       `agent memory index and directory disagree:\n      ${bad.join('\n      ')}\n      `
       + 'Index it, or drop it (`agent-memory-compacting`). A pointer and a topic file are only useful as a pair.');
-    return `${dirs.length} agent(s), ${pointers} index pointer(s) resolve, ${topics} topic file(s) all indexed`;
+    return `${dirs.length - empty} agent(s), ${pointers} index pointer(s) resolve, ${topics} topic file(s) all indexed`
+      + (empty ? `; ${empty} empty dir(s) skipped` : '');
   });
 
 }

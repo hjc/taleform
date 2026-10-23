@@ -30,7 +30,7 @@ Read both SKILL.md files above. Not optional.
 Research the codebase per `tdd-planning` Phase 1 before writing a line of the plan. Additionally:
 
 - **Read the PRD alongside the slice spec.** A slice spec deliberately cites the PRD's cross-cutting contract (rules, invariants, vocabulary) rather than restating it, so the spec alone is not enough (sdlc §4 step 4). A standalone PRD or a single-branch fix stands on its own.
-- **Read relevant `.claude/context/` docs** for the area being planned, if any exist. Read only the ones that bear on the change.
+- **Read relevant `docs/context/` docs** for the area being planned, if any exist. Read only the ones that bear on the change.
 - **Read `CLAUDE.md`** § Architecture, § Invariants and § Obsidian facts we tested. They are the constraints every plan is reviewed against.
 
 Redirect large command output to `.tmp/` and inspect it only when errors surface.

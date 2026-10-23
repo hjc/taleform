@@ -20,7 +20,7 @@ You own conformance: does the change follow Taleform's invariants and patterns? 
 1. **`.claude/skills/taleform-reviewing/SKILL.md`**: the complete checklist, routing and output contract. Then `references/conventions.md` beside it, which has the code shapes every check refers to.
 2. **`CLAUDE.md`** § Architecture, § Invariants and § Obsidian facts we tested.
 3. **The source the subject touches.** `src/` is small (about 1,600 lines); read every file the plan or diff names in full, plus `src/core/builder.ts`, `src/core/engine.ts` and `src/builders/index.ts`.
-4. **`.claude/context/`** for any doc that bears on the area. There may be none.
+4. **`docs/context/`** for any doc that bears on the area. There may be none.
 5. **For a slice spec or slice plan, the effort's PRD too.** A slice spec cites the PRD's cross-cutting contract rather than restating it, so it is not reviewable alone.
 
 **Do not start until you have read SKILL.md and conventions.md.** The skill holds rules (overlay-aware reads, the auto-build loop, the `nid` input rule, blast-radius routing) that are not repeated in this file.

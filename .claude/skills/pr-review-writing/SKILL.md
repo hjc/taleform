@@ -41,7 +41,7 @@ not `main`.
 4. **Identify the affected layers.** Map changed files to `src/core/` (index, story rules,
    engine, regions, canvas), `src/builders/` (and whether `BUILDERS` order changed),
    `src/cli/main.ts`, `src/plugin/main.ts`, and `test/`. Consult `CLAUDE.md` and any
-   `.claude/context/` doc for the area so the narrative matches the documented model.
+   `docs/context/` doc for the area so the narrative matches the documented model.
 5. **Trace the load-bearing change.** Every branch has a spine — the one domain rule, builder
    or schema property the rest hangs off. Find it; the body leads the reviewer to it first.
 6. **Run the checks the body reports.** `npm run check`, then the read-only parity check

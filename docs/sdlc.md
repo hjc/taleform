@@ -120,7 +120,7 @@ A `refactor:` that changes what a build writes to the vault is not a refactor. T
 
 Planning branches come first because everything above them derives from their output.
 
-**The last slice of a sliced effort is the close slice, and it is the final branch of the stack.** It wraps up loose ends and carries the deferred nice-to-haves, the mapping and planning tidy-up, the check that the effort's key details reached `.claude/context/`, and the list of vault docs the change affects (§3, "Vault docs"). Run `/pr-tidying` there; Category K covers it. Never scatter that cleanup across the stack.
+**The last slice of a sliced effort is the close slice, and it is the final branch of the stack.** It wraps up loose ends and carries the deferred nice-to-haves, the mapping and planning tidy-up, the check that the effort's key details reached `docs/context/`, and the list of vault docs the change affects (§3, "Vault docs"). Run `/pr-tidying` there; Category K covers it. Never scatter that cleanup across the stack.
 
 ### Landing the stack
 
@@ -173,7 +173,7 @@ This is the baseline workflow for building a feature, fix or refactor. A human (
 0. **Wayfind.** *Large efforts only, and **user-invoked**: the skill is `disable-model-invocation: true`, so an orchestrating session asks for `/wayfinding` rather than running it.*
    - It charts the open decisions under `docs/features/<feature>/wayfinding/`. That means a map holding pointers and status; three registers holding what grows (`decisions.html`, `vocabulary.html`, `evidence.html`); and one ticket per question whose answer is a decision, not a slice of the build.
    - Anything not yet worth a ticket sits in the map's `horizon` section, and becomes a ticket when it is ready to decide.
-   - Tickets resolve one per session. Each graduates its decision into `.claude/context/` as it lands, not at map close.
+   - Tickets resolve one per session. Each graduates its decision into `docs/context/` as it lands, not at map close.
    - Its last act is a **slicing**: how the effort splits into shippable branches in dependency order. It is coverage-checked, so every ticket lands in exactly one slice or is marked *no build work*. The last slice is the **close slice** (§3).
 
    Reach for it when "Discuss" would sprawl across sessions or the shape is still unclear. Skip it for anything one session can settle. It composes `grilling` and `domain-modeling` (§4c). What happens to its artifacts at the end is covered in §4e.
@@ -235,7 +235,7 @@ An agent whose frontmatter carries `memory: project` keeps a working memory dire
 
 - Planners and executors should not opt in. In practice they write session diaries rather than durable facts.
 - Memory writes are automatic and unbounded. The only backstop is the manual `agent-memory-compacting` drain at branch close.
-- Before adding `memory: project` to an agent, be satisfied that what it learns is durable, and would not be better placed in a `.claude/context/` doc or in `CLAUDE.md`.
+- Before adding `memory: project` to an agent, be satisfied that what it learns is durable, and would not be better placed in a `docs/context/` doc or in `CLAUDE.md`.
 
 ### 4c. Skills (`.claude/skills/`)
 
@@ -287,7 +287,7 @@ Eight templates are selectable:
 
 `node .claude/skills/html-planning/planr.js templates` lists them with their guidance lines, and is the authoritative inventory. `planr templates <name>` prints one template's full guidance, scaffolded sections and variables. The authoring guide is `.claude/skills/html-planning/references/template-authoring.md`.
 
-### 4d. Context Docs (`.claude/context/`)
+### 4d. Context Docs (`docs/context/`)
 
 Context docs do not tell the AI what or how to do something. They capture the sticky parts of the codebase that are hard to learn and expensive for an LLM to rediscover. `CLAUDE.md` points here, so an agent knows to search this directory for prior art.
 
@@ -319,7 +319,7 @@ Each has exactly one terminal fate:
 | Issue doc | Deleted when the fix ships (`issue-creating`) |
 | Wayfinding map, tickets, registers, `assets/` | **Deleted** at effort close, behind the graduation check (`.claude/skills/wayfinding/references/closing.md`) |
 
-**Every fate is deletion.** A completed artifact's truths live in the codebase, in `.claude/context/` and in `CLAUDE.md`. A filed copy is a second, staler source that every future search pays for. Completed artifacts are **not moved** anywhere; `git rm` them instead.
+**Every fate is deletion.** A completed artifact's truths live in the codebase, in `docs/context/` and in `CLAUDE.md`. A filed copy is a second, staler source that every future search pays for. Completed artifacts are **not moved** anywhere; `git rm` them instead.
 
 **Every plan document is queryable while it lives.**
 
@@ -327,7 +327,7 @@ Each has exactly one terminal fate:
 - `.claude/planr-schema.json` declares the fields and the two rankings: `default` (the issue work queue) and `triage` (issues with no `priority`).
 - **`planr next docs/issues --format json` is how the next issue gets picked**, not a directory listing.
 
-A decision **graduates** when it lands in `.claude/context/` or `CLAUDE.md`. That is the only copy that outlives the effort, so **nothing is deleted until the graduation check passes**. That check is the sole guard, and it is what makes deletion safe. Retire, do not delete blind: read each artifact for a fact that has not graduated before removing it.
+A decision **graduates** when it lands in `docs/context/` or `CLAUDE.md`. That is the only copy that outlives the effort, so **nothing is deleted until the graduation check passes**. That check is the sole guard, and it is what makes deletion safe. Retire, do not delete blind: read each artifact for a fact that has not graduated before removing it.
 
 **`/pr-tidying` owns the cadence.** Which status flips happen on every tidy, and which deletions wait for the close slice, is stated once, in its Category K (`references/plan-lifecycle.md`), and is not repeated here. **Delete with `git rm`, never a plain `rm`**, on a tracked artifact. Confirm with `git status` that the deletion is staged, rather than showing up as an untracked file disappearing.
 
@@ -364,7 +364,7 @@ These files are personal and are **not** checked in.
 |---|---|---|
 | Agent | `.claude/agents/<name>.md` | YAML frontmatter (`name`, `description`, and optionally `tools`, `model`, `color`, `memory: project`), followed by the agent's system prompt. |
 | Skill | `.claude/skills/<name>/SKILL.md` | YAML frontmatter (`name`, `description`), followed by the instructions. Heavy detail goes in a sibling `references/` folder, so it loads only when needed. |
-| Context doc | `.claude/context/<name>.md` | Plain Markdown capturing a sticky part of the codebase. |
+| Context doc | `docs/context/<name>.md` | Plain Markdown capturing a sticky part of the codebase. |
 
 **When you rename an artifact,** search the repo for every reference and update it. References are not updated automatically; `node .claude/skills/wayfinding/check-tooling.js` catches the dead ones.
 

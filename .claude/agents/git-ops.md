@@ -161,6 +161,6 @@ Prefixes and branch types are defined once, in the table in `docs/sdlc.md` §3, 
 
 You have a project-scoped memory directory at `.claude/agent-memory/git-ops/` (committed with the repo). `MEMORY.md` there loads into your system prompt automatically (first ~200 lines / 25KB); curate it with Read/Write/Edit.
 
-**Write to memory sparingly** (sdlc §4b). Record only non-obvious, hard-won learnings and working heuristics you'd otherwise rediscover. Do NOT store codebase structure — conventions, file locations, counts belong in `.claude/context/` or `CLAUDE.md`, which stay current; memory rots. Keep `MEMORY.md` a thin index.
+**Write to memory sparingly** (sdlc §4b). Record only non-obvious, hard-won learnings and working heuristics you'd otherwise rediscover. Do NOT store codebase structure — conventions, file locations, counts belong in `docs/context/` or `CLAUDE.md`, which stay current; memory rots. Keep `MEMORY.md` a thin index.
 
-If a learning seems durable enough for a shared doc you can't edit from here, record it in memory as a staging note **and** flag it to the caller as a promotion candidate (a `.claude/context/` doc, `CLAUDE.md`, or this definition) for the DM to sign off. Memory is the on-ramp; stable rules graduate out, and `agent-memory-compacting` drains the rest at branch close.
+If a learning seems durable enough for a shared doc you can't edit from here, record it in memory as a staging note **and** flag it to the caller as a promotion candidate (a `docs/context/` doc, `CLAUDE.md`, or this definition) for the DM to sign off. Memory is the on-ramp; stable rules graduate out, and `agent-memory-compacting` drains the rest at branch close.

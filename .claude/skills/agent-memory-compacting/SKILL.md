@@ -34,7 +34,7 @@ descending order of correctness pressure:
 1. **Generated doc** (a doc whose header carries `> Auto-generated`) —
    self-correcting; regenerated from code. If the fact is a model, field, route, or FK, it is ALREADY
    here (or belongs in the generator) and must NOT be restated in memory.
-2. **`CLAUDE.md` / `.claude/context/` doc** — human-reviewed in the PR that changes the code it
+2. **`CLAUDE.md` / `docs/context/` doc** — human-reviewed in the PR that changes the code it
    describes. The home for durable **reference** facts any agent or human would want.
 3. **Agent definition (`.claude/agents/<agent>.md`) or its skill** — the home for durable
    **behavioral** judgment: how THIS agent should act or judge (a review heuristic, a plan-quality
@@ -89,7 +89,7 @@ rules). Never fabricate or extrapolate — only move or drop facts already writt
 - **Reconcile drift** (`*.drift.md`): diff against the canonical same-named file; merge any unique
   facts into the canonical file, then delete the `*.drift.md`. If identical, just delete it.
 - **Promote — reference** (a durable fact about the codebase any agent/human would want): move to the
-  right generated doc (fix the generator, not the output) or to a `.claude/context/` doc / `CLAUDE.md`,
+  right generated doc (fix the generator, not the output) or to a `docs/context/` doc / `CLAUDE.md`,
   then remove it from memory.
 - **Promote — behavior** (durable judgment about how this agent should act/judge): move to the agent's
   definition (`.claude/agents/<agent>.md`) or its skill, then remove it from memory.

@@ -1,9 +1,10 @@
 # docs/
 
-Everything Taleform plans, tracks and decides lives here. Agent-facing material stays under `.claude/`: skills, agents, context docs and ephemeral reviews.
+Everything Taleform knows, plans, tracks and decides lives here. The AI tooling itself stays under `.claude/`: skills, agents, agent memory and ephemeral reviews.
 
 | Path | Holds | Tracked |
 |---|---|---|
+| `context/<name>.md` | Context docs: the hard-won facts about tricky parts of the codebase, read by agents before they plan or review. They outlive every effort; decisions graduate into them (`docs/sdlc.md` §4d) | yes |
 | `sdlc.md` | How Taleform is built and delivered: the development loop, branches and stacks, the AI tooling | yes |
 | `roadmap.md` | The PRD register, its dependency graph, and unscheduled product ideas | yes |
 | `issues/<slug>.html` | One issue doc per defect or gap not being fixed right now (`issue-creating`), triaged in place (`issue-triaging`) | yes |
@@ -23,7 +24,7 @@ Everything Taleform plans, tracks and decides lives here. Agent-facing material 
 
 ## Lifecycle
 
-Every planning artifact is deleted when its work completes, once the graduation check has passed: a fixed issue's doc when the fix ships, and a feature folder at effort close. The durable facts graduate to `.claude/context/` or `CLAUDE.md` first. `docs/sdlc.md` §4e has the rules; `/pr-tidying` Category K enacts them.
+Context docs are permanent; everything else here is not. Every planning artifact is deleted when its work completes, once the graduation check has passed: a fixed issue's doc when the fix ships, and a feature folder at effort close. The durable facts graduate to `docs/context/` or `CLAUDE.md` first. `docs/sdlc.md` §4e has the rules; `/pr-tidying` Category K enacts them.
 
 Every HTML document here is a `planr` document. Query it rather than listing directories:
 

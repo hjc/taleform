@@ -94,7 +94,7 @@ Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `
 
 ## Writing Context & Instruction Docs
 
-Instruction and context files (`CLAUDE.md`, `.claude/context/` docs, `SKILL.md`, agent definitions, `docs/**/*.md`) are read by LLMs. Optimize for precise retrieval, not rendering:
+Instruction and context files (`CLAUDE.md`, `docs/context/` docs, `SKILL.md`, agent definitions, `docs/**/*.md`) are read by LLMs. Optimize for precise retrieval, not rendering:
 
 - **Keep (signal):** backticks around literals (paths, symbols, exact strings); Markdown tables for dense or relational data; headings and short bullets as retrieval anchors.
 - **Drop (render chrome):** clickable links `[text](path)` (write the bare path); anchor-link tables of contents; HTML render tags.
@@ -102,4 +102,4 @@ Instruction and context files (`CLAUDE.md`, `.claude/context/` docs, `SKILL.md`,
 - **Right altitude:** an always-loaded `description` or index line carries only the trigger ("use when…") plus a one-line scope. The full workflow belongs in the body. Don't say the same thing twice.
 - **Check length with `planr wordy`** (`node .claude/skills/html-planning/planr.js wordy <file>`) after writing or editing a doc; it exits 1 on any line it flags. Fix what it flags with the `context-compacting` skill.
 
-The development loop, branch and stack rules, and the AI tooling are in `docs/sdlc.md`. Planning docs (features, issues, the roadmap) live under `docs/`, laid out in `docs/README.md`.
+The development loop, branch and stack rules, and the AI tooling are in `docs/sdlc.md`. Planning docs (features, issues, the roadmap) live under `docs/`, laid out in `docs/README.md`. **Context docs live in `docs/context/`**: search there for prior art before planning, reviewing or changing a tricky area.

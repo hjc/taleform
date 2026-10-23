@@ -10,7 +10,7 @@ Comments that reference internal planning artifacts or are excessively descripti
 
 ## What to flag
 
-- References to "Phase 1", "Phase 2", "PRD", "slice", "TDD plan", "ticket", "wayfinding", a decision id (`D12`, `q04`), or a similar planning artifact. Replace with plain language or numbered steps. A plan's decision that matters to the code belongs in `.claude/context/` or `CLAUDE.md`, not a comment citing the plan.
+- References to "Phase 1", "Phase 2", "PRD", "slice", "TDD plan", "ticket", "wayfinding", a decision id (`D12`, `q04`), or a similar planning artifact. Replace with plain language or numbered steps. A plan's decision that matters to the code belongs in `docs/context/` or `CLAUDE.md`, not a comment citing the plan.
 - References to deleted functions, retired properties, or "the old approach" when the reader has no context for what was old. A retired frontmatter property is documented by its `RETIRED` entry in `src/builders/schema.ts`, not by a comment.
 - Stream-of-thought comments explaining WHY a decision was made during development rather than WHAT the code does.
 - JSDoc referencing a planning document ("all the fields the PRD lists").

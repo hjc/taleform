@@ -1,6 +1,6 @@
 ---
 name: context-compacting
-description: Prune and compact a context or instruction doc — cut what is stale, repeated or derivable, then rewrite the lines `planr wordy` flags without dropping a rule, literal or number that survives the cut. Use on a `.claude/context/` doc, a `CLAUDE.md`, a `SKILL.md` or a `docs/` Markdown file when `planr wordy` flags it, after writing one, or when asked to compact one.
+description: Prune and compact a context or instruction doc — cut what is stale, repeated or derivable, then rewrite the lines `planr wordy` flags without dropping a rule, literal or number that survives the cut. Use on a `docs/context/` doc, a `CLAUDE.md`, a `SKILL.md` or a `docs/` Markdown file when `planr wordy` flags it, after writing one, or when asked to compact one.
 ---
 
 # Context Compacting
@@ -11,7 +11,7 @@ A context doc is read in full every time an agent works in its area, so every li
 
 ## Targets
 
-- `.claude/context/**`, every `CLAUDE.md`, every `SKILL.md`, and `docs/**/*.md`.
+- `docs/context/**`, every `CLAUDE.md`, every `SKILL.md`, and `docs/**/*.md`.
 - **Never a generated doc** — one whose header carries `> Auto-generated`. Fix the generator or leave the line.
 - **Never pass a `--max-*` limit** to make a run pass.
 
@@ -36,7 +36,7 @@ Read the doc end to end and cut each line that fails the bar:
 | A reference to planning: slice or phase ids (`S3`, `M2`, "since S3", "until S5"), PRD requirement ids (`FR-030`), plan or PRD paths, "the plan says" | Nothing. State the behaviour as it is today. Check the id is planning before cutting it: `S3` is also AWS S3 |
 | A claim the code no longer bears out | The true claim, checked against the code, or nothing |
 | A full method signature, field list, request/response shape, or error-code list the code already declares | A pointer: the file and symbol (`views.py` → `AskTurnView`) plus the one rule a reader would get wrong without the doc |
-| Content another `.claude/context/` doc covers in full | A one-line pointer to that doc |
+| Content another `docs/context/` doc covers in full | A one-line pointer to that doc |
 | A fact repeated elsewhere in the same doc | Nothing. Keep the copy where it is acted on |
 | History: how a rule was found, what was tried, what a thing "used to" do, dates, commits | The rule, as an instruction |
 | Rationale that does not name a specific wrong edit and what it breaks | Nothing. Rationale that does gets folded into the rule's own sentence |

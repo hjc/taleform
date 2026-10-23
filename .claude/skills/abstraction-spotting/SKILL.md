@@ -262,11 +262,11 @@ These locate the *seam* without architectural judgment. Run them first.
 
    | Form | Reads like | Where it lives |
    |---|---|---|
-   | **Imperative** | a prohibition: *do not*, *must*, *never* | `CLAUDE.md` (§ Invariants, § Obsidian facts), `.claude/context/` |
+   | **Imperative** | a prohibition: *do not*, *must*, *never* | `CLAUDE.md` (§ Invariants, § Obsidian facts), `docs/context/` |
    | **Declarative** | a description of behaviour, and is easy to miss | **doc comments and inline comments in `src/`**: "Membership is the link, never the folder", "Builders never write frontmatter", "the order is a dependency list" |
 
    ```bash
-   grep -rn 'Do NOT\|Do not\|MUST\|must never\|must not\|NEVER\|ALWAYS\|only ever\|never be' CLAUDE.md .claude/context/
+   grep -rn 'Do NOT\|Do not\|MUST\|must never\|must not\|NEVER\|ALWAYS\|only ever\|never be' CLAUDE.md docs/context/
    grep -rn 'never\|always\|only\|must' src/core src/builders   # the declarative half
    ```
 

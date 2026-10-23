@@ -60,10 +60,10 @@ Alongside the slice table, a `<plan-diagram>` Mermaid flowchart of the slice dep
 1. **Take the slicing from the map's close; do not re-derive it.** Wayfinding produces it, coverage-checked, as its last act.
 2. **Read the tickets' Obligations sections first.** They are the map's own statement of what it commits the PRD to, written while the reasoning was fresh. They are the checklist — resolutions are the backup.
 3. **Reference the map; never restate it.** The PRD says *what to build and how to verify it*; the map says *why that and not the alternative*. Cite ticket ids inline (`q08 d49`) for rationale. A reader who never opens the map must be able to build from the spec; a reader who questions a choice opens the ticket.
-4. **Route standing rules to the context doc, not the PRD.** For each decision ask: is this *this build's work*, or *a rule that outlives it*? Rules go to `.claude/context/`, which survives after the PRD and the map are deleted at effort close (`docs/sdlc.md` §4e).
+4. **Route standing rules to the context doc, not the PRD.** For each decision ask: is this *this build's work*, or *a rule that outlives it*? Rules go to `docs/context/`, which survives after the PRD and the map are deleted at effort close (`docs/sdlc.md` §4e).
 5. **If the build contradicts a decided ticket, amend the map** with what superseded it and why (see the `wayfinding` skill). Do not silently diverge.
 
-**Reading order for a large map.** The map's `slices`, then `destination` / `out-of-scope` / `documents`; then the registers beside it, `decisions.html` and `vocabulary.html`; then the `Obligations` blocks of the tickets the brief names. Read the effort's `.claude/context/<effort>.md` too — usually denser and more current than any ticket. Open a full ticket only when a summary fails.
+**Reading order for a large map.** The map's `slices`, then `destination` / `out-of-scope` / `documents`; then the registers beside it, `decisions.html` and `vocabulary.html`; then the `Obligations` blocks of the tickets the brief names. Read the effort's `docs/context/<effort>.md` too — usually denser and more current than any ticket. Open a full ticket only when a summary fails.
 
 **Two id spaces.** `C1…Cn` for contract rules (what a slice obeys internally), `G1…Gn` for hard gates (ordering *between* slices). Group the C rules into lettered families — e.g. identity, naming, shape, system boundary, irreversibility, safety, custody — each its own subsection, so a spec can cite a whole family.
 
@@ -84,7 +84,7 @@ Anything you find that belongs to another slice goes in Flags — never acted on
 
 ## Writing a slice spec
 
-**A slice spec's value-add is cross-ticket conflict, not restatement** — everything else already sits in the map, the PRD contract, and `.claude/context/<effort>.md`. The map is coverage-checked per ticket, not per slice boundary, so conflicts survive at the seams: work two slices both claim, work neither claims, a requirement violating a rule the same map wrote.
+**A slice spec's value-add is cross-ticket conflict, not restatement** — everything else already sits in the map, the PRD contract, and `docs/context/<effort>.md`. The map is coverage-checked per ticket, not per slice boundary, so conflicts survive at the seams: work two slices both claim, work neither claims, a requirement violating a rule the same map wrote.
 
 **Write every conflict as an open question with a recommended option — decided-and-flagged, never re-decided — and surface it in the return message.**
 
@@ -265,4 +265,4 @@ docs/features/<feature>/
 - `references/taleform_domain.md` — Taleform's story model, builders, invariants, the Obsidian facts that shape the schema, and the deferred items list. Consult during Phase 1 reconnaissance.
 - `CLAUDE.md` — architecture, § Invariants, § Obsidian facts we tested, § The vault (vault docs a model change affects), § Roadmap.
 - `README.md` — the typed model and builder table, as the DM reads them.
-- `.claude/context/` — any context doc for the area the PRD touches.
+- `docs/context/` — any context doc for the area the PRD touches.

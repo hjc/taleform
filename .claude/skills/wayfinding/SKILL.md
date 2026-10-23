@@ -22,12 +22,12 @@ Its output is decisions and a slicing, never a deliverable. It hands off to whic
 |---|---|
 | A product/feature spec | `prd-writing` skill — a PRD carrying the cross-cutting contract and the slice list, plus a thin spec per slice |
 | An implementation approach | `tdd-planner` agent (which follows `tdd-planning` + `html-planning`) |
-| An architecture decision (a new builder kind, the Bases read path) | Straight to a PRD, with the decision graduated into `.claude/context/` |
+| An architecture decision (a new builder kind, the Bases read path) | Straight to a PRD, with the decision graduated into `docs/context/` |
 | A visual direction (an Adventure Map layout, a generated region's shape) | `prd-writing`, with the prototype from `wayfinding/assets/` as its reference |
 
 Wayfinding never replaces those. The map is done when there is nothing left to decide before one of them can run.
 
-**Decisions graduate as they are made, not at map close** — each one lands in `.claude/context/` the session it resolves, so a branch cut mid-effort still builds against the truth.
+**Decisions graduate as they are made, not at map close** — each one lands in `docs/context/` the session it resolves, so a branch cut mid-effort still builds against the truth.
 
 ## Plan, don't do
 
@@ -163,7 +163,7 @@ Map header: `<plan-header status="draft">` while the way is still unclear, `appr
 
 **`Decided in` names the ticket that decided the rule, and takes exactly one non-ticket value: `slicing`.** The slicing happens after every ticket is closed (see Reaching the destination), so the calls it makes — a departure from the obvious ordering, a split, a deliberate non-blocker — have no ticket to cite. They are the only decisions that do. Any other non-ticket value in that column is a decision whose reasoning was never written down.
 
-**Graduate as you go, and record where.** Write the fact into the relevant `.claude/context/` doc the moment the decision is made, not at map close, and put that location in the row's `Graduated to`. An empty `Graduated to` is a debt. **`Graduated to` names a `.claude/context/` doc and nothing else** — pointing it at the map or the PRD marks a decision graduated into an artifact that is itself deleted or filed at close.
+**Graduate as you go, and record where.** Write the fact into the relevant `docs/context/` doc the moment the decision is made, not at map close, and put that location in the row's `Graduated to`. An empty `Graduated to` is a debt. **`Graduated to` names a `docs/context/` doc and nothing else** — pointing it at the map or the PRD marks a decision graduated into an artifact that is itself deleted or filed at close.
 
 **A template spine is a floor, not a ceiling.** An effort may add a column of its own where it genuinely needs one. Keep `Graduated to` and `Context corrected` last: the graduation check in `references/closing.md` matches on the final cell of each row. A column that exists only to serve one migration is not worth back-porting into the template.
 
@@ -225,7 +225,7 @@ Never write to the live vault as part of a Task ticket — no `build` against it
 
 The map is *deliberately* incomplete: don't chart what you can't yet see. Beyond the live tickets lies the **horizon** — decisions you can tell are coming but can't yet pin down. Resolving a ticket brings the horizon closer, and whatever is now specifiable **sharpens into** a fresh ticket.
 
-**Two verbs, and they are not interchangeable.** A horizon entry *sharpens* into a ticket. A decision *graduates* into `.claude/context/`. Nothing else graduates.
+**Two verbs, and they are not interchangeable.** A horizon entry *sharpens* into a ticket. A decision *graduates* into `docs/context/`. Nothing else graduates.
 
 **Clear a horizon row only once every decision it carries has a register row.** A row that sharpened often states a rule in its own prose, and that prose is the only copy until `decisions.html` holds it — clearing first destroys the decision. Check the register, then clear.
 
@@ -279,7 +279,7 @@ The user invokes with a map path. A ticket is **optional** — without one, you 
    - `set <ticket>.html header.status=approved`
    - `badge map.html --match "<ticket title>" --set decided --text ""` — the `--text ""` clears the "Claimed" label set when the ticket was claimed
    - `append decisions.html register --into tbody --file rows.html` — one row per rule, with `Rests on` filled
-   - **Write the fact into its `.claude/context/` doc now**, and put that location in the row's `Graduated to`.
+   - **Write the fact into its `docs/context/` doc now**, and put that location in the row's `Graduated to`.
    - `prepend map.html changelog --into tbody --file row.html`
 5. Update the frontier: add newly-surfaced tickets (create, then wire, then `append map.html tickets --into tbody`); sharpen any horizon entry the answer made specifiable, clearing it from **On the horizon** so it lives only as its new ticket. If the answer reveals a ticket sits beyond the destination, rule it out of scope rather than resolving it. If the decision invalidates other tickets, update or delete them.
 6. **Run `check` on every file touched** — the map, the ticket, any ticket amended. It exits 1 with line numbers on a structural break.
@@ -295,7 +295,7 @@ The user may run unblocked tickets in parallel sessions or worktrees, so expect 
 
 - Wayfinding maps, their registers, tickets, and their assets **are committed** — `.gitignore` keeps only TDD plans untracked (`docs/sdlc.md` §4e).
 - **Issue docs and roadmap entries are committed as you file them**, on whatever branch is in hand. Matching a finding to its "correct" branch is worth nothing next to not losing it.
-- A ticket resolution usually touches several files — the ticket, the map, `decisions.html`, any ticket it amends, and `.claude/context/`. Commit them together; a decision row and the context-doc fact it graduated into must land in the same commit, and the amendment is meaningless without the decision that caused it.
+- A ticket resolution usually touches several files — the ticket, the map, `decisions.html`, any ticket it amends, and `docs/context/`. Commit them together; a decision row and the context-doc fact it graduated into must land in the same commit, and the amendment is meaningless without the decision that caused it.
 
 ### Reaching the destination
 

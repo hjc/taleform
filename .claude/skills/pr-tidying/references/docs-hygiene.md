@@ -4,7 +4,7 @@
 **ID prefix:** `J1`, `J2`, …
 **Read-set:** two disjoint sets.
 
-1. **Branch-touched prose** — root `CLAUDE.md`, `docs/sdlc.md`, any `.claude/context/*.md`, `SKILL.md` or skill reference, agent or command file the branch ADDED or substantially edited (`git diff <parent>..HEAD -- '*.md'`).
+1. **Branch-touched prose** — root `CLAUDE.md`, `docs/sdlc.md`, any `docs/context/*.md`, `SKILL.md` or skill reference, agent or command file the branch ADDED or substantially edited (`git diff <parent>..HEAD -- '*.md'`).
 2. **Every always-loaded frontmatter `description`** in `.claude/skills/*/SKILL.md`, `.claude/agents/*.md` and `.claude/commands/*.md` — touched or not, **but only if the branch added or edited one of those files**. A generator emits bloated ones by default, so a branch adding one artifact is the moment to check its neighbours.
 
 This audit asks **"is this prose the right size and shape"**, never "is it true" — truth is Category H. Note a factual error as an H cross-reference, not a J finding.
@@ -13,7 +13,7 @@ The standard is `docs/sdlc.md` §5b → "What makes a good agent or skill": a pr
 
 ## What to flag for UPDATE (apply after approval)
 
-- **Render chrome** added by this branch to `CLAUDE.md` or a `.claude/context` doc: clickable Markdown links (`[text](path)`), anchor-link TOCs (`[x](#x)`), or HTML render tags (`<sub>`, `<br>`). Replace a link with the bare backtick path, drop anchors and HTML.
+- **Render chrome** added by this branch to `CLAUDE.md` or a `docs/context` doc: clickable Markdown links (`[text](path)`), anchor-link TOCs (`[x](#x)`), or HTML render tags (`<sub>`, `<br>`). Replace a link with the bare backtick path, drop anchors and HTML.
 - **Frontmatter `description` bloat** — an always-loaded `description` that duplicates its body instead of carrying a trigger plus a one-line scope. Tells: embedded worked examples (`Examples:` / `<example>` / `User:`/`Assistant:`/`<commentary>` blocks), a full workflow or category list, or the trigger stated twice (an opening "Use this agent/skill when…" AND a closing "Triggers when…"). Commonly 1.5–2.5 KB each, charged every session. **Audit agent and command frontmatter explicitly, not just skills.** Trim to a trigger + one-line scope, **preserving load-bearing distinctions** ("reviews plans, not code"; "produces design docs, not TDD plans"; a required output extension).
 - **Verbose context doc** — prose that restates the codebase, or that would be tighter as a table.
 - **Bloated branch-authored prose** — a section this branch added or substantially edited in `CLAUDE.md` or a context doc with a point made twice, redundant bullets, or padding. Tighten only what the branch touched.

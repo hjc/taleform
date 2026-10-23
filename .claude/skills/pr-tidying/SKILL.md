@@ -206,7 +206,7 @@ Then, separately, present any new-artifact recommendations (advisory — not par
 
 | # | Create | Where | Motivating evidence (this branch) | Sketch |
 |---|--------|-------|-----------------------------------|--------|
-| R1 | Context doc: Adventure Map layout & node-ID rules | a new doc under `.claude/context/` (cited from `CLAUDE.md`) | Which `nid(...)` inputs are stable across builds had to be reconstructed from `src/builders/adventureMap.ts` during this branch | Inputs per node kind; what churns a map |
+| R1 | Context doc: Adventure Map layout & node-ID rules | a new doc under `docs/context/` (cited from `CLAUDE.md`) | Which `nid(...)` inputs are stable across builds had to be reconstructed from `src/builders/adventureMap.ts` during this branch | Inputs per node kind; what churns a map |
 ```
 
 Ask which recommendations, if any, to create now. Then list the affected vault docs, and any open questions the agents raised.

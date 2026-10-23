@@ -58,13 +58,13 @@ Do the same for `vocabulary.html`: the terms graduate into the context doc's own
    ```
 
    Correct the claim, not just the link. **Use `git grep`, not `grep -r`** — the latter drags in `.claude/handoffs/`, `.tmp/` and `.claude/reviews/`, which are gitignored and can easily outnumber the real hits.
-6. **Leave the context docs authoritative.** After closing, `.claude/context/` is the only place the effort's rules live. Read the sections it touched once, end to end — not diffed — and check they still make sense without the map behind them.
+6. **Leave the context docs authoritative.** After closing, `docs/context/` is the only place the effort's rules live. Read the sections it touched once, end to end — not diffed — and check they still make sense without the map behind them.
 
 ## What survives
 
 | Artifact | Fate |
 |---|---|
-| `.claude/context/<effort>.md` | **Stays.** This is the whole point |
+| `docs/context/<effort>.md` | **Stays.** This is the whole point |
 | Issue docs the effort filed | Stay if still open; deleted by `issue-creating`'s rule if fixed |
 | QA checklists the effort produced | **Deleted** with their slice specs — `docs/sdlc.md` §4e |
 | Slice specs and the PRD | **Deleted** at effort close, behind the graduation check — `docs/sdlc.md` §4e |

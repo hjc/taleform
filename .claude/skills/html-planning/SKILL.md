@@ -858,7 +858,7 @@ Under `--format json` the `document` object carries the path, the title, every r
 `planr wordy` measures prose and reports the lines a reader will struggle with. It **detects only** — rewriting is a skill's job, and `--format json` is the work list that skill consumes.
 
 ```bash
-planr wordy .claude/context docs/guide.md   # files, directories and globs, as many as you like
+planr wordy docs/context docs/guide.md   # files, directories and globs, as many as you like
 planr wordy plan.html --format json         # the work list
 ```
 

@@ -93,7 +93,7 @@ For any feature that touches story data:
 
 - **Read `CLAUDE.md` and project docs** for rules, conventions, and architecture notes — especially § Invariants and § Obsidian facts we tested.
 - **Check `.llm-resources/`** at the project root for ad-hoc reference files (samples, screenshots, docs) that the DM has placed for LLM consumption. Not every file will be relevant — use your judgment based on the current planning task.
-- **Check `.claude/context/`** for known gotchas, prior failures, and derivation rules specific to this project.
+- **Check `docs/context/`** for known gotchas, prior failures, and derivation rules specific to this project.
 - **Never assert library or Obsidian behavior you have not verified.** A plan that claims what `yaml` parses, what a regex matches, or what Obsidian does on save is a claim the executor will build on — and a wrong one ships as a bug with no failing test. Verify with a throwaway probe instead: a scratch `test/probe-*.test.ts` or a node script in the scratchpad that runs the real call, deleted afterwards; record the OBSERVED output in the plan's recon section. For Obsidian behavior, cite `CLAUDE.md` § Obsidian facts we tested, or probe against a QA vault — never the live vault.
 - **Check the breaking changes rule**: Only plan migration strategies for changes already on `main`. New features not yet merged do not need backward compatibility. On `main`, frontmatter properties, the CLI's flags and `--json` shape, and generated-output identity (`nid()` inputs, region ids, the `generated` marker) are public interfaces (`docs/sdlc.md` §1).
 

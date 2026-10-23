@@ -10,7 +10,7 @@ Triage reads one issue doc, the code it cites, the live vault's `check` output a
 ## Key pointers
 
 - Enums: `.claude/planr-schema.json`.
-- The queue is `planr query .claude/plans/issues --rank default`; untriaged docs sit in `--rank triage`.
+- The queue is `planr query docs/issues --rank default`; untriaged docs sit in `--rank triage`.
 - `source` is written at filing (`issue-creating`); set it here only when it is empty and the document states where the defect surfaced.
 - The invariants the classes below are built on: `CLAUDE.md` § Invariants.
 - What a complete triage is, and what else gets recorded: §7.
@@ -97,7 +97,7 @@ Record it as `detection`. `silent`: the failure raises nothing the DM or a hook 
 | `medium` | A rough edge in a flow that still completes — a hand-maintained line beside a generated one, a manual rebuild, a warning that needs explaining |
 | `low` | Additive polish nobody is waiting on |
 
-**A refactor or cleanup is not a product gap.** It is measured against `.claude/plans/README.md` and `CLAUDE.md` § Roadmap: `high` only if it blocks or materially accelerates a committed roadmap item (the Arc and Campaign Map builders, reading through the Bases API); `medium` if it serves one; `low` if the roadmap does not need it.
+**A refactor or cleanup is not a product gap.** It is measured against `docs/roadmap.md` and `CLAUDE.md` § Roadmap: `high` only if it blocks or materially accelerates a committed roadmap item (the Arc and Campaign Map builders, reading through the Bases API); `medium` if it serves one; `low` if the roadmap does not need it.
 
 **Never raise impact for:**
 - **Occurrence count.** 33 beats with a mild consequence is a mild consequence, 33 times. Breadth belongs in `effort`.

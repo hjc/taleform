@@ -9,13 +9,13 @@ description: Create a structured TDD (red-green-refactor) implementation plan wi
 
 This skill enforces a test-driven development workflow for all software implementation plans. Every plan must follow red-green-refactor: write failing tests first, implement the minimum code to pass, then refactor. Plans must also be grounded in the existing codebase's patterns and conventions rather than inventing new ones.
 
-Plans are written to `.claude/plans/` at a path specified by the calling agent. Output format is determined by the formatting skill loaded alongside this one (e.g., `html-planning`).
+Plans are written to `docs/features/<feature>/tdds/` at a path specified by the calling agent. Output format is determined by the formatting skill loaded alongside this one (e.g., `html-planning`).
 
-**A TDD plan is untracked** — it is the one artifact under `.claude/plans/` that stays out of git (`.gitignore` excludes `.claude/plans/**/tdds/`). Maps, PRDs, slice specs and issue docs are all committed (`docs/sdlc.md` §4e).
+**A TDD plan is untracked** — it is the one planning artifact under `docs/` that stays out of git (`.gitignore` excludes `docs/features/**/tdds/*`). Maps, PRDs, slice specs and issue docs are all committed (`docs/sdlc.md` §4e).
 
 **So a deferred step is not an obligation anyone inherits.** A `blocked` step, a callout, or a "later" note lives only in the plan, and the plan is filed away when the slice lands — which is how something gets fully built and then sits dark, wired to nothing, with no artifact saying so. When a plan builds something it deliberately does not activate:
 
-- The follow-up goes in a **committed issue doc** under `.claude/plans/issues/`, with its precondition stated.
+- The follow-up goes in a **committed issue doc** under `docs/issues/`, with its precondition stated.
 - The plan ships an **in-suite guard asserting the un-landed state** — a test that goes red on exactly the commit meant to delete it. That is the forcing function; a comment is not.
 - **Delete the step rather than marking it deferred.** A Red Phase whose Green Phase lands in another branch is a missing hunk however honestly it is annotated, and it leaves the suite red on the artifact the deferral exists to keep green.
 
@@ -168,8 +168,8 @@ Use these section **ids** verbatim — they are what make a plan addressable and
 
 When a step creates or fully replaces an **entire file** (not a partial edit), do not embed the file's contents in the plan for the executor to retype. Instead, materialize the finished file in the plan directory and have the Green Phase copy it into place:
 
-- Write the real file alongside the plan at `.claude/plans/<...>/<name>.<ext>`.
-- Green Phase instruction is a single `cp .claude/plans/<...>/<name>.<ext> <target path>` — a byte-exact copy with no model round-trip and no transcription drift. Use `cp`, not `mv`, so the artifact survives as a provenance record when the plan is archived.
+- Write the real file alongside the plan at `docs/features/<feature>/tdds/<name>.<ext>`.
+- Green Phase instruction is a single `cp docs/features/<feature>/tdds/<name>.<ext> <target path>` — a byte-exact copy with no model round-trip and no transcription drift. Use `cp`, not `mv`, so the artifact survives as a provenance record when the plan is archived.
 - Still lead with the Red Phase tests (they fail against the pre-copy file) and verify green after the copy.
 
 Use this only for whole-file creation/replacement; partial edits still use diffs.

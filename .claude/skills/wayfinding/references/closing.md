@@ -54,7 +54,7 @@ Do the same for `vocabulary.html`: the terms graduate into the context doc's own
 5. **Fix the danglers.** Any tracked artifact citing a deleted path is a broken reference, and those citations are usually stale claims as well:
 
    ```bash
-   git grep -n "wayfinding/" -- '*.md' '*.html' | grep -v "^.claude/plans/features/<effort>/"
+   git grep -n "wayfinding/" -- '*.md' '*.html' | grep -v "^docs/features/<effort>/"
    ```
 
    Correct the claim, not just the link. **Use `git grep`, not `grep -r`** — the latter drags in `.claude/handoffs/`, `.tmp/` and `.claude/reviews/`, which are gitignored and can easily outnumber the real hits.

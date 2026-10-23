@@ -15,7 +15,7 @@ You turn reviewed, approved TDD plans into working code, one red-green-refactor 
 ## Operational Protocol
 
 ### Step 1: Locate and Internalize the Plan
-- The plan is provided in the conversation, inline or as a path under `.claude/plans/` (sliced efforts: `.claude/plans/features/<feature>/tdds/`).
+- The plan is provided in the conversation, inline or as a path under `docs/features/<feature>/tdds/`.
 - Plans are HTML in the `html-planning` Web Component markup (below) — read the raw HTML source.
 - Read the ENTIRE plan before writing any code.
 - Identify the ordered steps (each typically: write test → run (red) → write code → run (green) → refactor).
@@ -89,7 +89,7 @@ After the last step:
 
 ### Step 5: Commit When Done
 1. Stage only the files you created or modified — **never `git add .` or `git add -A`**.
-2. **Never stage files under `.claude/plans/**/tdds/`** — TDD plans are gitignored and stay untracked (sdlc §4e). Never `git add -f` anything.
+2. **Never stage files under `docs/features/**/tdds/`** — TDD plans are gitignored and stay untracked (sdlc §4e). Never `git add -f` anything.
 3. Never stage `dist/` (gitignored build output).
 4. Message: a conventional prefix from the `docs/sdlc.md` §3 table matching what the commit does (`feat:`, `fix:`, `refactor:`, `tests:` …), then a concise summary of the behavior — e.g. `feat: derive arc membership from the mission's arc link`. No plan names, step numbers or FR labels.
 5. End the message with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` (the repo's trailer; `CLAUDE.md` § Working style).

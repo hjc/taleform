@@ -16,9 +16,9 @@ You research one documentation subject per dispatch and write it down. The orche
 
 | Task | Load | Lands in |
 |---|---|---|
-| File an issue, or verify one | `issue-creating` | `.claude/plans/issues/<slug>.html` |
+| File an issue, or verify one | `issue-creating` | `docs/issues/<slug>.html` |
 | Write or update a context doc | `context-compacting`, plus the root `CLAUDE.md` section "Writing Context & Instruction Docs" | `.claude/context/<name>.md` |
-| Add or update a roadmap entry | read `.claude/plans/README.md` and match its entries; `docs/sdlc.md` §4e owns what lives there | `.claude/plans/README.md` |
+| Add or update a roadmap entry | read `docs/roadmap.md` and match its entries; `docs/sdlc.md` §4e owns what lives there | `docs/roadmap.md` |
 | Anything else | scan the skill list for one whose description matches; load every one that does | where that skill says |
 
 **A skill owns its document's rules. Nothing it owns is restated here.**
@@ -27,7 +27,7 @@ You research one documentation subject per dispatch and write it down. The orche
 
 Size the research to the claim, never to the document. A one-line issue verification gets the same rigour as a new context doc.
 
-- **Search prior art first.** Grep `.claude/context/`, `.claude/plans/issues/`, `.claude/plans/README.md`, `docs/`, `CLAUDE.md` and `README.md` for the subject. An existing doc is updated, not duplicated; an existing issue is reported as a duplicate, not refiled.
+- **Search prior art first.** Grep `.claude/context/`, `docs/issues/`, `docs/roadmap.md`, `docs/`, `CLAUDE.md` and `README.md` for the subject. An existing doc is updated, not duplicated; an existing issue is reported as a duplicate, not refiled.
 - **Read the source, not a claim about it.** Every path, symbol, line range, count and behaviour you write is read from the current code in `src/` and `test/`. The brief's own description of the code is a lead, not evidence.
 - **Measure what you can.** Run the grep, the scoped test (`npx vitest run <file>`), a `build()` on a `test/memoryVault.ts` fixture, or the read-only parity check against the live vault (`issue-triaging` §3a is the recipe) that settles a claim. Write the measured claims as fact and give the command.
 - **Mark what you could not measure.** A reasoned claim says so; an issue puts it in `open`. Never round a guess up to a fact.

@@ -2,7 +2,7 @@
 
 **Findings file:** `.tmp/pr-tidying-findings-plan-lifecycle.md`
 **ID prefix:** `K1`, `K2`, …
-**Read-set:** `.claude/plans/**` (features, issues, the roadmap `README.md`), `.claude/agent-memory/**`, `docs/sdlc.md` §3 and §4e, and — for Pass 2 only — `.claude/skills/wayfinding/references/closing.md`. **You do not need the code diff.** You need two facts from the branch: which slice it ships, and whether it is the final branch of its stack. The orchestrator supplies both; ask if they are missing.
+**Read-set:** `docs/features/**`, `docs/issues/**`, `docs/roadmap.md`, `.claude/agent-memory/**`, `docs/sdlc.md` §3 and §4e, and — for Pass 2 only — `.claude/skills/wayfinding/references/closing.md`. **You do not need the code diff.** You need two facts from the branch: which slice it ships, and whether it is the final branch of its stack. The orchestrator supplies both; ask if they are missing.
 
 **Every HTML artifact is edited with `planr`, never by hand**, followed by `node .claude/skills/html-planning/planr.js check <file>` — the authoritative structure validation.
 
@@ -31,7 +31,7 @@ This branch owns the effort's planning wind-down. **The bullets are in dependenc
 - **Retire the mapping and planning material.** Flip the status headers of the PRD, its slice specs and any QA checklists, then `git rm` them per `docs/sdlc.md` §4e. **Every fate is deletion** — nothing is moved anywhere. **Delete with `git rm`, never a plain `rm`**, and confirm with `git status` that the deletion is staged rather than showing as an untracked file disappearing.
 - **Wayfinding artifacts are deleted, not filed** — and only once the graduation check above has passed. Follow `closing.md` for the delete order; skip if no wayfinding effort is closing.
 - **Close out the issue docs the effort filed.** Any issue the branches actually fixed is **deleted, not filed** (`issue-creating`'s rule) — an issue doc has no `implemented` end state. The rest stay open and stay committed.
-- **Update the roadmap** in `.claude/plans/README.md`: the effort's register row and any scoped follow-ups it recorded.
+- **Update the roadmap** in `docs/roadmap.md`: the effort's register row and any scoped follow-ups it recorded.
 
 ## What NOT to flag/do
 
@@ -44,8 +44,8 @@ This branch owns the effort's planning wind-down. **The bullets are in dependenc
 
 | # | Artifact | Current | Issue | Action |
 |---|----------|---------|-------|--------|
-| K1 | `.claude/plans/features/<effort>/spec-slice-3.html` | `header.status=approved` | Slice 3 ships with this branch | `planr set … header.status=implemented` |
-| K2 | `.claude/plans/features/<effort>/wayfinding/map.html` | slices row 3 badge `open` | Same slice, other half of the record | `planr badge … --set decided --text "shipped"` |
+| K1 | `docs/features/<effort>/spec-slice-3.html` | `header.status=approved` | Slice 3 ships with this branch | `planr set … header.status=implemented` |
+| K2 | `docs/features/<effort>/wayfinding/map.html` | slices row 3 badge `open` | Same slice, other half of the record | `planr badge … --set decided --text "shipped"` |
 | K3 | `.claude/agent-memory/tdd-planner/` | 6 loose topic files | Past a thin index | Invoke `agent-memory-compacting`; promotions need per-item approval |
 
 **K1 and K2 are always a pair.** Shipped-ness is recorded in two artifacts; `W70` joins them, but only after both are written. Report both rows or neither.

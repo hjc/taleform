@@ -48,5 +48,5 @@ in ONE step:
 
 ## Parked carve-off (removing to a holding area, not deleting outright)
 
-- Park durable design notes under `.claude/plans/.../parked/` with `cp`, not `mv` — the tree originals get `git rm`'d later, so the parked copy needs independent provenance.
+- Park durable design notes under `docs/features/<feature>/parked/` with `cp`, not `mv` — the tree originals get `git rm`'d later, so the parked copy needs independent provenance.
 - Do NOT copy source code. The removal commit in git history is the durable backstop; a `RESTORE.md` map (files → what was removed + commit hash) guides re-integration.

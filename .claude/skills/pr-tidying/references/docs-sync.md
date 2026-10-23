@@ -6,7 +6,7 @@
 
 Your question is only: **is what this doc says still true, and is what this branch learned written down anywhere.**
 
-**Sibling audits — do not do their work.** Prose quality (render chrome, `description` bloat, verbosity) is Category J. Anything under `.claude/plans/` or `.claude/agent-memory/` is Category K. The vault docs that describe Taleform's model are Category G's list, never an edit. A doc that is accurate but bloated is J's finding; note a factual error you spot in a plan as an H cross-reference rather than editing it.
+**Sibling audits — do not do their work.** Prose quality (render chrome, `description` bloat, verbosity) is Category J. Anything under `docs/features/`, `docs/issues/` or `docs/roadmap.md`, or `.claude/agent-memory/` is Category K. The vault docs that describe Taleform's model are Category G's list, never an edit. A doc that is accurate but bloated is J's finding; note a factual error you spot in a plan as an H cross-reference rather than editing it.
 
 ## Run the surface's own checker before auditing it by reading
 
@@ -14,11 +14,11 @@ Where a surface ships an executable consistency check, that check is authoritati
 
 | Surface | Checker |
 |---|---|
-| `.claude/skills/wayfinding/**`, the five `wayfinding-*` templates, `references/closing.md`; the template inventory across `html-planning`, `.claude/planr-templates/` and `docs/sdlc.md`; each `map.html` under `.claude/plans/features/*/wayfinding/` joined to the slice specs its `slices` table links; every `planr` command quoted in a wayfinding `SKILL.md`; every code-wrapped decision id (`D37`, `q08`) cited by a tracked doc that survives an effort close, checked against the vocabulary the live efforts still define | `node .claude/skills/wayfinding/check-tooling.js` (the `W*` checks, `cmds`, `paths`) |
-| Every repo-rooted path cited by root `CLAUDE.md`, `docs/sdlc.md`, a `.claude/context/*.md`, **any `.claude/skills/**/*.md`, any `.claude/agents/*.md`**, or any `.claude/agent-memory/**/*.md`; every tracked citation of a `SKILL.md` belonging to a skill that has split its rules into `references/`, joined to the file that now holds the rule; every `see … below/above` pointer inside root `CLAUDE.md`, `docs/sdlc.md` and the context docs. Citations of `.claude/plans/` are deliberately out of scope — a plan is branch-local, so enforcing them reports correct citations as defects | `node .claude/skills/wayfinding/check-tooling.js` (checks `instrpaths`, `refcite`, `anchors`) |
-| The artifact lifecycle rules `docs/sdlc.md` §4e and `issue-creating` state: no TDD plan under `.claude/plans/` is tracked; no tracked doc CITES one, since a never-tracked plan's path dies at branch close; no issue doc under `.claude/plans/issues/` carries the `implemented` status it has no end state for; every issue doc obeys the `issue-triaging` field rules (`scripts/review.py check`); every `.claude/agent-memory/*/MEMORY.md` pointer resolves and no topic file beside one is unindexed | `node .claude/skills/wayfinding/check-tooling.js` (checks `tddplans`, `tddcites`, `issuedocs`, `issuemeta`, `memindex`) |
+| `.claude/skills/wayfinding/**`, the five `wayfinding-*` templates, `references/closing.md`; the template inventory across `html-planning`, `.claude/planr-templates/` and `docs/sdlc.md`; each `map.html` under `docs/features/*/wayfinding/` joined to the slice specs its `slices` table links; every `planr` command quoted in a wayfinding `SKILL.md`; every code-wrapped decision id (`D37`, `q08`) cited by a tracked doc that survives an effort close, checked against the vocabulary the live efforts still define | `node .claude/skills/wayfinding/check-tooling.js` (the `W*` checks, `cmds`, `paths`) |
+| Every repo-rooted path cited by root `CLAUDE.md`, `docs/sdlc.md`, a `.claude/context/*.md`, **any `.claude/skills/**/*.md`, any `.claude/agents/*.md`**, or any `.claude/agent-memory/**/*.md`; every tracked citation of a `SKILL.md` belonging to a skill that has split its rules into `references/`, joined to the file that now holds the rule; every `see … below/above` pointer inside root `CLAUDE.md`, `docs/sdlc.md` and the context docs. Citations under `docs/features/` and `docs/issues/` are deliberately out of scope — a plan is branch-local, so enforcing them reports correct citations as defects | `node .claude/skills/wayfinding/check-tooling.js` (checks `instrpaths`, `refcite`, `anchors`) |
+| The artifact lifecycle rules `docs/sdlc.md` §4e and `issue-creating` state: no TDD plan under `docs/features/` is tracked; no tracked doc CITES one, since a never-tracked plan's path dies at branch close; no issue doc under `docs/issues/` carries the `implemented` status it has no end state for; every issue doc obeys the `issue-triaging` field rules (`scripts/review.py check`); every `.claude/agent-memory/*/MEMORY.md` pointer resolves and no topic file beside one is unindexed | `node .claude/skills/wayfinding/check-tooling.js` (checks `tddplans`, `tddcites`, `issuedocs`, `issuemeta`, `memindex`) |
 | The three AI-infrastructure inventories in `docs/sdlc.md`, joined to the tree in BOTH directions — §4b against `.claude/agents/*.md`, §4c against the directories under `.claude/skills/`, §4d against `.claude/context/*.md`. A file with no row and a row with no file are both reported | `node .claude/skills/wayfinding/check-tooling.js` (check `sdlcinv`) |
-| Any HTML under `.claude/plans/` | `node .claude/skills/html-planning/planr.js check <file>` |
+| Any HTML under `docs/features/` or `docs/issues/` | `node .claude/skills/html-planning/planr.js check <file>` |
 
 A green checker settles only the mechanical half — contradictions between copies of a rule, dangling paths, commands that no longer run. The judgement findings below still apply. But **a finding the checker could have made and did not is a checker gap, not an audit finding**: extend the checker rather than hand-fixing the prose and leaving the next branch to rediscover it.
 
@@ -52,7 +52,7 @@ Each recommendation must cite concrete branch evidence — a file, a rediscovere
 - Transient details (this PR's specific bug, one-off debugging steps) — those belong in the PR description.
 - Auto-creating a skill/agent/doc without explicit per-item approval.
 - Speculative future-proofing ("a skill for X someday") with no evidence in this branch.
-- Anything under `.claude/plans/` or `.claude/agent-memory/` — Category K.
+- Anything under `docs/features/`, `docs/issues/` or `docs/roadmap.md`, or `.claude/agent-memory/` — Category K.
 - Prose that is accurate but overlong, or a bloated frontmatter `description` — Category J.
 - Any doc inside the live vault — Category G lists those for the DM.
 

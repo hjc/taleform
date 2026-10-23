@@ -2,7 +2,7 @@
 
 **Findings file:** `.tmp/pr-tidying-findings-issue-triage.md`
 **ID prefix:** `M1`, `M2`, …
-**Read-set:** the issue docs this branch added — `git diff --name-only --diff-filter=A <parent>..HEAD -- .claude/plans/issues/`.
+**Read-set:** the issue docs this branch added — `git diff --name-only --diff-filter=A <parent>..HEAD -- docs/issues/`.
 
 **Run by the orchestrator in `SKILL.md` Phase 2b**, which owns the dispatch and the completeness check.
 

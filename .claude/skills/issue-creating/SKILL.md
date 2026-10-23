@@ -1,6 +1,6 @@
 ---
 name: issue-creating
-description: File a defect found while doing something else as an HTML issue doc under `.claude/plans/issues/`, and retire it when the fix ships. Use when you find a bug you are not fixing right now, when asked to write one up, or when a fix lands and its issue doc needs removing.
+description: File a defect found while doing something else as an HTML issue doc under `docs/issues/`, and retire it when the fix ships. Use when you find a bug you are not fixing right now, when asked to write one up, or when a fix lands and its issue doc needs removing.
 ---
 
 # Issue Creating
@@ -15,23 +15,23 @@ An issue doc records a defect **you are not fixing right now**, for whoever pick
 - A defect you *are* fixing, but whose blast radius exceeds the current branch. File the part you are not taking.
 - A behaviour you cannot yet classify as a defect. File it with the open question stated; that is what the `open` section is for.
 
-**Do not file** something already covered by a live plan or ticket, a refactor you merely prefer, or a defect small enough that fixing it now is cheaper than writing it up. Check `.claude/plans/issues/` and `.claude/plans/README.md` first — `planr query .claude/plans/issues --where 'reference-paths~<dir>' --fields path,title,priority` narrows that listing to the directory you are about to file against.
+**Do not file** something already covered by a live plan or ticket, a refactor you merely prefer, or a defect small enough that fixing it now is cheaper than writing it up. Check `docs/issues/` and `docs/roadmap.md` first — `planr query docs/issues --where 'reference-paths~<dir>' --fields path,title,priority` narrows that listing to the directory you are about to file against.
 
 ## Location and naming
 
-`.claude/plans/issues/<slug>.html` — one file per defect, `kebab-case`, named for the **defect** rather than the symptom or the file (`region-end-marker-dropped.html`, not `regions-ts-bug.html`). Issue docs are **committed**; only TDD plans stay untracked (`docs/sdlc.md` §4e).
+`docs/issues/<slug>.html` — one file per defect, `kebab-case`, named for the **defect** rather than the symptom or the file (`region-end-marker-dropped.html`, not `regions-ts-bug.html`). Issue docs are **committed**; only TDD plans stay untracked (`docs/sdlc.md` §4e).
 
-An issue that grows into scheduled work gets a roadmap entry in `.claude/plans/README.md` pointing at it. The issue doc stays the detail; the register stays the index.
+An issue that grows into scheduled work gets a roadmap entry in `docs/roadmap.md` pointing at it. The issue doc stays the detail; the register stays the index.
 
 ## Scaffold
 
 ```bash
-node .claude/skills/html-planning/planr.js new .claude/plans/issues/<slug>.html \
+node .claude/skills/html-planning/planr.js new docs/issues/<slug>.html \
   --title "<Defect, named as a defect>" --template issue \
   --set header.status=draft \
   --set reference-paths=<comma-separated directories, e.g. src/builders,test>
 
-node .claude/skills/html-planning/planr.js meta .claude/plans/issues/<slug>.html \
+node .claude/skills/html-planning/planr.js meta docs/issues/<slug>.html \
   --set class=<slug> --set reach=<dm|hooks|adopter|developer|none> --set detection=<silent|loud> \
   --set "source=<where it surfaced>" \
   --set impact=<low|medium|high|critical> --set urgency=<low|medium|high> --set effort=<small|medium|large>
@@ -49,7 +49,7 @@ Status stays `draft` until someone owns it, then `review`. An issue examined and
 grep -rn "<slug>.html" --include=*.md --include=*.html .
 ```
 
-A tracked artifact citing a deleted issue is a dangling reference, and those citations are usually **stale claims as well** — a slice spec saying "not yet wired, see this issue" is wrong in both halves once the fix ships. Correct the claim, don't just strip the link. Untracked artifacts (TDD plans under `tdds/`) need nothing. If the issue earned a roadmap entry in `.claude/plans/README.md`, that goes too.
+A tracked artifact citing a deleted issue is a dangling reference, and those citations are usually **stale claims as well** — a slice spec saying "not yet wired, see this issue" is wrong in both halves once the fix ships. Correct the claim, don't just strip the link. Untracked artifacts (TDD plans under `tdds/`) need nothing. If the issue earned a roadmap entry in `docs/roadmap.md`, that goes too.
 
 A hit inside another issue's `blocked-by` field is removed with `planr meta <that issue> --unset blocked-by`, or `--set blocked-by=<the rest>` when it names others. Until it is, `planr check` warns that the target does not exist.
 
@@ -74,7 +74,7 @@ A new issue carries every field but `priority` — the evidence, read off the do
 **`priority` is not set at filing.** It is decided at triage, one issue at a time: dispatch the `issue-triager` agent on the new doc, and its verdict is applied only once the DM approves it.
 
 An issue with no `priority` is not lost — it surfaces in the `triage` ranking, which exists for exactly that.
-`planr query .claude/plans/issues --rank triage` is the list of issues awaiting a bucket.
+`planr query docs/issues --rank triage` is the list of issues awaiting a bucket.
 
 **Leave any field you cannot answer UNSET. Never guess one.** A guessed value ranks an issue nobody judged.
 

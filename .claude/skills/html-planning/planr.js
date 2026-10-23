@@ -2426,7 +2426,7 @@ function globToRegExp(pattern) {
 }
 function hasGlobMeta(s) { return /[*?]/.test(String(s)); }
 // The longest leading run of a glob with no metacharacter — the directory a
-// walk starts from, so `.claude/plans/**/tdds/*.html` never walks the repo.
+// walk starts from, so `docs/features/**/tdds/*.html` never walks the repo.
 function globBase(pattern) {
   const segs = String(pattern).replace(/\\/g, '/').split('/');
   const keep = [];
@@ -2519,7 +2519,7 @@ function parseWhere(schema, { where = [], has = [], missing = [] } = {}) {
     // `path` is a projectable COLUMN, never a filter: the target glob is the
     // one way to narrow by path, so there is one mechanism rather than two.
     if (key === 'path') throw new PlanError(
-      "filter on 'path': narrow by path with the target glob instead, e.g. `planr query '.claude/plans/**/tdds/*.html'`");
+      "filter on 'path': narrow by path with the target glob instead, e.g. `planr query 'docs/features/**/tdds/*.html'`");
     if (!conditionDef(schema, key))
       throw new PlanError(`unknown field '${key}' — declared: ${conditionNames(schema).join(', ') || '(none)'}`);
     out[key] = { ...(out[key] || {}), [op]: value };

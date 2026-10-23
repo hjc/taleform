@@ -80,9 +80,11 @@ const PR_TIDYING_DOCS_SYNC = PR_TIDY_REF('docs-sync.md');
 const SDLC = path.join(REPO, 'docs', 'sdlc.md');
 const HTML_PLANNING = path.join(REPO, '.claude', 'skills', 'html-planning', 'SKILL.md');
 const ISSUE_CREATING = path.join(REPO, '.claude', 'skills', 'issue-creating', 'SKILL.md');
-const FEATURES = path.join(REPO, '.claude', 'plans', 'features');
-const PLANS = path.join(REPO, '.claude', 'plans');
-const ISSUES = path.join(PLANS, 'issues');
+const FEATURES = path.join(REPO, 'docs', 'features');
+const ISSUES = path.join(REPO, 'docs', 'issues');
+/* The planning trees: a feature's artifacts and the issue docs. Both are
+   branch-local and deleted on completion (docs/sdlc.md §4e). */
+const PLANNING = /^docs\/(?:features|issues)\//;
 const AGENT_MEMORY = path.join(REPO, '.claude', 'agent-memory');
 
 /* The restatement map. Each invariant names the files that must agree about
@@ -239,15 +241,15 @@ const ANCHOR_FILES = [/^CLAUDE\.md$/, /^docs\/sdlc\.md$/, /^\.claude\/context\/[
 /* Also every markdown file under `.claude/agent-memory/`, on the same
    argument. A topic file there is loaded on every dispatch of the agent that
    owns it, and a memory note exists precisely to say "the trap is in
-   src/core/x.ts", so citations are most of its content. The `.claude/plans/`
+   src/core/x.ts", so citations are most of its content. The planning-tree
    exemption inside the check carries the one difference between this
    population and the others. */
 const CITING_FILES = [...ANCHOR_FILES, /^\.claude\/skills\/.+\.md$/, /^\.claude\/agents\/[^/]+\.md$/,
   /^\.claude\/agent-memory\/.+\.md$/];
 
-/* A path under `.claude/plans/` that names a TDD plan. Two spellings are in
-   use: `tdd-<slug>.html` at the plans root, and a `tdds/` directory inside a
-   feature (html-planning and issue-creating both name that form). */
+/* A path that names a TDD plan: anything in a `tdds/` directory (the one
+   place plans live, `docs/features/<feature>/tdds/`), plus the legacy
+   `tdd-<slug>.html` spelling so an old citation is still recognised. */
 const TDD_PLAN = (rel) => /(^|\/)tdds?\//.test(rel) || /^tdd[-.]/.test(rel.split('/').pop());
 
 /* What makes a "see X below" pointer NAME something rather than gesture at
@@ -282,7 +284,7 @@ const NOT_AN_ID = new Set(['d3']);
 
 /* Trees the dangling-id sweep does not read, and why each one is out:
 
-     .claude/plans/features/  is itself deleted at close (docs/sdlc.md §4e), so
+     docs/features/           is itself deleted at close (docs/sdlc.md §4e), so
                               nothing in it is a SURVIVING document — and a
                               sibling effort keeps its own private id space,
                               which this effort's vocabulary knows nothing of
@@ -295,7 +297,7 @@ const NOT_AN_ID = new Set(['d3']);
                               templates' scaffolded `D01`/`q01`/`E01` rows
      .tmp/                    scratch output                                  */
 const NOT_A_SURVIVING_DOC = [
-  /^\.claude\/plans\/features\//,
+  /^docs\/features\//,
   /^\.claude\/handoffs\//,
   /^\.claude\/reviews\//,
   /^\.claude\/skills\//,
@@ -979,7 +981,7 @@ function runChecks() {
            matters, and green only on a machine that happens to have them. */
         if (UNTRACKED_BY_DESIGN.some((re) => re.test(p))) continue;
         /* Branch-local by design, for the reason `instrpaths` states. */
-        if (p.startsWith('.claude/plans/')) continue;
+        if (PLANNING.test(p)) continue;
         const hit = candidates.find((c) => fs.existsSync(c));
         if (!hit) { bad.push(`${label}: ${p} (does not exist)`); continue; }
         const rel = path.relative(REPO, hit).split(path.sep).join('/');
@@ -1023,18 +1025,18 @@ function runChecks() {
            ignored, so this deliberately sees only the unambiguous form, which
            is also the form that rots on a rename. */
         if (!ROOTED.test(cited)) continue;
-        /* `.claude/plans/` is branch-local by design: a PRD lives on its own
+        /* The planning trees (`docs/features/`, `docs/issues/`) are branch-local by design: a PRD lives on its own
            branch until it merges, and an issue doc is DELETED when its fix
            ships (pr-tidying Category K). Asserting either exists here fails on
            correct citations, so plans are out of scope for this check — which
            is also why the reference files cite the issues FOLDER and never a
            filename. Re-measured when this check widened to skills and agents,
            and the exemption is if anything MORE necessary there: the agent
-           definitions cite `.claude/plans/foo.html` as a worked example, and
+           definitions cite `docs/features/foo/foo.html` as a worked example, and
            a skill may cite a PRD that lives on another branch. Enforcing plan citations here would report all of those as
            defects, and noise is how a checker gets ignored. The cost is real
-           and is stated so nobody re-derives it: a `git mv` of a PRD into
-           `implemented/` still breaks a skill's citation silently.
+           and is stated so nobody re-derives it: a `git mv` of a PRD to
+           another feature folder still breaks a skill's citation silently.
 
            Re-measured a second time when the set widened to agent memory, and
            it is load-bearing there rather than merely convenient: an agent's
@@ -1043,7 +1045,7 @@ function runChecks() {
            (`tddplans`). Without this line, that correct citation and the
            tracked-file rule contradict each other, and the citation a memory
            note cannot legally make is instead the subject of `tddcites`. */
-        if (cited.startsWith('.claude/plans/')) continue;
+        if (PLANNING.test(cited)) continue;
         examined++;
         const abs = path.join(REPO, cited);
         if (!fs.existsSync(abs)) { bad.push(`${rel}: ${cited} (does not exist)`); continue; }
@@ -1229,7 +1231,7 @@ function runChecks() {
      Reads the policy off sdlc rather than restating it, so a DELIBERATE
      reversal fails with "retire this check" instead of with a false
      violation. */
-  check('tddplans', 'no TDD plan under .claude/plans/ is tracked', () => {
+  check('tddplans', 'no TDD plan under docs/features/ is tracked', () => {
     const row = read(SDLC).match(/^\|\s*TDD plan\s*\|([^|]*)\|/m);
     assert(row, 'docs/sdlc.md §4e no longer carries a `TDD plan` lifecycle row — this check reads the policy off it '
       + 'rather than restating it, so it cannot run against a table that has moved or been reworded');
@@ -1245,10 +1247,10 @@ function runChecks() {
         else onDisk.push(path.relative(REPO, f).split(path.sep).join('/'));
       }
     };
-    if (fs.existsSync(PLANS)) walk(PLANS);
+    if (fs.existsSync(FEATURES)) walk(FEATURES);
 
     const tracked = trackedSet();
-    const violations = [...onDisk, ...[...tracked].filter((p) => p.startsWith('.claude/plans/'))]
+    const violations = [...onDisk, ...[...tracked].filter((p) => p.startsWith('docs/features/'))]
       .filter((p) => TDD_PLAN(p) && tracked.has(p));
     assert(violations.length === 0,
       `TDD plan(s) committed against docs/sdlc.md §4e:\n      ${[...new Set(violations)].join('\n      ')}\n      `
@@ -1265,7 +1267,7 @@ function runChecks() {
      other checkout has never had it and never will.
 
      `instrpaths` cannot catch this, and must not try: it exempts
-     `.claude/plans/` wholesale, because a citation of an IN-FLIGHT plan is
+     the planning trees wholesale, because a citation of an IN-FLIGHT plan is
      legitimate while the branch is open. This is the complement — the subset
      of that exemption that can never become resolvable, whoever cites it and
      however correct it was on the day it was written.
@@ -1286,10 +1288,10 @@ function runChecks() {
     const FORMS = [
       /`((?:[\w.-]+\/)*tdd[\w.-]*\.html|(?:[\w.-]+\/)*tdds?\/[\w.-]+\.html)`/g,
       /<code>((?:[\w.-]+\/)*tdd[\w.-]*\.html|(?:[\w.-]+\/)*tdds?\/[\w.-]+\.html)<\/code>/g,
-      /(\.claude\/plans\/[\w./-]+\.html)/g,
+      /(docs\/features\/[\w./-]+\.html)/g,
     ];
     /* Metasyntactic segments. Agent definitions may teach the memory-filename
-       convention with a table row mapping `.claude/plans/features/bar/tdd.html`
+       convention with a table row mapping `docs/features/bar/tdds/bar.html`
        to its slug — that names a SHAPE, the same way `instrpaths` treats a
        glob or an angle-bracket placeholder, and flagging it would demand the
        worked example be rewritten into something that no longer teaches. */
@@ -1308,12 +1310,12 @@ function runChecks() {
       return out;
     };
     for (const [probe, want] of [
-      ['see `.claude/plans/tdd-x.html` for it', true],
+      ['see `docs/features/x/tdds/1-x.html` for it', true],
       ['<code>tdd-x.html</code> moved the check', true],
-      ['`.claude/plans/features/e/tdds/3-slice.html` §4', true],
+      ['`docs/features/e/tdds/3-slice.html` §4', true],
       ['From: the review of tdd-arc-map', false],
       ['`node .claude/skills/html-planning/planr.js check tdd-x.html`', false],
-      ['`.claude/plans/features/bar/tdd.html` names the shape', false],
+      ['`docs/features/bar/tdds/bar.html` names the shape', false],
     ]) {
       assert((hits(probe).length > 0) === want,
         `the matcher no longer ${want ? 'sees' : 'ignores'} ${JSON.stringify(probe)} — fix it before trusting a green run`);

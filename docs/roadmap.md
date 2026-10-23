@@ -1,6 +1,6 @@
 # PRD Portfolio & Roadmap
 
-Code-aware index of the PRDs under `.claude/plans/`. For each PRD it records where it lives (file and branch), its status, the code it touches and what it depends on, so the build order respects dependencies. Read this first when deciding what to sequence next.
+Code-aware index of the PRDs under `docs/features/`. For each PRD it records where it lives (file and branch), its status, the code it touches and what it depends on, so the build order respects dependencies. Read this first when deciding what to sequence next.
 
 **Maintenance:** when a PRD is added, moved to a branch, approved or sliced into TDD plans, update its row here, and keep the dependency graph in sync. **Commit the update as you make it**, on whatever branch is in hand, with the `mapping:` prefix (`docs/sdlc.md` §3). An implemented PRD is deleted at effort close (`docs/sdlc.md` §4e), so it leaves no row here.
 

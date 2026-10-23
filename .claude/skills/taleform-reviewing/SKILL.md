@@ -13,9 +13,9 @@ It reviews four kinds of subject. The checklist is the same; § Subject modes sa
 
 | Subject | Where | Gate it feeds |
 |---|---|---|
-| TDD plan | `.claude/plans/**/tdds/*.html` | The DM's plan review (step 6) |
-| Slice spec | `.claude/plans/features/<feature>/slices/*.html` | The PRD gate (step 3) |
-| PRD | `.claude/plans/features/<feature>/prd-<feature>.html`, or a standalone `.claude/plans/prd-*.html` | The PRD gate (step 3) |
+| TDD plan | `docs/features/**/tdds/*.html` | The DM's plan review (step 6) |
+| Slice spec | `docs/features/<feature>/slices/*.html` | The PRD gate (step 3) |
+| PRD | `docs/features/<feature>/prd-<feature>.html` | The PRD gate (step 3) |
 | Branch diff | `git diff <parent>..HEAD` | Before `/pr-tidying` (step 8) |
 
 **Scope.** Conformance only: does the subject follow the rules? Whether a rule *fits* this case is `taleform-abstraction-spotter`'s question; note such a concern in one line and leave it there.

@@ -9,7 +9,7 @@ A manual QA checklist is **acceptance testing**: it walks the DM through the fea
 
 What a test suite cannot see is how generated output *reads*: whether an Adventure Map is legible at a glance, whether a region sits where the DM expects it in a note, whether a header's `← prev • **this** • next →` line helps at the table, and whether the 1500 ms auto-build feels right while typing. That is what the checklist is for.
 
-Write it as a Markdown file beside the feature's plans (`.claude/plans/features/<feature>/qa-checklist.md`) unless told otherwise.
+Write it as a Markdown file beside the feature's plans (`docs/features/<feature>/qa-checklist.md`) unless told otherwise.
 
 ## Triage every requirement first
 

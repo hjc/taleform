@@ -1,6 +1,6 @@
 ---
 name: wayfinding
-description: Plan a chunk of work too big for one agent session under `.claude/plans/features/<feature>/wayfinding/` — a map, three registers, and one ticket per open question — and resolve the tickets one at a time until the way to the destination is clear.
+description: Plan a chunk of work too big for one agent session under `docs/features/<feature>/wayfinding/` — a map, three registers, and one ticket per open question — and resolve the tickets one at a time until the way to the destination is clear.
 disable-model-invocation: true
 ---
 
@@ -49,7 +49,7 @@ Scaffold in **one** command — header attributes are set with dotted `--set` ke
 
 ```bash
 P="node .claude/skills/html-planning/planr.js"
-W=.claude/plans/features/<feature>/wayfinding
+W=docs/features/<feature>/wayfinding
 
 # Charting: the map and its three registers, once, at the start.
 $P new $W/map.html        --title "<Effort> — Wayfinding Map" --template wayfinding-map        --set header.status=draft
@@ -115,7 +115,7 @@ Hunk bodies go in a scratch file and are spliced by address, so the document is 
 ## The Map
 
 ```
-.claude/plans/features/<feature>/
+docs/features/<feature>/
 ├── wayfinding/
 │   ├── map.html           ← the meta document: pointers and status
 │   ├── decisions.html     ← register: every decision, what it rests on, where it graduated
@@ -246,7 +246,7 @@ Work beyond the destination is **out of scope** — never **On the horizon**. Sc
 
 When an existing ticket turns out to sit past the destination, flip it to **Out of scope** and leave one line in the map's **Out of scope** section: the gist, why it is out, and the link. It gets no row in the decision register — ruling something out of scope is a scope judgement, not a decision the codebase is held to.
 
-Out-of-scope work that deserves to outlive this effort gets a one-line entry under `.claude/plans/issues/` or the follow-ups section of `.claude/plans/README.md`, in addition to the map line.
+Out-of-scope work that deserves to outlive this effort gets a one-line entry under `docs/issues/` or the follow-ups section of `docs/roadmap.md`, in addition to the map line.
 
 ## Invocation
 

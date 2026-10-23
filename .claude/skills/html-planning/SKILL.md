@@ -721,9 +721,9 @@ The target is a **directory**, a **single file**, or a **glob**:
 
 | Target | Scans |
 |---|---|
-| `.claude/plans/issues` | every `*.html` under it, recursively |
-| `.claude/plans/issues/quota.html` | that one file |
-| `.claude/plans/**/tdds/*.html` | whatever the glob matches — `**` crosses directories (including none), `*` and `?` do not |
+| `docs/issues` | every `*.html` under it, recursively |
+| `docs/issues/quota.html` | that one file |
+| `docs/features/**/tdds/*.html` | whatever the glob matches — `**` crosses directories (including none), `*` and `?` do not |
 
 There is **no index and no cache**: the documents are read on every run. A 142-document, 8 MB corpus scans in about a quarter of a second.
 
@@ -731,8 +731,8 @@ A file the scan cannot use is **reported, never silently dropped**. Three reason
 
 ```
 2 file(s) skipped — scanned, not queryable:
-  .claude/plans/issues/mockup.html: not a plan document — no <plan-*> markup
-  .claude/plans/issues/old.html: structure does not balance — run `planr check` on it
+  docs/issues/mockup.html: not a plan document — no <plan-*> markup
+  docs/issues/old.html: structure does not balance — run `planr check` on it
 ```
 
 `--strict` turns a non-empty skip list into exit 1, exactly as it does for `check`'s warnings. A target that resolves to **no files at all** is an error; a filter that matches no documents is not.
@@ -795,9 +795,9 @@ The `where` operators are `eq`, `ne`, `ge`, `le`, `gt`, `lt`, `in`, `contains` a
 `--rank <name>` applies the preset. An explicit flag **replaces the preset's conditions on that field** and leaves the rest standing; `--sort`, when given, replaces the preset's order outright:
 
 ```bash
-planr query .claude/plans/issues --rank default
-planr query .claude/plans/issues --rank default --where 'impact=high'   # keeps the preset's status, priority and blocked rules
-planr query .claude/plans/issues --rank default --sort date             # keeps the preset's filter, replaces its order
+planr query docs/issues --rank default
+planr query docs/issues --rank default --where 'impact=high'   # keeps the preset's status, priority and blocked rules
+planr query docs/issues --rank default --sort date             # keeps the preset's filter, replaces its order
 ```
 
 ### Blockers
@@ -827,8 +827,8 @@ planr meta q07-auth.html --set blocked-by=q04-tokens.html,../tdds/m1.html
 `next` is the top-ranked document and the addresses needed to act on it. It is driven by a **named ranking** and nothing else, defaulting to the one called `default`; with no ranking declared it says so rather than inventing an order.
 
 ```
-$ planr next .claude/plans/issues
-.claude/plans/issues/quota.html
+$ planr next docs/issues
+docs/issues/quota.html
 Quota cache has no invalidator
 
   type             issue                       (meta)

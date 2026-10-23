@@ -2,9 +2,9 @@
 
 **Findings file:** `.tmp/pr-tidying-findings-issue-triage.md`
 **ID prefix:** `M1`, `M2`, …
-**Read-set:** the issue docs this branch added — `git diff --name-only --diff-filter=A <parent>..HEAD -- .claude/plans/issues/` — plus whatever each doc cites, as `issue-triaging` directs.
+**Read-set:** the issue docs this branch added — `git diff --name-only --diff-filter=A <parent>..HEAD -- .claude/plans/issues/`.
 
-**Run inline by the orchestrator in `SKILL.md` Phase 2b**, with the `issue-triaging` skill loaded. No agent is dispatched.
+**Run by the orchestrator in `SKILL.md` Phase 2b**, which owns the dispatch and the completeness check.
 
 ## Which issues
 
@@ -12,26 +12,23 @@ An added issue needs triage when its triage is incomplete — `issue-triaging` �
 
 No added issue needs triage → skip M and say so in the coverage line.
 
-## Propose, don't write
+## Dispatch
 
-For each selected issue, follow `issue-triaging` from §0 through §6 and reach one verdict:
+One `issue-triager` per issue, all in parallel, brief: the issue path and `mode: verdict`.
 
-- **RATED** — the §9 one-pass command, filled in, **not yet run**.
-- **RESOLVED** or **DUPLICATE** — `issue-triaging` §0's finding, with its evidence. This is a deletion proposal under `issue-creating`, not a rating.
-
-Write every verdict into the findings file: one `M<n>` row per issue, then each issue's proposed field values and its command verbatim.
+Collect every report into the findings file: one `M<n>` row per issue, then each verdict table and apply command verbatim.
 
 ## Report (Phase 3)
 
 | # | Issue | Verdict | Proposed priority | Off-matrix |
 |---|-------|---------|-------------------|------------|
-| M1 | `adventure-map-drops-hand-edge.html` | RATED | p1 | matrix p2 → p1: breaks invariant 2 on every rebuild |
+| M1 | `adventure-map-drops-hand-edge.html` | VERDICT | p1 | matrix p2 → p1: breaks invariant 2 on every rebuild |
 
-Follow the table with each issue's proposed values. **Every verdict needs the DM's approval, per issue** — approve, amend a field, or reject.
+Follow the table with each issue's verdict table. **Every verdict needs the DM's approval, per issue** — approve, amend a field, or reject. A `RESOLVED` or `DUPLICATE` verdict is a deletion proposal under `issue-creating`, not a rating.
 
 ## Apply (Phase 4, last)
 
-Apply after every other category. For each approved verdict, run its command with any amendments, then:
+Apply after every other category. For each approved verdict, run its apply command with any amendments, then:
 
 ```bash
 node .claude/skills/html-planning/planr.js check <file> --strict
@@ -45,5 +42,5 @@ Commit the triage alone as `mapping: triage <n> issue(s) filed on this branch`.
 ## What NOT to flag/do
 
 - Re-triage an issue whose triage is complete, or one this branch did not add.
-- Run a verdict's command before the DM approves it.
+- Apply a verdict the DM has not approved.
 - Hand-edit an issue doc. Every write goes through `planr`.

@@ -55,7 +55,7 @@ descending order of correctness pressure:
 - **One fact, one home.** Promoting or folding a fact means REMOVING it from memory — never leaving a
   copy behind.
 - **No provenance trail.** After promoting or dropping, do NOT leave a note recording what moved where
-  (e.g. "graduated to the be-reviewing skill", "now lives in `data-model.md`"). Memory is always-loaded,
+  (e.g. "graduated to the taleform-reviewing skill", "now lives in `CLAUDE.md`"). Memory is always-loaded,
   but a cold-start agent can't act on a changelog of past reorganizations — it's pure context tax, and
   the record of what moved and why belongs in the commit message. A drained index is a bare stub (title
   + an optional `_No active memories._`), never a receipt.

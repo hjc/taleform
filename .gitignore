@@ -1,3 +1,20 @@
 node_modules/
 dist/
 *.log
+
+# TDD plans stay untracked by policy (docs/sdlc.md §4e); every other plan doc is committed.
+.claude/plans/**/tdds/
+
+# Agent review findings: ephemeral, regenerated per dispatch.
+.claude/reviews/
+
+# Session handoff docs.
+.claude/handoffs/
+
+# Scratch for the AI: reference material and tool output.
+.llm-resources/
+.tmp/
+
+# Local Claude customizations
+CLAUDE.local.md
+.claude/settings.local.json

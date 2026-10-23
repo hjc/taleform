@@ -1,0 +1,122 @@
+  <!-- ════════════════════════════════════════════════════════
+       Wayfinding ticket — one open question, what was measured to answer
+       it, and what was decided.
+
+       A ticket is the REASONING. The rule it produces is one line in
+       decisions.html, and the fact it establishes goes straight into the
+       relevant .claude/context/ doc. Those three are not duplicates of
+       each other: the ticket says why, the register says what and what
+       it rests on, the context doc is the truth the codebase is held to.
+
+       Conventions this template encodes:
+         · Findings is separate from Resolution, and the split is load
+           bearing. Findings is what the world turned out to be —
+           measurements, portal reads, probe output, quoted code. It
+           stays true even if the decision is later overturned.
+           Resolution is a choice, and choices get reversed.
+         · Every finding names its evidence id from evidence.html, or
+           states that it was measured live and when. A finding with no
+           provenance is an assertion, and an assertion that reaches a
+           plan is how a wrong literal survives three reviewers.
+         · Resolution ends with the one-line normative form — the exact
+           sentence that goes into the register. Writing it here rather
+           than paraphrasing it later is what keeps the two from
+           drifting.
+         · Rejected options are kept. The next reader's first instinct is
+           usually the option that was already considered and cut, and
+           re-litigating it costs more than the paragraph.
+         · A ticket that cannot state what would change its answer is not
+           finished being thought about.
+
+       Status, four states: `draft` open and unclaimed · `review` claimed,
+       flipped before any work so parallel sessions don't collide ·
+       `approved` decided · `rejected` ruled out of scope. A ticket
+       flipped out of scope keeps its row in the map and is not deleted.
+       ════════════════════════════════════════════════════════ -->
+
+  <plan-section id="question" title="Question">
+    <plan-callout type="info">
+      <strong>The question in one sentence</strong>, phrased so it can be answered with a named choice
+      rather than an essay. Then what it blocks — which slice, which decision, or which other ticket
+      cannot proceed until this is settled.
+    </plan-callout>
+  </plan-section>
+
+  <plan-section id="context" title="Context">
+    <p>
+      What is already known going in, and why the answer is not obvious. Cite the vocabulary entries this
+      question depends on, and any decision already made that constrains it — a ticket that reopens a
+      settled decision should say so explicitly rather than quietly contradicting it.
+    </p>
+  </plan-section>
+
+  <plan-section id="findings" title="Findings">
+    <p>
+      What the world turned out to be. Measurements, portal reads, probe output, quoted code &mdash; each
+      with its evidence id, or marked as read live with the date. <strong>This section survives its own
+      resolution being overturned</strong>, which is why it is kept apart from it.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>What is true, stated flatly</td>
+            <td>Measured, read from the portal, quoted from the code, or told to us by someone with access</td>
+            <td><code>E01</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="warn">
+      <strong>An unverified assumption is not a finding.</strong> If the answer rests on external behaviour
+      nobody has measured, that is a blocker to raise now &mdash; not a caveat to record here and not a step
+      to defer to whoever builds it.
+    </plan-callout>
+  </plan-section>
+
+  <plan-section id="resolution" title="Resolution">
+    <p>
+      The decision, and why this option and not the others. Name who made it: a call that turns on product
+      or architecture belongs to the user, and a ticket that quietly made one on their behalf is a defect
+      in the process even when the answer is right.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>The one taken</td><td><plan-badge type="decided">chosen</plan-badge></td><td>What decided it</td></tr>
+          <tr><td>The one not taken</td><td>Rejected</td><td>What ruled it out &mdash; kept so it is not re-litigated</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+
+    <h3>For the register</h3>
+    <plan-callout type="success">
+      The rule in one normative sentence, exactly as it will appear in
+      <a href="decisions.html"><code>decisions.html</code></a>. Then: what it rests on, what it binds, and which
+      <code>.claude/context/</code> doc it graduates into.
+    </plan-callout>
+
+    <h3>What would change this answer</h3>
+    <p>
+      The observation that would reopen it. A ticket that
+      cannot name one has usually not been pushed hard enough.
+    </p>
+  </plan-section>
+
+  <plan-section id="obligations" title="Obligations">
+    <p>
+      What this answer commits a <em>downstream</em> artifact to &mdash; a PRD requirement, a build check, a
+      context-doc rule, an amendment another ticket needs. At map close these are the PRD's structured input.
+      <strong>Optional: delete this section if the ticket earned none.</strong>
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Owes</th><th>What</th></tr></thead>
+        <tbody>
+          <tr><td>The artifact that must carry it</td><td>The requirement, check or rule it is now committed to</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>

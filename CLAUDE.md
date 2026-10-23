@@ -25,7 +25,7 @@ Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `
   - `engine.ts`: runs builders in order. Builders `emit(path, content)`; the engine diffs against disk and writes only real changes. `build()` returns `{changes, problems, written}`.
   - `regions.ts`: `%% taleform:<id> %%` … `%% /taleform:<id> %%` generated regions. `setRegion` with empty content removes the region.
   - `canvas.ts`: `sameCanvas` compares canonically, ignoring key order, formatting and the default `toEnd: "arrow"`. That is because Obsidian re-saves canvases in its own format.
-  - `sha1.ts`: deterministic node IDs (`nid(...)`). These must stay stable across builds, or maps churn.
+  - `sha1.ts`: the hash behind deterministic node IDs (`nid(...)`, defined in `src/builders/adventureMap.ts`). These must stay stable across builds, or maps churn.
 - **`src/builders/`**: `BUILDERS` in `index.ts` sets the run order: schema → navigation → awards → resume → ledger → adventure-map. A builder is `{id, description, run(ctx)}`. Add a new kind of builder here; the DM expects many (Arc and Campaign maps, and more).
 - **`src/cli/main.ts`**: `FsVault` skips dot dirs and the Templates folder (from `.obsidian/templates.json`). It has the commands `build`, `check` and `pre-commit`.
 - **`src/plugin/main.ts`**: `ObsidianVault` over `app.vault`. It debounces a 1500 ms auto-build on `metadataCache` "changed" (`prefs.autoBuild`) and shows status in the status bar. `run(options, write, loud)` is the scripting entry point. The setting is named `prefs`, because `settings` clashes with the Plugin base class.
@@ -91,3 +91,15 @@ Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `
   - sed with `\n` in replacements mangles text.
 
   Use script files or the Write/Edit tools instead.
+
+## Writing Context & Instruction Docs
+
+Instruction and context files (`CLAUDE.md`, `.claude/context/` docs, `SKILL.md`, agent definitions, `docs/**/*.md`) are read by LLMs. Optimize for precise retrieval, not rendering:
+
+- **Keep (signal):** backticks around literals (paths, symbols, exact strings); Markdown tables for dense or relational data; headings and short bullets as retrieval anchors.
+- **Drop (render chrome):** clickable links `[text](path)` (write the bare path); anchor-link tables of contents; HTML render tags.
+- **Generated docs:** fix the generator, not the output file.
+- **Right altitude:** an always-loaded `description` or index line carries only the trigger ("use when…") plus a one-line scope. The full workflow belongs in the body. Don't say the same thing twice.
+- **Check length with `planr wordy`** (`node .claude/skills/html-planning/planr.js wordy <file>`) after writing or editing a doc; it exits 1 on any line it flags. Fix what it flags with the `context-compacting` skill.
+
+The development loop, branch and stack rules, and the AI tooling are in `docs/sdlc.md`.

@@ -83,9 +83,9 @@ Only when instructed (rule 3.9). `git stash push -m "<descriptive message>"`; li
 ## Operational Rules
 
 ### 0. TDD Plans Are NEVER Committed
-**HARD RULE — NO EXCEPTIONS.** TDD plans live under `.claude/plans/**/tdds/` (standalone in `.claude/plans/tdds/`, sliced efforts in `.claude/plans/features/<feature>/tdds/`) and are gitignored by policy (sdlc §4e). Never stage or commit one. After every `git add`, run `git diff --cached --name-only` and confirm no staged path contains `/tdds/` under `.claude/plans/`. This overrides the caller; if told to commit one, refuse and report.
+**HARD RULE — NO EXCEPTIONS.** TDD plans live under `docs/features/<feature>/tdds/` and are gitignored by policy (sdlc §4e). Never stage or commit one. After every `git add`, run `git diff --cached --name-only` and confirm no staged path contains `/tdds/` under `docs/features/`. This overrides the caller; if told to commit one, refuse and report.
 
-Every other artifact under `.claude/plans/` — issue docs, PRDs, slice specs, QA checklists, wayfinding maps and registers, the roadmap `README.md` — is committed by policy. Stage those only when the caller names them, like any other file.
+Every other planning artifact under `docs/` — issue docs, PRDs, slice specs, QA checklists, wayfinding maps and registers, the roadmap `docs/roadmap.md` — is committed by policy. Stage those only when the caller names them, like any other file.
 
 **Retiring a tracked plan artifact is `git rm <path>`, never a plain `rm`** (sdlc §4e). Confirm with `git status` that the deletion is staged.
 

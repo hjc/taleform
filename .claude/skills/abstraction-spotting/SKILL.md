@@ -148,7 +148,7 @@ A builder's correctness has two halves: one this repo writes, one that lives in 
 - **An expected output left unpinned because "the vault isn't migrated yet"**, while a sibling artifact (the PRD, a slice spec, a vault-doc change listed for the DM) already declares it. If an approved sibling names the value, an unpinned expectation asserts nothing.
 - **A fixture vault whose notes were invented to make the tests pass** rather than mirroring the shape the vault's template and spec declare. The machine-readable expectation was only ever fed to tests.
 
-**How to apply:** count the facts on each side of the repo/vault boundary and the checks on each; count how many declared names appear where the stated check can compare them; and note which copy of the declaration survives the effort's close, given `.claude/plans/` is deleted.
+**How to apply:** count the facts on each side of the repo/vault boundary and the checks on each; count how many declared names appear where the stated check can compare them; and note which copy of the declaration survives the effort's close, given the effort's `docs/features/<feature>/` folder is deleted.
 
 **Cost units:** declared vault facts with no automated comparison; copies of an expectation that never run against the real vault.
 

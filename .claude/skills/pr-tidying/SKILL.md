@@ -138,7 +138,7 @@ After all edits:
 
 This inner loop catches breakage close to the change, before the full check in Phase 5.
 
-**Doc and plan categories (H, J, K):** instruction/doc/skill changes are a SEPARATE commit from the code, prefixed for what they carry (`docs/sdlc.md` §3 → Branch and commit types): `ai:` for skills, agents and instruction docs, `docs:` for `README.md` and `docs/`, `mapping:` for plan artifacts. Never stage a TDD plan — those stay untracked; every other artifact under `.claude/plans/` is committed. These need no test run, but if a doc states a command, verify the command still works before committing.
+**Doc and plan categories (H, J, K):** instruction/doc/skill changes are a SEPARATE commit from the code, prefixed for what they carry (`docs/sdlc.md` §3 → Branch and commit types): `ai:` for skills, agents and instruction docs, `docs:` for `README.md` and `docs/`, `mapping:` for plan artifacts. Never stage a TDD plan — those stay untracked; every other planning artifact under `docs/` is committed. These need no test run, but if a doc states a command, verify the command still works before committing.
 
 ### Phase 5: Full Check
 

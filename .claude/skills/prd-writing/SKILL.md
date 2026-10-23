@@ -26,8 +26,8 @@ implementable.
 
 | Artifact | Carries | Path |
 |---|---|---|
-| **The PRD** | The **cross-cutting contract** — the rules, invariants and vocabulary every slice must obey — plus the **slice list** in dependency order | `.claude/plans/features/<feature>/prd-<feature>.html` |
-| **A slice spec**, one per slice | Only what that slice builds: its feature sections, schema / generated-output / plugin and CLI changes, edge cases, success criteria | `.claude/plans/features/<feature>/slices/<n>-<slug>.html` |
+| **The PRD** | The **cross-cutting contract** — the rules, invariants and vocabulary every slice must obey — plus the **slice list** in dependency order | `docs/features/<feature>/prd-<feature>.html` |
+| **A slice spec**, one per slice | Only what that slice builds: its feature sections, schema / generated-output / plugin and CLI changes, edge cases, success criteria | `docs/features/<feature>/slices/<n>-<slug>.html` |
 
 **A slice spec never restates the cross-cutting contract — it cites it.** If a rule applies to more than one slice it belongs in the PRD; if it applies to exactly one it belongs in that slice spec.
 
@@ -137,7 +137,7 @@ Anything you find that belongs to another slice goes in Flags — never acted on
 
 Before writing anything, understand the current state of the system being changed.
 
-1. **Read the planning directory** — check `.claude/plans/` and any relevant
+1. **Read the planning directory** — check `docs/features/`, `docs/roadmap.md` and any relevant
    feature subdirectories for existing PRDs, READMEs, and MEMORY.md files
    that document prior decisions, deferred items, and architectural constraints.
 
@@ -235,16 +235,16 @@ The PRD is a finished artifact, not a scratchpad. Remove all reasoning process, 
 
 ## Output Location
 
-Save PRDs to `.claude/plans/` using the naming convention from the agent instructions:
+Save PRDs to `docs/features/<feature>/` using the naming convention from the agent instructions:
 - `prd-{feature-name}` for standalone features
 - `{area}/prd-{feature-name}` if it logically groups with existing plans
 - File extension is determined by the formatting skill (e.g., `.html` when using `html-planning`)
-- Check existing files in `.claude/plans/` to determine the best organizational fit
+- Check existing files in `docs/features/` to determine the best organizational fit
 
 **Map-derived efforts** use the effort root the map already established, so the PRD, its slices and the map sit together:
 
 ```
-.claude/plans/features/<feature>/
+docs/features/<feature>/
   wayfinding/map.html          the meta document: pointers and status
   wayfinding/decisions.html    the decision record
   wayfinding/vocabulary.html   the effort's bound terms
@@ -258,7 +258,7 @@ Save PRDs to `.claude/plans/` using the naming convention from the agent instruc
 
 **Take each register at its own grain.** `decisions.html` is the source for the cross-cutting contract — one row is one rule, already in normative form, with the ticket that decided it in `Decided in`. `vocabulary.html` is the terminology section, already bound. `evidence.html` is the index that makes "prefer the raw asset over ticket prose" executable: it names the measured artifact behind every number, with an authority rank (`live` > `report` > `export` > `prose`), so a figure the PRD asserts is traced to what measured it. **A lower rank never overrides a higher one.**
 
-**A PRD is a committed artifact, not a scratch file.** The "keep plans untracked" rule is scoped to TDD plans only. Commit the PRD on a `map--` branch under the `mapping:` prefix, and update its row in `.claude/plans/README.md` in the same pass. If the PRD feeds a larger effort, that `map--` branch is the planning layer of a stacked PR — see `docs/sdlc.md` §3.
+**A PRD is a committed artifact, not a scratch file.** The "keep plans untracked" rule is scoped to TDD plans only. Commit the PRD on a `map--` branch under the `mapping:` prefix, and update its row in `docs/roadmap.md` in the same pass. If the PRD feeds a larger effort, that `map--` branch is the planning layer of a stacked PR — see `docs/sdlc.md` §3.
 
 ## References
 

@@ -100,7 +100,7 @@ A branch is `<github-handle>/<type>--<slug>` (for example, `hjc/feat--arc-map`).
 | `chore--` | `chore:` | Dependencies, config, housekeeping |
 | `ai--` | `ai:` | Local AI infrastructure: skills, agents, commands, instruction docs |
 | `map--` | `mapping:` | Mapping and planning that comes before code: wayfinding maps, their tickets and registers, PRDs, slice specs, issue filings, roadmap entries |
-| *(none)* | `issue:` | One issue doc filed under `.claude/plans/issues/`, committed on whatever branch is in hand |
+| *(none)* | `issue:` | One issue doc filed under `docs/issues/`, committed on whatever branch is in hand |
 
 `map--` pairs with `mapping:`. The two names differ on purpose; do not "correct" either to match the other.
 
@@ -151,7 +151,7 @@ Some vault docs describe Taleform's model: the story-maps spec, `run-sheet-forma
 Some artifacts are expensive to reconstruct and easy to lose:
 
 - **While wayfinding, commit after resolving a ticket and after any material change to the map.** Never let a session end with map progress uncommitted.
-- **Commit issue docs and roadmap entries as you file them**, on whatever branch is in hand. Matching a finding to its "correct" branch is worth nothing next to not losing it. Issue docs live in `.claude/plans/issues/`. Roadmap entries (the PRD register, its dependency graph and an effort's scoped follow-ups) live in `.claude/plans/README.md`.
+- **Commit issue docs and roadmap entries as you file them**, on whatever branch is in hand. Matching a finding to its "correct" branch is worth nothing next to not losing it. Issue docs live in `docs/issues/`. Roadmap entries (the PRD register, its dependency graph and an effort's scoped follow-ups) live in `docs/roadmap.md`.
 
 ---
 
@@ -171,7 +171,7 @@ The development loop below ties them together. The subsections after it describe
 This is the baseline workflow for building a feature, fix or refactor. A human (the DM) drives it through an orchestrating session. The orchestrator does reconnaissance and gathers requirements, then routes the actual work to specialized agents.
 
 0. **Wayfind.** *Large efforts only, and **user-invoked**: the skill is `disable-model-invocation: true`, so an orchestrating session asks for `/wayfinding` rather than running it.*
-   - It charts the open decisions under `.claude/plans/features/<feature>/wayfinding/`. That means a map holding pointers and status; three registers holding what grows (`decisions.html`, `vocabulary.html`, `evidence.html`); and one ticket per question whose answer is a decision, not a slice of the build.
+   - It charts the open decisions under `docs/features/<feature>/wayfinding/`. That means a map holding pointers and status; three registers holding what grows (`decisions.html`, `vocabulary.html`, `evidence.html`); and one ticket per question whose answer is a decision, not a slice of the build.
    - Anything not yet worth a ticket sits in the map's `horizon` section, and becomes a ticket when it is ready to decide.
    - Tickets resolve one per session. Each graduates its decision into `.claude/context/` as it lands, not at map close.
    - Its last act is a **slicing**: how the effort splits into shippable branches in dependency order. It is coverage-checked, so every ticket lands in exactly one slice or is marked *no build work*. The last slice is the **close slice** (§3).
@@ -185,7 +185,7 @@ This is the baseline workflow for building a feature, fix or refactor. A human (
    - Small efforts write one standalone PRD.
    - A single-branch fix may skip straight to Plan.
 3. **Human approval of the PRD.** The DM reads the PRD (and slice specs) and approves it. **This gate is unconditional**; unlike the TDD-plan gate in step 6, nothing may suspend it. A PRD decides what gets built and what the frontmatter looks like, so a schema mistake is cheapest to catch here (`CLAUDE.md` § Working style).
-4. **Plan each slice.** The orchestrator dispatches the `tdd-planner` agent once per slice. It researches the codebase and writes a TDD implementation plan as HTML under `.claude/plans/`, using the `tdd-planning` and `html-planning` skills.
+4. **Plan each slice.** The orchestrator dispatches the `tdd-planner` agent once per slice. It researches the codebase and writes a TDD implementation plan as HTML under `docs/features/<feature>/tdds/`, using the `tdd-planning` and `html-planning` skills.
    - The correspondence is **one slice ↔ one branch ↔ one TDD plan ↔ one PR**.
    - The planner reads the PRD alongside the slice spec, because the spec deliberately leaves out the shared contract.
 5. **Review the plans.** Every plan goes to two reviewers in parallel, which correct it before a human sees it. **PRDs and slice specs get the same pass**, since an architectural mistake is far cheaper to catch there.
@@ -251,7 +251,7 @@ Where an agent defines *what* to do, a skill defines *how* to do it. The same ag
 | `tdd-planning` | How to write a red-green-refactor TDD plan. Owns the `tdd` template. |
 | `taleform-reviewing` | Conformance review against the invariants and Taleform's core, builder, schema and test conventions. |
 | `abstraction-spotting` | Checks whether the convention a plan or build follows fits, and routes each finding by blast radius. |
-| `issue-creating` | Filing a defect as an HTML issue doc under `.claude/plans/issues/`, and retiring it when the fix ships. Owns the `issue` template. |
+| `issue-creating` | Filing a defect as an HTML issue doc under `docs/issues/`, and retiring it when the fix ships. Owns the `issue` template. |
 | `issue-triaging` | Setting an issue doc's triage metadata in one pass. Owns the priority matrix and `scripts/review.py`. |
 | `qa-checklist-writing` | Distills a manual QA checklist from a PRD or TDD plan. |
 | `pr-tidying` | Audits the branch against its parent before a PR, applies the approved fixes and drives `npm run check` green. Category H (`references/docs-sync.md`) holds the checker registry. |
@@ -299,9 +299,15 @@ There are none yet. Candidates as the code grows:
 
 When `/pr-tidying` runs after significant changes, it prompts to create or update these docs, so they do not drift from the code.
 
-### 4e. Plan lifecycle (`.claude/plans/`)
+### 4e. Plan lifecycle (`docs/`)
 
-Planning artifacts live under `.claude/plans/`: PRDs, slice specs, wayfinding maps with their tickets and registers, QA checklists, issue docs, and the roadmap in `.claude/plans/README.md`. All are committed except TDD plans, which stay untracked: `.gitignore` excludes `.claude/plans/**/tdds/`.
+Planning artifacts live under `docs/`, laid out as `docs/README.md` describes:
+
+- `docs/features/<feature>/`: one folder per feature, holding its PRD, slice specs, wayfinding map with tickets and registers, QA checklists and TDD plans (in `tdds/`).
+- `docs/issues/`: issue docs.
+- `docs/roadmap.md`: the roadmap.
+
+All are committed except TDD plans, which stay untracked: `.gitignore` excludes `docs/features/**/tdds/*`. Every TDD plan lives in a feature folder, including a one-branch fix.
 
 Each has exactly one terminal fate:
 
@@ -319,7 +325,7 @@ Each has exactly one terminal fate:
 
 - `planr meta` writes a document's fields, and `planr query` filters and ranks a directory by them.
 - `.claude/planr-schema.json` declares the fields and the two rankings: `default` (the issue work queue) and `triage` (issues with no `priority`).
-- **`planr next .claude/plans/issues --format json` is how the next issue gets picked**, not a directory listing.
+- **`planr next docs/issues --format json` is how the next issue gets picked**, not a directory listing.
 
 A decision **graduates** when it lands in `.claude/context/` or `CLAUDE.md`. That is the only copy that outlives the effort, so **nothing is deleted until the graduation check passes**. That check is the sole guard, and it is what makes deletion safe. Retire, do not delete blind: read each artifact for a fact that has not graduated before removing it.
 

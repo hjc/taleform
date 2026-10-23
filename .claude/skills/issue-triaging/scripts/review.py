@@ -4,7 +4,7 @@
     PYTHONUTF8=1 py .claude/skills/issue-triaging/scripts/review.py render > .tmp/body.html
     PYTHONUTF8=1 py .claude/skills/issue-triaging/scripts/review.py check
 
-Reads metadata with `planr query .claude/plans/issues --format json` and the
+Reads metadata with `planr query docs/issues --format json` and the
 priority matrix and floors/caps by parsing `.claude/skills/issue-triaging/SKILL.md`
 section 6, so the rules live there and nowhere else.
 
@@ -29,7 +29,7 @@ import sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), *[".."] * 4))
 os.chdir(ROOT)
 PLANR = ["node", os.path.join(".claude", "skills", "html-planning", "planr.js")]
-ISSUES = os.path.join(".claude", "plans", "issues")
+ISSUES = os.path.join("docs", "issues")
 SKILL = os.path.join(".claude", "skills", "issue-triaging", "SKILL.md")
 
 COLUMNS = ["class", "reach", "impact", "urgency", "effort", "reference-paths"]

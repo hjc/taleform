@@ -27,7 +27,7 @@ You own conformance: does the change follow Taleform's invariants and patterns? 
 
 ## Review process
 
-1. Read the subject the dispatch names: a plan, slice spec or PRD under `.claude/plans/`, or a diff (`git diff <parent>..HEAD`).
+1. Read the subject the dispatch names: a plan, slice spec or PRD under `docs/features/`, or a diff (`git diff <parent>..HEAD`).
 2. Walk **every section** of the SKILL.md checklist against it. Do not skip a section because the subject "probably has none"; say it was checked.
 3. **Verify every claim against the source.** Open the file, grep the callers, count. A finding resting on a misremembered signature is worse than none.
 4. Route every issue by blast radius (skill § Routing).
@@ -60,10 +60,10 @@ Write the full review, exactly the structure above, to `.claude/reviews/<subject
 
 | Reviewed | `<subject>` |
 |---|---|
-| `.claude/plans/foo.html`, `.claude/plans/issues/foo.html` | `foo` |
-| `.claude/plans/features/<feature>/prd-<feature>.html` | `prd-<feature>` |
-| `.claude/plans/features/<feature>/slices/<n>-<slug>.html` | `<feature>-slice-<n>-<slug>` |
-| `.claude/plans/features/<feature>/tdds/<name>.html` | `<feature>-<name>` |
+| `docs/features/<feature>/foo.html`, `docs/issues/foo.html` | `foo` |
+| `docs/features/<feature>/prd-<feature>.html` | `prd-<feature>` |
+| `docs/features/<feature>/slices/<n>-<slug>.html` | `<feature>-slice-<n>-<slug>` |
+| `docs/features/<feature>/tdds/<name>.html` | `<feature>-<name>` |
 | a branch diff | `<branch slug>-diff` (`hjc/feat--arc-map` → `arc-map-diff`) |
 | no file (subject given inline) | a short kebab-case slug |
 

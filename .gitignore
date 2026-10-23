@@ -2,8 +2,8 @@ node_modules/
 dist/
 *.log
 
-# TDD plans stay untracked by policy (docs/sdlc.md §4e); every other plan doc is committed.
-.claude/plans/**/tdds/
+# TDD plans stay untracked by policy (docs/sdlc.md §4e); every other planning doc is committed.
+docs/features/**/tdds/*
 
 # Agent review findings: ephemeral, regenerated per dispatch.
 .claude/reviews/

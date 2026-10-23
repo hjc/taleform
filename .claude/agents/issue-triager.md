@@ -1,6 +1,6 @@
 ---
 name: issue-triager
-description: "Triage ONE issue doc under `.claude/plans/issues/` and return its triage verdict. Dispatch ad hoc, one issue per dispatch, naming the file; add `apply` to have the verdict written as well."
+description: "Triage ONE issue doc under `docs/issues/` and return its triage verdict. Dispatch ad hoc, one issue per dispatch, naming the file; add `apply` to have the verdict written as well."
 model: sonnet
 color: yellow
 memory: project
@@ -19,7 +19,7 @@ Your brief names one issue file and a mode. Default is `verdict`.
 
 | Mode | You do | You never |
 |---|---|---|
-| `verdict` | Read the issue, the code it cites, the roadmap (`.claude/plans/README.md`, when present) and the live vault's `check` output (`issue-triaging` §3a); produce the verdict and its report | Write to the issue doc or any tracked file |
+| `verdict` | Read the issue, the code it cites, the roadmap (`docs/roadmap.md`, when present) and the live vault's `check` output (`issue-triaging` §3a); produce the verdict and its report | Write to the issue doc or any tracked file |
 | `apply` | Everything `verdict` does, then run the verdict's `planr meta --set` command, write its document notes through `planr`, and run `node .claude/skills/html-planning/planr.js check <file> --strict` and `PYTHONUTF8=1 py .claude/skills/issue-triaging/scripts/review.py check` | Apply a verdict that stopped on a resolved or duplicate finding |
 
 ## The verdict
@@ -49,7 +49,7 @@ Off-matrix: <none | matrix pN → pM because …>
 Document notes: <none | each line, and the section it goes in>
 
 Apply:
-node .claude/skills/html-planning/planr.js meta .claude/plans/issues/<slug>.html --set … --set …
+node .claude/skills/html-planning/planr.js meta docs/issues/<slug>.html --set … --set …
 ```
 
 End with exactly one terminal line: `## Review complete — VERDICT`, `RESOLVED`, `DUPLICATE` (naming the keeper), or `BLOCKED` (the issue file is missing or unreadable). In `apply` mode a written verdict ends `## Review complete — APPLIED`, and a failed write `FAILED`.

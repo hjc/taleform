@@ -25,7 +25,7 @@ The standard is `docs/sdlc.md` §5b → "What makes a good agent or skill": a pr
 
 - Cosmetic rewording of prose the branch did not touch — except `description` bloat on a sibling artifact (read-set 2).
 - A factual staleness or a missing fact — Category H.
-- Anything under `.claude/plans/` — Category K.
+- Anything under `docs/features/`, `docs/issues/` or `docs/roadmap.md` — Category K.
 - `README.md` — it is user-facing documentation for a DM, not an instruction doc; its accuracy is Category H's and its prose is the author's.
 
 ## Report shape

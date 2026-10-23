@@ -102,4 +102,4 @@ Instruction and context files (`CLAUDE.md`, `.claude/context/` docs, `SKILL.md`,
 - **Right altitude:** an always-loaded `description` or index line carries only the trigger ("use when…") plus a one-line scope. The full workflow belongs in the body. Don't say the same thing twice.
 - **Check length with `planr wordy`** (`node .claude/skills/html-planning/planr.js wordy <file>`) after writing or editing a doc; it exits 1 on any line it flags. Fix what it flags with the `context-compacting` skill.
 
-The development loop, branch and stack rules, and the AI tooling are in `docs/sdlc.md`.
+The development loop, branch and stack rules, and the AI tooling are in `docs/sdlc.md`. Planning docs (features, issues, the roadmap) live under `docs/`, laid out in `docs/README.md`.

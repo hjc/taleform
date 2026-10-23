@@ -135,5 +135,5 @@ source), reconcile drift, and retighten each `MEMORY.md`.
 - **Preserve triggers and load-bearing facts** verbatim when promoting (descriptions, "when to use",
   exact commands, invariants).
 - **Separate commits.** Doc/skill/memory changes are a separate commit from code, and nothing under
-  `.claude/plans/` is ever staged.
+  `docs/features/` or `docs/issues/` is ever staged.
 - **Don't reconcile against stale docs.** If a promotion target contradicts the code, trust the code.

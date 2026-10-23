@@ -107,9 +107,9 @@ Spot-check every finding whose fix is destructive — deleting a test file, remo
 
 ### Phase 2b: Category M — Issue Triaging
 
-Read `references/issue-triage.md` and follow it. **The orchestrator runs it inline**, while the Phase 2 agents work: load the `issue-triaging` skill and propose a verdict for each issue the reference selects. There is no triage agent to dispatch. Skip M when it selects none, and say so in the coverage line.
+Read `references/issue-triage.md` and follow it. In the same message as Phase 2, dispatch one `issue-triager` per issue it selects; skip M when it selects none, and say so in the coverage line.
 
-**Completeness is one verdict per selected issue** in `.tmp/pr-tidying-findings-issue-triage.md`. An issue without one was not triaged: finish it before Phase 3.
+**Completeness is the report's terminal line, not the findings file.** Each `issue-triager` writes `.claude/reviews/<issue-slug>.issue-triager.md` ending in `## Review complete — <verdict>`. A report without that line did not finish: re-dispatch that issue before Phase 3. Then collect the verdicts into `.tmp/pr-tidying-findings-issue-triage.md`.
 
 ### Phase 3: Findings Report
 

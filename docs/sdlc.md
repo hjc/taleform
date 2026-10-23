@@ -188,12 +188,13 @@ This is the baseline workflow for building a feature, fix or refactor. A human (
 4. **Plan each slice.** The orchestrator dispatches the `tdd-planner` agent once per slice. It researches the codebase and writes a TDD implementation plan as HTML under `.claude/plans/`, using the `tdd-planning` and `html-planning` skills.
    - The correspondence is **one slice ↔ one branch ↔ one TDD plan ↔ one PR**.
    - The planner reads the PRD alongside the slice spec, because the spec deliberately leaves out the shared contract.
-5. **Review the plans.** Each plan goes to the reviewer agents whose areas it touches (§4b). They correct it against Taleform's conventions and invariants before a human sees it.
-   - Every review checks the plan against `CLAUDE.md` § Invariants.
-   - It also checks that `src/core/` stays free of Obsidian imports and that `src/` names nothing from the DM's vault.
+5. **Review the plans.** Every plan goes to two reviewers in parallel, which correct it before a human sees it. **PRDs and slice specs get the same pass**, since an architectural mistake is far cheaper to catch there.
+   - `taleform-reviewer` asks whether the plan conforms: `CLAUDE.md` § Invariants, `src/core/` free of Obsidian imports, nothing in `src/` naming the DM's vault, the builder and test conventions.
+   - `taleform-abstraction-spotter` (`plan` mode) asks whether conforming is the right answer here: the plan that follows every pattern and is still architecturally wrong.
    - Findings route by **blast radius**. A change confined to the slice's own new code is an amendment to the plan. A change to a shared signature, to the frontmatter schema, or to the CLI's public interface becomes a proposed amendment to the PRD's cross-cutting contract, and goes back to the step-3 gate.
 6. **Human review of the plans, and iterate.** The DM opens the HTML plan in the browser and reviews it, with full context and design decisions laid out, before any code exists. Anything that doesn't feel right goes back to the writer, and the revision is reviewed again. **A plan is never executed until it is approved.**
 7. **Build.** The orchestrator dispatches `tdd-executor` to build the approved plan in red-green-refactor style, through `npm run check`. **If the build contradicts a decision the PRD or map settled, amend that document** with what replaced it and why; never diverge silently.
+   - **Abstraction pass on the build.** Once the build is committed, the orchestrator dispatches `taleform-abstraction-spotter` in `diff` mode against the slice's parent branch. `tdd-executor` applies its in-slice findings as one `refactor:` commit each; a contract-level finding goes to the step-3 gate.
 8. **Review the branch.** Once the slice's build is committed, review the diff against the slice's parent branch:
    - `npm run check` passes;
    - the read-only parity check against the live vault (§2) is clean, or every diff is intended;
@@ -218,10 +219,17 @@ This is the baseline workflow for building a feature, fix or refactor. A human (
 
 Agents are dispatched by the orchestrating session, which handles reconnaissance and requirements gathering and then routes the actual work to a specialized agent.
 
-*The core agents are being brought over next; this table lists them as they land.* The loop above names `tdd-planner` (writes a TDD plan per slice) and `tdd-executor` (builds an approved plan in red-green-refactor style, following the plan and making no architectural decisions), plus the reviewers for step 5.
+Seven agents are committed:
 
 | Agent | Role |
 |---|---|
+| `tdd-planner` | Researches the codebase and writes a TDD implementation plan in HTML, one per slice (step 4). |
+| `tdd-executor` | Builds an approved plan in strict red-green-refactor style (step 7). Follows the plan; makes no architectural decisions. |
+| `taleform-reviewer` | Reviews a plan, slice spec, PRD or diff against Taleform's invariants and conventions (step 5). Loads `taleform-reviewing`. |
+| `taleform-abstraction-spotter` | Asks whether the convention a plan (`plan` mode) or a slice's build (`diff` mode) follows is the right one, and routes each finding by blast radius. Loads `abstraction-spotting`. |
+| `issue-triager` | Triages one issue doc per dispatch and returns a verdict; `apply` mode also writes it. Loads `issue-triaging`. |
+| `librarian` | Researches one documentation subject per dispatch and writes it (an issue doc, a context doc, a roadmap entry), or verifies that a filed issue still holds. |
+| `git-ops` | Git and source-control operations: surgical staging, branches, stacked PRs; refuses destructive operations without approval. |
 
 An agent whose frontmatter carries `memory: project` keeps a working memory directory under `.claude/agent-memory/<agent>/`, which persists notes across sessions. **It is opt-in.**
 
@@ -241,6 +249,8 @@ Where an agent defines *what* to do, a skill defines *how* to do it. The same ag
 | `html-planning` | The `planr` CLI, Web Component DSL and runtime that every plan document is written with, including document metadata (`planr meta`, `query`, `next`). |
 | `prd-writing` | Writing a PRD, or a PRD with a slice list and thin slice specs. |
 | `tdd-planning` | How to write a red-green-refactor TDD plan. Owns the `tdd` template. |
+| `taleform-reviewing` | Conformance review against the invariants and Taleform's core, builder, schema and test conventions. |
+| `abstraction-spotting` | Checks whether the convention a plan or build follows fits, and routes each finding by blast radius. |
 | `issue-creating` | Filing a defect as an HTML issue doc under `.claude/plans/issues/`, and retiring it when the fix ships. Owns the `issue` template. |
 | `issue-triaging` | Setting an issue doc's triage metadata in one pass. Owns the priority matrix and `scripts/review.py`. |
 | `qa-checklist-writing` | Distills a manual QA checklist from a PRD or TDD plan. |

@@ -71,7 +71,7 @@ Write them with `planr meta --set`, never by hand.
 | `priority` | `p0` · `p1` · `p2` · `p3` | The bucket the work queue sorts on | **Triage** |
 
 A new issue carries every field but `priority` — the evidence, read off the document you just wrote.
-**`priority` is not set at filing.** It is decided at triage, one issue at a time: run `issue-triaging` on the new doc, and its verdict is applied only once the DM approves it.
+**`priority` is not set at filing.** It is decided at triage, one issue at a time: dispatch the `issue-triager` agent on the new doc, and its verdict is applied only once the DM approves it.
 
 An issue with no `priority` is not lost — it surfaces in the `triage` ranking, which exists for exactly that.
 `planr query .claude/plans/issues --rank triage` is the list of issues awaiting a bucket.

@@ -1,0 +1,85 @@
+  <!-- ════════════════════════════════════════════════════════
+       Evidence manifest — every measured artifact an effort rests on,
+       what fact each one fixes, and how far it can be trusted.
+
+       An effort accumulates exports, dumps, screenshots and command
+       output. Without a manifest they are a folder nobody greps: the
+       fact you need is in a CSV cell, prose search does not find it, and
+       you end up asking someone for something already on disk. That is
+       the failure this register exists to prevent.
+
+       The `Authority` column prevents the opposite failure: an exported
+       artifact is a point-in-time snapshot of a system that has kept
+       moving, and it never outranks the system itself. Rank, from
+       strongest:
+
+         live      read from the running system now, by whoever is
+                   holding it — a portal read, a probe, a shell query
+         report    a command's own output, dated, reproducible by
+                   re-running it
+         export    a dump taken at a point in time — correct about names
+                   and shapes, unreliable about anything that changes
+         prose     someone's summary of any of the above, including our
+                   own context docs
+
+       A LOWER RANK NEVER OVERRIDES A HIGHER ONE. When they disagree, the
+       higher rank wins and the disagreement is itself recorded — it
+       usually means the artifact is stale, which the next reader needs
+       to know more than they need the fact.
+
+       Conventions this template encodes:
+         · Every row has an id, because findings and decisions cite it.
+         · `Fixes` is the question the artifact answers, not a
+           description of the file. "Which canvas node keys Obsidian keeps
+           on re-save" beats "canvas dump".
+         · `Known wrong about` is not optional once something is found to
+           be wrong. An artifact that is right about nine things and
+           wrong about one is more dangerous than one that is wrong
+           throughout, because the nine build the trust the one exploits.
+       ════════════════════════════════════════════════════════ -->
+
+  <plan-section id="manifest" title="Manifest">
+    <p>
+      One row per artifact. Cited by id from ticket findings and from the decision register.
+    </p>
+    <plan-table>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Artifact</th><th>Fixes</th><th>Taken</th><th>Authority</th><th>Known wrong about</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>E01</code></td>
+            <td><code>assets/&lt;file&gt;</code></td>
+            <td>The question it answers</td>
+            <td>2026-01-01</td>
+            <td><code>export</code></td>
+            <td>&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="authority" title="Authority">
+    <p>
+      The ranking, strongest first. It is recorded here rather than assumed because the ordering only feels
+      obvious after it has been got wrong once.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Rank</th><th>Means</th><th>Trust it for</th></tr></thead>
+        <tbody>
+          <tr><td><code>live</code></td><td>Read from the running system now</td><td>Anything. This is the tiebreaker</td></tr>
+          <tr><td><code>report</code></td><td>A command's dated, reproducible output</td><td>What it measured, as of when it ran</td></tr>
+          <tr><td><code>export</code></td><td>A point-in-time dump</td><td>Names, ids and shapes &mdash; not values or types that drift</td></tr>
+          <tr><td><code>prose</code></td><td>A summary, including our own context docs</td><td>Orientation. Never as the last word against any of the above</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="warn">
+      <strong>When two sources disagree, the higher rank wins and the disagreement gets recorded.</strong>
+      Note it in <code>Known wrong about</code> on the losing row. Silently preferring the right one leaves
+      the artifact looking trustworthy for the next reader.
+    </plan-callout>
+  </plan-section>

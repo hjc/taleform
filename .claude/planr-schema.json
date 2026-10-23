@@ -1,0 +1,91 @@
+{
+  "fields": {
+    "type": {
+      "type": "enum",
+      "values": ["prd", "spec", "design", "tdd", "issue", "map", "doc"]
+    },
+    "class": {
+      "type": "enum",
+      "values": ["author-data-loss", "feedback-loop", "interface-break", "material-bug", "gap", "scale", "portability", "latent", "quality", "not-a-defect"],
+      "tones": {
+        "author-data-loss": "danger", "feedback-loop": "danger", "interface-break": "info",
+        "material-bug": "warn", "gap": "warn", "scale": "muted", "portability": "muted",
+        "latent": "muted", "quality": "muted", "not-a-defect": "muted"
+      }
+    },
+    "reach": {
+      "type": "enum",
+      "values": ["dm", "hooks", "adopter", "developer", "none"],
+      "tones": {
+        "dm": "warn", "hooks": "warn", "adopter": "info",
+        "developer": "muted", "none": "muted"
+      }
+    },
+    "detection": {
+      "type": "enum",
+      "values": ["silent", "loud"],
+      "tones": { "silent": "warn", "loud": "muted" }
+    },
+    "source":   { "type": "string" },
+    "owner":    { "type": "string" },
+    "area":     { "type": "string" },
+    "basis":    { "type": "string" },
+    "horizon":  { "type": "string" },
+    "surfaces": { "type": "list" },
+    "role":     { "type": "string" },
+    "progress": { "type": "string" },
+    "impact": {
+      "type": "enum",
+      "values": ["low", "medium", "high", "critical"],
+      "tones": { "low": "muted", "medium": "info", "high": "warn", "critical": "danger" }
+    },
+    "urgency": {
+      "type": "enum",
+      "values": ["low", "medium", "high"],
+      "tones": { "low": "muted", "medium": "info", "high": "warn" }
+    },
+    "effort": {
+      "type": "enum",
+      "values": ["small", "medium", "large"],
+      "tones": { "small": "ok", "medium": "muted", "large": "warn" }
+    },
+    "priority": {
+      "type": "enum",
+      "values": ["p0", "p1", "p2", "p3"],
+      "tones": { "p0": "danger", "p1": "warn", "p2": "info", "p3": "muted" }
+    },
+    "ticket-type": {
+      "type": "enum",
+      "label": "ticket type",
+      "values": ["grilling", "research", "probe", "prototype", "task"]
+    },
+    "reference-paths": { "type": "list", "hidden": true }
+  },
+  "infer": [
+    { "match": "/issues/", "set": { "type": "issue" } },
+    { "match": "/tdds/", "set": { "type": "tdd" } },
+    { "match": "/slices/", "set": { "type": "spec" } },
+    { "match": "/wayfinding/map\\.html$", "set": { "type": "map" } },
+    { "match": "/prd-[^/]*\\.html$", "set": { "type": "prd" } }
+  ],
+  "defaults": { "type": "doc" },
+  "rankings": {
+    "default": {
+      "where": {
+        "type": { "eq": "issue" },
+        "status": { "ne": ["implemented", "rejected"] },
+        "priority": { "set": true },
+        "blocked": { "eq": false }
+      },
+      "order": ["priority", "impact:desc", "urgency:desc", "effort:asc", "date:asc"]
+    },
+    "triage": {
+      "where": {
+        "type": { "eq": "issue" },
+        "status": { "ne": ["implemented", "rejected"] },
+        "priority": { "set": false }
+      },
+      "order": ["impact:desc", "urgency:desc", "date:asc"]
+    }
+  }
+}

@@ -9,7 +9,11 @@
 ## What to flag
 
 - **`any`** written anywhere in new code: an annotation, `as any`, `any[]`, `Record<string, any>`, a generic defaulted to `any`.
-- **A non-null `!` papering over `noUncheckedIndexedAccess`** — `arr[i]!`, `map.get(k)!` — where a local, cheap alternative exists: iterate `entries()`/`values()` instead of keys-then-`get`; destructure with a guard (`const first = order[0]; if (!first) return;`); `?? fallback`; `for…of` instead of an index. Name the alternative in the finding.
+- **A non-null `!` papering over `noUncheckedIndexedAccess`** — `arr[i]!`, `map.get(k)!` — where a local, cheap alternative exists. Name the alternative in the finding:
+  - iterate `entries()`/`values()` instead of keys-then-`get`;
+  - destructure with a guard (`const first = order[0]; if (!first) return;`);
+  - `?? fallback`;
+  - `for…of` instead of an index.
 - **A type assertion that bypasses checking** — `as unknown as T`, or `as T` on a value parsed from outside (`JSON.parse`, `yaml`'s `parse`, frontmatter, `loadData()`) with no runtime check behind it. Frontmatter is `unknown` until a helper (`str`, `list`, `truthy`, `parseLink`) or the schema builder narrows it.
 - **`@ts-ignore` / `@ts-expect-error`** in `src/`.
 - A function the branch exported or rewrote with an implicit return type that leaks a wide or accidental type (a union with `undefined` the callers do not handle, an inferred object literal standing in for a named interface).

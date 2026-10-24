@@ -94,7 +94,7 @@ Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `
 
 ## Writing Context & Instruction Docs
 
-Instruction and context files (`CLAUDE.md`, `docs/context/` docs, `SKILL.md`, agent definitions, `docs/**/*.md`) are read by LLMs. Optimize for precise retrieval, not rendering:
+Instruction and context files (`CLAUDE.md`, `docs/**/*.md`, and every Markdown file under `.claude/`: skills and their references, agent definitions, commands) are read by LLMs. Optimize for precise retrieval, not rendering:
 
 - **Keep (signal):** backticks around literals (paths, symbols, exact strings); Markdown tables for dense or relational data; headings and short bullets as retrieval anchors.
 - **Drop (render chrome):** clickable links `[text](path)` (write the bare path); anchor-link tables of contents; HTML render tags.

@@ -1,6 +1,6 @@
 ---
 name: context-compacting
-description: Prune and compact a context or instruction doc — cut what is stale, repeated or derivable, then rewrite the lines `planr wordy` flags without dropping a rule, literal or number that survives the cut. Use on a `docs/context/` doc, a `CLAUDE.md`, a `SKILL.md` or a `docs/` Markdown file when `planr wordy` flags it, after writing one, or when asked to compact one.
+description: Prune and compact a context or instruction doc — cut what is stale, repeated or derivable, then rewrite the lines `planr wordy` flags without dropping a rule, literal or number that survives the cut. Use on a `CLAUDE.md`, a `docs/` Markdown file, or any Markdown file under `.claude/` (skill, skill reference, agent definition, command) when `planr wordy` flags it, after writing one, or when asked to compact one.
 ---
 
 # Context Compacting

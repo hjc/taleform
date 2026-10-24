@@ -32,7 +32,7 @@ A finding ships only if it satisfies **every** one of these. Clearing all but on
 
    **"Cleaner", "more maintainable", "more idiomatic" are not units.** "Easy to forget" is, once counted as silent-omission clauses. If you cannot state the cost in something countable, drop it.
 3. **The convention was followed.** If the plan violates an existing convention or a `CLAUDE.md` invariant, that is `taleform-reviewer`'s finding, not yours. Yours is the case where conformance *is* the defect, **including a rule that is itself the defect** (shape K). Question whether a rule fits; never report a plain violation of one.
-4. **It is load-bearing now**, not on a hypothesis about future needs. "If we ever add a second map builder" is speculation. "The slice adds the second map builder" is a finding. **A rule held by hand at 2+ sites is load-bearing now even when every site is correct today**: the sites are the evidence. A builder the roadmap names but no plan or PRD commits to (Arc Map, Campaign Map today) is still speculation; one the PRD's slice list commits to is not.
+4. **It is load-bearing now**, not on a hypothesis about future needs. "If we ever add a second map builder" is speculation; "The slice adds the second map builder" is a finding. **A rule held by hand at 2+ sites is load-bearing now even when every site is correct today**: the sites are the evidence. A builder the roadmap names but no plan or PRD commits to (Arc Map, Campaign Map today) is still speculation, while one the PRD's slice list commits to is not.
 
 **Clever is not a finding; easy to get wrong is.** Unusual but self-contained code is taste. Code that is correct only while a builder or adopter remembers something is a finding, counted in silent-omission clauses or adoption steps.
 
@@ -148,7 +148,11 @@ A builder's correctness has two halves: one this repo writes, one that lives in 
 - **An expected output left unpinned because "the vault isn't migrated yet"**, while a sibling artifact (the PRD, a slice spec, a vault-doc change listed for the DM) already declares it. If an approved sibling names the value, an unpinned expectation asserts nothing.
 - **A fixture vault whose notes were invented to make the tests pass** rather than mirroring the shape the vault's template and spec declare. The machine-readable expectation was only ever fed to tests.
 
-**How to apply:** count the facts on each side of the repo/vault boundary and the checks on each; count how many declared names appear where the stated check can compare them; and note which copy of the declaration survives the effort's close, given the effort's `docs/features/<feature>/` folder is deleted.
+**How to apply:**
+
+- Count the facts on each side of the repo/vault boundary, and the checks on each.
+- Count how many declared names appear where the stated check can compare them.
+- Note which copy of the declaration survives the effort's close, given the effort's `docs/features/<feature>/` folder is deleted.
 
 **Cost units:** declared vault facts with no automated comparison; copies of an expectation that never run against the real vault.
 
@@ -219,7 +223,10 @@ A heavyweight or awkward mechanism chosen because `CLAUDE.md`, a skill or a cont
 
 **Signatures:**
 
-- A rule cited as the reason, with nothing measured or tested about this case: "lists of objects stay top-level" applied to a value that is not a list of objects; the Windows file-watcher workaround applied to a CLI path that only runs with Obsidian closed; "prefer deriving" applied to a fact the vault does not hold anywhere.
+- A rule cited as the reason, with nothing measured or tested about this case:
+  - "lists of objects stay top-level" applied to a value that is not a list of objects;
+  - the Windows file-watcher workaround applied to a CLI path that only runs with Obsidian closed;
+  - "prefer deriving" applied to a fact the vault does not hold anywhere.
 - A rule written for the one live vault, or the largest mission in it, applied uniformly to every case.
 
 **Cost units:** extra frontmatter keys or adoption steps; instances where the rule's premise does not hold.

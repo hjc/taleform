@@ -75,7 +75,16 @@ Include a Refactor phase for a step only when there is real refactoring to do. O
 Treat a doc's code blocks as **illustrative intent, not copy-paste source** — approval covers the DESIGN, not the sketch's mechanics. Before transcribing a sketch into a Green Phase, diff it against the real modules and correct it in the plan, stating the correction as a fact in a callout so the executor and reviewers know the plan intentionally departs from the doc, and why. Never silently "fix" it.
 
 Check every sketch against real source for:
-1. **A seam it bypasses.** Does it parse links itself instead of going through `StoryIndex.resolve`/`link` (`src/core/index.ts`)? Re-derive a domain rule (sequence order, `resumeBeat`, `combatOf`, `partySize`) that already lives in `src/core/story.ts`? Write files directly instead of `emit(path, content)` through the engine? Splice text by hand instead of `setRegion` (`src/core/regions.ts`)? Compare canvases textually instead of `sameCanvas`?
+1. **A seam it bypasses.** Does it do any of these by hand?
+
+   | Does it… | Instead of |
+   |---|---|
+   | parse links itself | `StoryIndex.resolve`/`link` (`src/core/index.ts`) |
+   | re-derive a domain rule (sequence order, `resumeBeat`, `combatOf`, `partySize`) | the one already in `src/core/story.ts` |
+   | write files directly | `emit(path, content)` through the engine |
+   | splice text by hand | `setRegion` (`src/core/regions.ts`) |
+   | compare canvases textually | `sameCanvas` |
+
 2. **A boundary it crosses.** An Obsidian import in `src/core/`, a vault-specific name or path in `src/`, or a builder that writes frontmatter (`CLAUDE.md` § Invariants).
 
 ### TDD Rigor
@@ -100,7 +109,11 @@ Every Red Phase test includes:
 - Assert (specific assertion with expected value)
 - Expected failure (one line — why this fails before Green)
 
-**Include concrete code** for test infrastructure: full import blocks, fixture vault helpers (`MemoryVault`, `note(fm, body)` from `test/memoryVault.ts`; extend the nearest existing helper such as `vault()` / `seq()` in `test/builders.test.ts` or `mission()` in `test/model.test.ts`), and any `vi.mock()` with a stated reason the fixture route doesn't work. Show it as code, not prose.
+**Include concrete code** for test infrastructure, shown as code, not prose:
+
+- full import blocks;
+- fixture vault helpers: `MemoryVault`, `note(fm, body)` from `test/memoryVault.ts`. Extend the nearest existing helper, such as `vault()` / `seq()` in `test/builders.test.ts` or `mission()` in `test/model.test.ts`;
+- any `vi.mock()`, with a stated reason the fixture route doesn't work.
 
 ### Executor-Friendliness
 

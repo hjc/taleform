@@ -5,7 +5,7 @@ description: Tidy a branch before opening its PR: audit the diff against its par
 
 # PR Tidying
 
-Audit and clean up a branch before PR submission. Compare against its **parent** — `main` for a standalone branch, the branch below it in a stack (`docs/sdlc.md` §3) — identify every cleanup issue across the changed files, present findings for approval, apply fixes, then drive `npm run check` (typecheck + vitest + bundle) to green and re-run the read-only parity check against the live vault, resolving every failure, warning and error the branch introduced.
+Audit and clean up a branch before PR submission. Compare against its **parent**: `main` for a standalone branch, the branch below it in a stack (`docs/sdlc.md` §3). Identify every cleanup issue across the changed files, present findings for approval, and apply fixes. Then drive `npm run check` (typecheck + vitest + bundle) to green and re-run the read-only parity check against the live vault. Resolve every failure, warning and error the branch introduced.
 
 Below, `<parent>` is that parent branch and `<vault>` is the live vault path from `CLAUDE.md` § The vault.
 

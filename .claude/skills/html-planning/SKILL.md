@@ -54,14 +54,17 @@ Page header with title, subtitle, and a row of chips: the status, the date, and 
 ```
 **Attributes:** `title`, `subtitle`, `status`, `date`.
 
-**The chip row** shows, in order: the status chip (a tone-coloured dot and the status), the date, then **one chip per field of the document's `<plan-meta>`** — `label value`, where the label is the field's schema `label` or, when it has none, its key — with a dot in the field's tone when its schema declares one. A field declared `hidden` is not shown, and a long value is cut with an ellipsis (hover for the key and the whole value). The status chip never shows a key, so `priority p1` cannot be mistaken for it.
+**The chip row** shows, in order: the status chip (a tone-coloured dot and the status), the date, then **one chip per field of the document's `<plan-meta>`**. A field chip reads `label value`, where the label is the field's schema `label` or, when it has none, its key. It carries a dot in the field's tone when its schema declares one. A field declared `hidden` is not shown, and a long value is cut with an ellipsis (hover for the key and the whole value). The status chip never shows a key, so `priority p1` cannot be mistaken for it.
 
 **`chips` is deprecated.** A pipe-delimited `chips` attribute still renders, after the metadata chips, but no template writes it and `check` warns on it. Declare each recurring chip as a schema field and set it with `planr meta --set`.
 
 **`status` values:** `draft` · `review` · `approved` · `implemented` · `rejected` — the full set, each with its own dot colour. This is the **header's own** enum and is different from a section's (`todo`/`in-progress`/`done`/`blocked`); `planr set` validates each against the right one. Use `review` for claimed-but-unresolved work.
 
 #### `<plan-nav>`
-Auto-generated navigation. By default the runtime shows a **left side-panel tree** covering every section at every depth (see "Architecture" below); the `<plan-nav>` element itself is the fallback view — a sticky top bar that renders top-level sections as links, with a hover dropdown of a section's **immediate** children, so it shows **two levels**. Deeper nesting is still addressable and rendered, just not shown in that bar. Either way the element carries no attributes — place it before `<main>` and the runtime handles the rest.
+Auto-generated navigation. By default the runtime shows a **left side-panel tree** covering every section at every depth (see "Architecture" below).
+
+- **The fallback view** is the `<plan-nav>` element itself: a sticky top bar of top-level section links, each with a hover dropdown of its **immediate** children, so the bar shows **two levels**. Deeper nesting is still addressable and rendered, just not shown in that bar.
+- **No attributes** either way: place it before `<main>` and the runtime handles the rest.
 ```html
 <plan-nav></plan-nav>
 ```
@@ -76,7 +79,16 @@ A content section. **Sections nest** — a `<plan-section>` may contain child `<
   </plan-section>
 </plan-section>
 ```
-**Attributes:** `id` (required for nav linking + CLI addressing; must be **unique document-wide**), `title`, `status` (optional: `todo`/`in-progress`/`done`/`blocked` — a colored pill in the heading; flip it cheaply with `planr`), `num` (optional — **overrides** the auto-number for that one section, e.g. `"Part 1"`; on a nested section a bare value like `1` joins onto the parent → `5.1`, while a dotted value like `5.1` is used as-is). Never write `num` merely to number sections in order; that is derived.
+**Attributes:**
+
+| Attribute | Meaning |
+|---|---|
+| `id` | Required for nav linking + CLI addressing; must be **unique document-wide**. |
+| `title` | The heading text. |
+| `status` | Optional: `todo`/`in-progress`/`done`/`blocked`. A colored pill in the heading; flip it cheaply with `planr`. |
+| `num` | Optional. **Overrides** the auto-number for that one section, e.g. `"Part 1"`. |
+
+On a nested section a bare `num` like `1` joins onto the parent → `5.1`, while a dotted value like `5.1` is used as-is. Never write `num` merely to number sections in order; that is derived.
 
 #### `<plan-subsection>`
 Backward-compat **alias for a nested `<plan-section>`** — it renders identically (one level deeper: `h3`, auto-numbered `N.M`). New plans can simply nest `<plan-section>`; the `<plan-subsection>` tag remains so existing plans keep working. Use either for TDD steps, sub-phases, or any sub-grouping.
@@ -295,7 +307,7 @@ Prefer `planr set-body --file` / `add-section --body-file` to splice a generated
 ### Diagrams
 
 #### `<plan-diagram>`
-Renders a [Mermaid](https://mermaid.js.org/) diagram from plain text — flowcharts, sequence diagrams, state diagrams, ER diagrams, Gantt charts, etc. Prefer this over hand-drawn SVG: it's far more compact, expressive, and themed automatically to match the plan. The element's content **is** the Mermaid source.
+Renders a Mermaid (`https://mermaid.js.org/`) diagram from plain text — flowcharts, sequence diagrams, state diagrams, ER diagrams, Gantt charts, etc. Prefer this over hand-drawn SVG: it's far more compact, expressive, and themed automatically to match the plan. The element's content **is** the Mermaid source.
 ```html
 <plan-diagram caption="Audit log write path on checkout">
 flowchart LR
@@ -382,7 +394,10 @@ Apply these to any element:
 6. **Use `<plan-callout>` sparingly** — for genuinely important notes, not every paragraph.
 7. **Use native `<details>` for optional depth** — lengthy calculations, raw data, edge cases.
 8. **Keep plan files semantic.** The CSS and JS live in the skill folder and are loaded at runtime. Don't inline styles or scripts in plan files.
-9. **Encode code changes as `<plan-diff>` and `<plan-file>`, not prose.** Never write "Around line 45, remove the `CASCADE` argument and replace with `SET_NULL`" — instead, use a `<plan-diff>` that shows the exact change with line numbers, add/delete markers, and syntax highlighting. The markup is the instruction. Prose should describe *why* the change is made, not *what* lines to edit. Similarly, when referencing existing code to read or understand, use `<plan-file>` with the path and line range instead of describing it in a sentence.
+9. **Encode code changes as `<plan-diff>` and `<plan-file>`, not prose.**
+    - Never write "Around line 45, remove the `CASCADE` argument and replace with `SET_NULL`". Use a `<plan-diff>` that shows the exact change with line numbers, add/delete markers, and syntax highlighting. The markup is the instruction.
+    - Prose describes *why* the change is made, not *what* lines to edit.
+    - To reference existing code to read or understand, use `<plan-file>` with the path and line range instead of a sentence.
 10. **Link every reference to another plan document.** These files are read by clicking through them in a browser; a bare `<code>` path is a dead end. Wrap the `<code>` so the displayed text is unchanged: `<a href="../prd-<feature>.html"><code>prd-<feature>.html</code></a>`.
     - **The `href` is relative to the file that carries it, not to what the text displays.** A document one directory down cites a sibling as `../research/decisions.html` even where the text reads `research/decisions.html`. Resolve each path against the containing file and confirm it exists before writing it.
     - **A glob is never a link** (`notes/*.html`, `slices/<n>-*.html`, `tdds/`) — it is not a file. Leave it plain.
@@ -433,9 +448,9 @@ tr:2          the 2nd <tr>, 1-based
 | `new` | `<file>` | `--title <T>` · `--template <name>` (default `basic`) · `--set <k=v>` (repeatable) | Generate a plan from a template. A **bare** `--set` key fills a `{{placeholder}}` the template declares (`lang`, `subtitle`, `status`, `reference-paths`, …); a **dotted** key is a node address applied to the generated file (`header.status=review`). Both are validated the same way, and an unusable key is an error, never a silent drop. A template's metadata fields are stamped from the schema. Run `templates <name>` for the variables a template offers. |
 | `templates` | `[<name>]` | *(none)* | With no name, a table of every template and its one-line gist. With a name, that template's **full guidance** — the leading comment its author wrote — plus the sections it scaffolds. |
 | `list` | `<file>` | `--no-outline` | Print the title, then every section as `num. id — title [status]`, indented by depth, **and each section's own `<h1>`–`<h6>` headings** — where a large plan's real structure lives, and the anchors `insert --before-heading` takes. `--no-outline` drops the headings for the rare document with hundreds of them. |
-| `check` | `<file>` | `--strict` | **Authoritative structure validation, then warnings.** Per-tag balance for every `<plan-*>` and `<table>`/`<thead>`/`<tbody>`/`<tfoot>`/`<tr>`, a legal parent for every balanced tag — a `<tr>` directly in `<table>`/`<thead>`/`<tbody>`/`<tfoot>`, a cell in a `<tr>`, and no table tag or block component inside an inline element such as `<code>` — unregistered components, duplicate ids, and a tag census; exits **1** with the offending line numbers on any break. On a sound document it then lists, by line, markup that balances but will not render as written: an unescaped tag inside `<plan-file>`/`<plan-diff>`, a `<plan-diff>` line with no gutter character, link text that is only a section number (`&sect;5`), a badge whose label names a different type, a `<title>` that disagrees with the header title, and a template banner left at the top of `<main>`, a header carrying free-text `chips`, a `<plan-field>` stamp that disagrees with the schema, and a `blocked-by` target that does not exist. Warnings exit **0**; `--strict` exits **1** when there are any. |
+| `check` | `<file>` | `--strict` | **Authoritative structure validation, then warnings.** Exits **1** on any structure break; warnings exit **0** unless `--strict` (see "`check` in detail" below). |
 | `tasks` | `<file>` | `--all` · `--status <s>` (comma-sep) | List sections carrying a `status`, excluding `done`; `--all` includes `done`, `--status` lists only the given statuses. Rows are `<address>  [status]  title`. |
-| `read` | `<file> <address>` | `--body` · `--text` | Print the node's **outer** markup; with `--body`, just its **inner** content. With `--text`, plain text instead of markup, structure kept: one block per line, headings and numbered section titles as `#` lines, list items as `- ` lines, table rows as cells joined with ` \| `, badges as `[label]`, content carried in attributes (a card's value, a header's subtitle, a diagram's caption) on its own line, code components fenced with their lines verbatim. Nested sections are included either way; `--body` drops only the node's own title line. |
+| `read` | `<file> <address>` | `--body` · `--text` | Print the node's **outer** markup; with `--body`, just its **inner** content; with `--text`, plain text (see "`read --text` in detail" below). Nested sections are included either way; `--body` drops only the node's own title line. |
 | `meta` | `<file>` | `--format text\|json` · `--set <k>=<v>` (repeatable) · `--unset <k>` (repeatable) · `--stamp` | With no `--set`/`--unset`, print the document's **resolved metadata** and where each value came from. With them, write the `<plan-meta>` block — creating it when absent, refusing an unknown field or an out-of-schema value, and stamping every field from the schema. `--stamp` alone rewrites each field's `label`/`tone`/`hidden` stamp from the schema without touching a value. See "Metadata" below. |
 | `query` | `<dir\|glob>` | `--where <expr>` (repeatable) · `--has <k>` · `--missing <k>` · `--rank <name>` · `--sort <k[:asc\|desc],…>` · `--fields <cols>` · `--limit N` · `--format table\|json\|tsv\|paths` · `--strict` | Filter, sort and project a **corpus** of documents by their resolved metadata. Unreadable, non-document and unbalanced files are reported on stderr, never dropped. See "Querying" below. |
 | `next` | `<dir\|glob>` | `--rank <name>` · `--format text\|json` · `--strict` | The single top-ranked document, with its metadata and the section addresses an agent needs to act on it. An empty queue exits 0. |
@@ -453,6 +468,34 @@ tr:2          the 2nd <tr>, 1-based
 | `rm-section` | `<file> <address>` | *(none)* | Remove the section at that address, at any depth. |
 | `move-section` | `<file> <address>` | `--after <addr>` \| `--before <addr>` **(one required)** | Move the addressed section beside a sibling. |
 
+#### `check` in detail
+
+Structure checks, which exit **1** with the offending line numbers on any break:
+
+- per-tag balance for every `<plan-*>` and `<table>`/`<thead>`/`<tbody>`/`<tfoot>`/`<tr>`;
+- a legal parent for every balanced tag: a `<tr>` directly in `<table>`/`<thead>`/`<tbody>`/`<tfoot>`, a cell in a `<tr>`, and no table tag or block component inside an inline element such as `<code>`;
+- unregistered components, duplicate ids, and a tag census.
+
+On a sound document it then warns, by line, on markup that balances but will not render as written:
+
+- an unescaped tag inside `<plan-file>`/`<plan-diff>`, or a `<plan-diff>` line with no gutter character;
+- link text that is only a section number (`&sect;5`), or a badge whose label names a different type;
+- a `<title>` that disagrees with the header title, or a template banner left at the top of `<main>`;
+- a header carrying free-text `chips`, or a `<plan-field>` stamp that disagrees with the schema;
+- a `blocked-by` target that does not exist.
+
+Warnings exit **0**; `--strict` exits **1** when there are any.
+
+#### `read --text` in detail
+
+Plain text instead of markup, structure kept:
+
+- one block per line;
+- headings and numbered section titles as `#` lines, list items as `- ` lines;
+- table rows as cells joined with ` | `, badges as `[label]`;
+- content carried in attributes (a card's value, a header's subtitle, a diagram's caption) on its own line;
+- code components fenced with their lines verbatim.
+
 **Rules & gotchas:**
 
 - **Placing a section:** `--after`/`--before` name a **sibling** — by full path or bare id — which fixes the new section's nesting depth too — so `add-section --id step-2 --after step-1` nests under `steps` with no `--parent`. Use `--parent <addr>` alone to append as that node's **last** child. Passing a `--parent` that contradicts the ref is an error, not a silent override. With neither, the section is appended at top level.
@@ -465,7 +508,13 @@ tr:2          the 2nd <tr>, 1-based
 - **`set-body` is verbatim; the hunk commands fit the seam.** A `set-body` body owns its whitespace byte-for-byte (that is what makes the round-trip lossless). A `prepend`/`append`/`insert` hunk is placed at one point instead, so blank edge lines are dropped and the anchor's indentation is applied **only when the hunk carries none of its own**. Escaping is yours either way.
 - **Round-trip:** `read --body <addr>` → edit the hunk → `set-body <addr>` is byte-for-byte lossless.
 - **Ambiguity is an error, not a guess.** `insert --before-heading` refuses a text that matches two headings, and `badge --match` refuses a text that matches two rows (pass `--all` if you mean both). A text-addressed write numbers its candidates so `--nth <n>` can pick one, and takes every one only with `--all`. All of them list the candidates so you can narrow it.
-- **Text-addressed writes match visible text.** These commands — `rm-item`, `strike`, `replace` — match `--match` as a case-insensitive substring of the **visible** text: entities decoded (`&amp;` and `&` in `--match` hit the same text), whitespace collapsed so a sentence wrapped across source lines still matches, inline markup adding nothing (`Alerts to <code>ops</code>.` reads `Alerts to ops.`), and a block boundary reading as one space. `badge --match` is looser: it reads every tag as a space. Each sees only what the addressed section **owns** — never a nested section's content (address the child) — and `--into <sel>` narrows that further. List items and table rows need explicit closing tags.
+- **Text-addressed writes match visible text.** `rm-item`, `strike` and `replace` match `--match` as a case-insensitive substring of the **visible** text:
+  - entities are decoded (`&amp;` and `&` in `--match` hit the same text);
+  - whitespace is collapsed, so a sentence wrapped across source lines still matches;
+  - inline markup adds nothing (`Alerts to <code>ops</code>.` reads `Alerts to ops.`);
+  - a block boundary reads as one space.
+
+  `badge --match` is looser: it reads every tag as a space. Each sees only what the addressed section **owns**, never a nested section's content (address the child), and `--into <sel>` narrows that further. List items and table rows need explicit closing tags.
 - **A text run stays inside one element.** `strike` and `replace` refuse a match whose ends sit in different elements — `to <code>ops</code>` is not one run — so narrow `--match` to text inside one. `strike` also refuses a run already inside `<s>`, and one inside `pre`, `plan-file`, `plan-diff` or `plan-diagram`, where markup corrupts the code; `replace` reaches both. Every refusal names the line.
 - **`replace` rewrites; `insert` only adds.** A `prepend`/`append`/`insert` hunk never displaces anything, so using one to swap a sentence leaves both copies and `check` stays green. Rewrite text in place with `replace --match "…" --with "…"`. The replacement is markup, spliced verbatim — escape `<` `>` `&` as in any body. A rewrite spanning several elements is `read --body` → edit → `set-body`.
 - **`replace` rewrites text inside an element, never the element.** `--match` hits its text wherever it is visible — a filename or id cited in a row usually sits in that row's own `<code>` cell — so a whole row given as the replacement would land inside the cell. `replace` refuses it and names the parent. Rewrite a row with `rm-item --match` then `append --into tbody`, or `read --body` → edit → `set-body` to keep its position.
@@ -520,7 +569,7 @@ The characteristic write on a long-lived plan is **small and deep**: an amendmen
 | Replacing a whole section's content | `set-body <section> --file` |
 | A field on the document's metadata | `meta --set k=v` |
 
-**Prefer these over `Edit` for anything structural.** An `Edit` on a plan means hand-lifting an `old_string` out of a large file, which is where this toolchain's worst failure mode lives — and a `<plan-badge>` in a table row is usually an *empty* tag (`<plan-badge type="open"></plan-badge>`), so an `old_string` written assuming inner text matches nothing at all.
+**Prefer these over `Edit` for anything structural.** An `Edit` on a plan means hand-lifting an `old_string` out of a large file, which is where this toolchain's worst failure mode lives. A `<plan-badge>` in a table row is usually an *empty* tag (`<plan-badge type="open"></plan-badge>`), so an `old_string` written assuming inner text matches nothing at all.
 
 **Never reconstruct an `old_string` from a byte-truncated view of it.** `tail -c N` / `cut -c` cut mid-line, which makes wrapped prose look like it starts at a line boundary when it does not, and the `Edit` fails with "String to replace not found." Use `grep -n` plus `Read` with an offset for line-accurate text — or better, `prepend`/`append`/`insert` and skip the `old_string` entirely.
 
@@ -580,9 +629,21 @@ Both are validated identically (`--set status=aproved` and `--set header.status=
 
 A document's **metadata** is the small set of facts a tool filters and sorts a whole directory of documents by — `type`, `status`, `reference-paths`, `blocked-by`, and whatever else a repo's schema declares — held in the document itself rather than in a separate index.
 
-**Resolution chain.** Every field resolves through four sources, in order, and the first one that carries a value wins: the document's own `<plan-meta>` block, then a `<plan-header>` attribute (for a field declared `from: "header:…"`), then path inference (an `infer` rule matching `/issues/` can resolve `type=issue`), then a schema-declared default. A document with **no `<plan-meta>` block at all is still fully queryable** — the header and path sources alone resolve `title`, `status`, `date` and whatever the `infer` rules set — so adding the block to an existing corpus is optional, never a prerequisite.
+**Resolution chain.** Every field resolves through four sources, in order, and the first one that carries a value wins:
 
-**The schema.** The field vocabulary is **data, not code**: nothing about a field's name, type or enum values is hardcoded in `planr.js`. Two files are read, merged in this order: the shipped core (`planr-schema.json` beside `planr.js`) and, when it exists, a consuming repo's own **`.claude/planr-schema.json`**, found beside `planr-templates/` under the same `.claude` this skill installs into. A consumer field **replaces** the core field of the same name outright — never a key-by-key merge — because an enum's declared value order is load-bearing and there is no unambiguous way to merge two orders.
+1. the document's own `<plan-meta>` block;
+2. a `<plan-header>` attribute, for a field declared `from: "header:…"`;
+3. path inference (an `infer` rule matching `/issues/` can resolve `type=issue`);
+4. a schema-declared default.
+
+A document with **no `<plan-meta>` block at all is still fully queryable** — the header and path sources alone resolve `title`, `status`, `date` and whatever the `infer` rules set — so adding the block to an existing corpus is optional, never a prerequisite.
+
+**The schema.** The field vocabulary is **data, not code**: nothing about a field's name, type or enum values is hardcoded in `planr.js`. Two files are read, merged in this order:
+
+1. the shipped core, `planr-schema.json` beside `planr.js`;
+2. when it exists, a consuming repo's own **`.claude/planr-schema.json`**, found beside `planr-templates/` under the same `.claude` this skill installs into.
+
+A consumer field **replaces** the core field of the same name outright, never a key-by-key merge. An enum's declared value order is load-bearing, and two orders have no unambiguous merge.
 
 ```json
 {
@@ -632,7 +693,7 @@ $ planr meta plan.html --unset reference-paths
 
 `--set` creates the `<plan-meta>` block as the **first element inside `<main>`** when none exists yet, and updates it in place otherwise. An unknown field or a value the schema refuses is **refused, never written** — exactly the rule `check` enforces below.
 
-**What `check` says.** A metadata problem is reported as a **warning**, never a structure failure: an unknown field, a value the type or enum refuses, a duplicate key, a header-owned field written into the block (see below), a `<plan-meta>` that is misplaced or appears twice, and a `<plan-field>` sitting outside any block. Warnings never change `check`'s exit code and never block a write; `check --strict` is the gate.
+**What `check` says.** A metadata problem is reported as a **warning**, never a structure failure. The problems are an unknown field, a value the type or enum refuses, a duplicate key, and a header-owned field written into the block (see below). So are a `<plan-meta>` that is misplaced or appears twice, and a `<plan-field>` sitting outside any block. Warnings never change `check`'s exit code and never block a write; `check --strict` is the gate.
 
 **One writable home per fact.** A field declared `from: "header:…"` — `title`, `status`, `date` in the shipped core — is a **read-only view** of that header attribute, not a second place to store it. `planr meta --set` refuses to write one and names the real writer: `planr set <file> header.status=…`. A template may not declare one either, and `check` warns when a hand edit puts one in a block anyway.
 
@@ -702,7 +763,12 @@ The set is fixed: a schema **picks** a tone and never declares a colour.
 
 **A single `set-body --file` of ~17KB is a normal operation** — there is no size-related failure mode, and structure is re-verified after every splice.
 
-Rich content (paragraphs, code, diffs, callouts) is irreducibly the size of the content — but you can pay for the content *without* also paying to load the plan. Author the body as normal plan markup in a scratch file, then inject it by address with `add-section --body-file` or `set-body --file`; the plan is mutated in place and never read into context. To fix content in an existing section, pull just that hunk with `read --body`, edit it, and push it back with `set-body` — ~2× the hunk, still far less than materializing the whole plan. To *add* to a section rather than rewrite it, skip the read entirely and use `prepend` / `append` / `insert` (see "Editing a document too big to load"): the cost is the hunk alone. `set-body` and `add-section` splice **verbatim** (the body owns its whitespace); escaping is your responsibility exactly as when authoring markup directly.
+Rich content (paragraphs, code, diffs, callouts) is irreducibly the size of the content, but you need not also pay to load the plan:
+
+- **New content:** author normal plan markup in a scratch file, then inject it by address with `add-section --body-file` or `set-body --file`. The plan is mutated in place and never read into context.
+- **Fixing a section:** pull just that hunk with `read --body`, edit it, and push it back with `set-body`. That costs ~2× the hunk, still far less than materializing the whole plan.
+- **Adding to a section:** skip the read and use `prepend` / `append` / `insert` (see "Editing a document too big to load"). The cost is the hunk alone.
+- `set-body` and `add-section` splice **verbatim** (the body owns its whitespace). Escaping is your responsibility, exactly as when authoring markup directly.
 
 ## Querying
 
@@ -894,4 +960,18 @@ planr wordy plan.html --format json         # the work list
 
 The inline loader in each generated plan file finds `.claude/` in the file path and resolves the skill assets from there, appending the install subpath that `planr new` baked in at generation time (so the skill works under any folder name within `.claude/skills/`). Plan files contain only semantic markup — no CSS or JS.
 
-Every rendered plan also gets a **view-settings gear** (floating, top-right) injected by the runtime, with per-reader toggles persisted via `localStorage`: **"Wrap long lines"** (soft-wraps code/diff blocks), **"Side-panel navigation"** (**on by default** — a left **side-panel tree** listing every section at every depth; turning it off falls back to the two-level top nav), **"Start sections collapsed"**, and **"Full-width content"** (drops the centered reading cap so content fills the available width). A toggle the reader has never touched tracks its default, so changing a default reaches everyone who hasn't opted out. The panel is runtime-injected from the live section tree and drawn as a file-tree with connector guides; it has a header with a collapse control, collapses to a floating opener, is resizable by dragging its right edge, and on narrow screens overlays full-screen. A single scroll-spy highlights the active section in whichever view is showing. This is all automatic; you don't author it, and you shouldn't hand-roll your own settings UI or navigation tree.
+Every rendered plan also gets a **view-settings gear** (floating, top-right) injected by the runtime. Its per-reader toggles persist via `localStorage`:
+
+- **"Wrap long lines"** soft-wraps code/diff blocks.
+- **"Side-panel navigation"** is **on by default**: a left **side-panel tree** listing every section at every depth. Off falls back to the two-level top nav.
+- **"Start sections collapsed"**.
+- **"Full-width content"** drops the centered reading cap so content fills the available width.
+- A toggle the reader has never touched tracks its default, so changing a default reaches everyone who hasn't opted out.
+
+The panel is runtime-injected from the live section tree and drawn as a file-tree with connector guides.
+
+- It has a header with a collapse control, and collapses to a floating opener.
+- It is resizable by dragging its right edge, and on narrow screens overlays full-screen.
+- A single scroll-spy highlights the active section in whichever view is showing.
+
+This is all automatic. Don't author it, and don't hand-roll your own settings UI or navigation tree.

@@ -29,7 +29,14 @@ When the plan implements a slice of a larger effort, the correspondence is **one
 
 ### Plan Types
 
-Most plans ADD behavior (feature plans) — the default this skill describes. Some RIP OUT or carve off behavior (removal plans); their failure modes are different — atomic-ordering broken-intermediate states, test-surgery on already-passing tests, dead-code cleanup, and generated output left behind in the DM's vault. When the task is a removal, a feature carve-off/park, or reversing a just-shipped behavior, also read `removal-plans.md` in this skill directory before authoring. Others MOVE a name other code — or the DM's notes, or the vault's hooks — binds to (rename / signature-change plans); there the change is mechanically forced to fan out, intermediate states do not typecheck, and tests go red — or stay green — for reasons unrelated to the behavior under test. When the task renames a frontmatter property, a builder id, a region id, a canvas `generated` marker, a CLI flag or `--json` field, or changes a function signature other modules call, also read `rename-and-signature-plans.md`.
+| Plan kind | What it does | Also read before authoring |
+|---|---|---|
+| Feature | ADDs behavior. The default this skill describes. | nothing |
+| Removal | RIPs OUT or carves off behavior. | `removal-plans.md` in this skill directory |
+| Rename / signature change | MOVEs a name other code (or the DM's notes, or the vault's hooks) binds to. | `rename-and-signature-plans.md` |
+
+- **Removal plans** have different failure modes: atomic-ordering broken-intermediate states, test-surgery on already-passing tests, dead-code cleanup, and generated output left behind in the DM's vault. Use the removal reference when the task is a removal, a feature carve-off/park, or reversing a just-shipped behavior.
+- **Rename / signature-change plans** are mechanically forced to fan out. Intermediate states do not typecheck, and tests go red (or stay green) for reasons unrelated to the behavior under test. Use the rename reference when the task renames a frontmatter property, a builder id, a region id, a canvas `generated` marker, a CLI flag or `--json` field, or changes a function signature other modules call.
 
 ## Core Principle: Tests First, Always
 
@@ -106,7 +113,9 @@ For any feature that touches story data:
 3. **Record every site in `callsites`, and every *changing* site in `migration`** — then give each migration row its own step with its own test. A swap without a step is the failure this audit exists to prevent.
 4. **Check builder run order**: a builder that reads another's output through `ctx.read` depends on running after it. Moving, splitting or replacing a builder means checking every reader of its paths and its position in `BUILDERS`.
 5. **Check test fixtures**: Every fixture helper and literal note that encodes the old shape must be updated to the new one.
-6. **Chained plans (targeting an unexecuted prerequisite's end-state)**: when this plan depends on another plan that has not executed yet and its diffs target that plan's END-STATE rather than current on-disk code, (a) write the diffs against the prerequisite's end-state and add a pre-apply check that the prerequisite's exact expressions still match before swapping them (they may shift during the prerequisite's execution); and (b) audit the docs/skill text the prerequisite *introduces* for any statement THIS plan invalidates and include correcting it as a callsite — a doc-sync step that exists only because of the prerequisite.
+6. **Chained plans (targeting an unexecuted prerequisite's end-state)**: this plan depends on another plan that has not executed yet, and its diffs target that plan's END-STATE rather than current on-disk code.
+   - (a) Write the diffs against the prerequisite's end-state. Add a pre-apply check that the prerequisite's exact expressions still match before swapping them; they may shift during the prerequisite's execution.
+   - (b) Audit the docs/skill text the prerequisite *introduces* for any statement THIS plan invalidates, and include correcting it as a callsite: a doc-sync step that exists only because of the prerequisite.
 7. **Changing emitted text or a shared object shape: audit by the literal, not by the symbol.** When a step changes what a builder emits or what a function returns, a grep for the changed symbol misses every pre-existing test that asserts the retired text with `toContain` or an exact `toEqual` — including tests written in an earlier step of this same plan. Grep the test files for the old literal (a callout heading, an edge label like `skip — optional`, a region id) and add each hit as a `migration` row.
 8. **Deleting or renaming a module: `tsc` finds importers, not strings.** `npm run check` catches every static import of a removed symbol, but not a path or id held in a string: a region id, a builder id compared by name, a canvas `generated` value, a file-name pattern like `— Adventure Map.canvas`. Grep for those literally and re-home every hit in the plan.
 
@@ -234,7 +243,11 @@ The executor is less capable and takes the plan literally; internal contradictio
 
 - **Prose must agree with its diffs.** A step's narrative ("this stays X until step N+1") must not contradict that same step's `<plan-diff>`/`<plan-file>` blocks (which may rename the very parameter the prose calls unchanged). The diff is what must typecheck and pass, and every later artifact assumes it landed — so write the prose to match the diff. If a signature change in a step's diff forces callsite updates, place them in THAT step; don't let prose defer them to a later one.
 - **Order symbol introduction so each step stands alone.** A Red-phase test must not import a constant/function the plan only DEFINES in a later step. Vitest transpiles without typechecking, so the missing import is silently `undefined` and every test touching it fails with an unrelated `TypeError`, not the predicted assertion failure — and `tsc` fails the step's `npm run check` besides. Pull a behavior-neutral extract-constant or rename forward into the first step that needs the symbol.
-- **Before applying a review item, read the plan's current state.** An item phrased as "add X" is frequently **already applied**, if earlier items from the same report landed in a previous pass. The residual defect is then the *prose beside* X — a callout still calling X optional, a count that predates it — and the fix is to rewrite that prose, never to re-add X. Review reports are written against a snapshot, so applying one across several passes desynchronizes the report from the file, and the most damaging leftover is a plan that instructs one thing in a diff and the opposite in a callout: a plan that contradicts itself teaches the executor to trust neither statement. Grep the plan for the thing the item says is missing *before* writing; if it is present, reframe the item as "what prose still asserts the old state?" and say so in the report-back rather than silently doing something different from what was asked.
+- **Before applying a review item, read the plan's current state.**
+  - An item phrased as "add X" is frequently **already applied**, if earlier items from the same report landed in a previous pass.
+  - The residual defect is then the *prose beside* X: a callout still calling X optional, a count that predates it. Rewrite that prose; never re-add X.
+  - Review reports are written against a snapshot, so applying one across several passes desynchronizes the report from the file. The most damaging leftover is a plan that instructs one thing in a diff and the opposite in a callout. A plan that contradicts itself teaches the executor to trust neither statement.
+  - Grep the plan for the thing the item says is missing *before* writing. If it is present, reframe the item as "what prose still asserts the old state?" and say so in the report-back, rather than silently doing something different from what was asked.
 
 ## Phase 3: Execution Guidance
 
@@ -288,19 +301,33 @@ If a design decision needs justification, state it as a fact with a brief ration
 
 Before finalizing, verify the plan specifies these where they apply:
 
-- **The invariants (`CLAUDE.md` § Invariants), each with a test where the plan touches it.** No builder writes frontmatter. Output lands only in a region, the sequence header / `## Next` footer, or a canvas item carrying `"generated"` — and a fixture with hand-made content beside it proves it survives. A second build reports 0 changes. A renamed or retired property gets its `RETIRED` entry in `src/builders/schema.ts` and a test that the old name's error names the replacement. Pre-commit staging never blocks.
+- **The invariants (`CLAUDE.md` § Invariants), each with a test where the plan touches it.**
+  - No builder writes frontmatter.
+  - Output lands only in a region, the sequence header / `## Next` footer, or a canvas item carrying `"generated"`. A fixture with hand-made content beside it proves that content survives.
+  - A second build reports 0 changes.
+  - A renamed or retired property gets its `RETIRED` entry in `src/builders/schema.ts` and a test that the old name's error names the replacement.
+  - Pre-commit staging never blocks.
 - **`src/core/` stays free of Obsidian imports, and `src/` names nothing from the DM's vault.** Anything vault-specific comes from frontmatter.
 - **Generated-output identity is stable.** A change to the arguments of a `nid(...)` call, a region id, a builder id, or the canvas file name churns every existing map or orphans every existing region. If the plan changes one, it is a rename plan (`rename-and-signature-plans.md`); if it must not, the `nid` vectors in `test/core.test.ts` and an existing-canvas fixture pin it.
 - **The parity check is a verification step.** Any change to a builder lists `node dist/cli.cjs check --vault "<vault>"` with the expected result: "up to date" plus the one known warning, or the exact set of files whose output is meant to change. Never `build` against the live vault in a plan.
 - **Report, don't throw.** Bad frontmatter becomes `ctx.problem("error" | "warning", …, path)`; a builder never throws on story data. Choose the severity deliberately: an error fails `check` and the vault's hooks, a warning does not.
 - **Opt-in output warns when it is absent.** A new mission-note region follows `resume`/`ledger`: fill it where the DM placed markers, warn otherwise; never insert it uninvited.
 - **CRLF and formatting.** Notes keep their line endings (there is a test); canvases compare through `sameCanvas`, because Obsidian re-saves them in its own format. A new emitted format says which comparison it uses.
-- **Making a hardcoded value configurable → the default is a baseline-green guard, not a red test** — when a plan extracts a literal into a property or option whose default reproduces today's behavior, grep the target test file first: a test pinning the current literal usually already exists, and it passes before AND after. Do not duplicate it or stage it as a Red Phase. Only the OVERRIDE case is genuinely red. Label the default-value assertion a baseline-green regression guard and say so in the plan, or an executor stalls waiting for a red run that never comes. The default assertion still earns its place — it is the backward-compatibility contract for every vault that never sets the property.
+- **Making a hardcoded value configurable → the default is a baseline-green guard, not a red test.**
+  - When a plan extracts a literal into a property or option whose default reproduces today's behavior, grep the target test file first. A test pinning the current literal usually already exists, and it passes before AND after.
+  - Do not duplicate it or stage it as a Red Phase. Only the OVERRIDE case is genuinely red.
+  - Label the default-value assertion a baseline-green regression guard and say so in the plan, or an executor stalls waiting for a red run that never comes.
+  - The default assertion still earns its place: it is the backward-compatibility contract for every vault that never sets the property.
 - **A CLI change states its `--json` impact.** The vault's hooks parse it; a new field is additive, a renamed or removed one is a rename plan and a vault gate.
 
 ## Plan-Quality Heuristics
 
-**"Consistent" is not "correct" when a rule reads one item out of many.** When a rule takes the first match from a set — the first note whose stat block `name` matches, the first member of a mission, the first heading — do not reason about whether the pick is *stable*; measure whether the rule is *right*. A stable pick of an arbitrary item still compares the rule against an arbitrary member of a set. Whenever a plan's rule reads one item out of a one-to-many, ask **"what if the rule considered all of them?"** — two stat blocks with one name is a problem to report, not a tie to break silently. If that is expressible it is almost always both the correct rule and the testable one.
+**"Consistent" is not "correct" when a rule reads one item out of many.**
+
+- A rule may take the first match from a set: the first note whose stat block `name` matches, the first member of a mission, the first heading.
+- Do not reason about whether the pick is *stable*; measure whether the rule is *right*. A stable pick of an arbitrary item still compares the rule against an arbitrary member of a set.
+- Whenever a plan's rule reads one item out of a one-to-many, ask **"what if the rule considered all of them?"** Two stat blocks with one name is a problem to report, not a tie to break silently.
+- If that is expressible, it is almost always both the correct rule and the testable one.
 
 **A control fixture must make TODAY's behaviour the exact failure the change fixes.** Before writing a red phase's "why it fails now", trace the current code path with the fixture *as specified*, not with the feature imagined away. A fixture that trips an unrelated guard still goes red, so it looks fine and proves nothing — and the executor cannot tell a correct implementation from a broken one.
 

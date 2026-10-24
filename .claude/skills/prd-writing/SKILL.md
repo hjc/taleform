@@ -121,7 +121,9 @@ Anything you find that belongs to another slice goes in Flags — never acted on
 
 - **Audit internal id cross-references first**, before later edits add more. Inserting or promoting an OQ renumbers the list without touching the `R`/`AC` notes citing it, and no reviewer catches it.
 - **Never renumber.** New criteria take the next free id; superseded Autonomous Calls rows get a bolded "Superseded — see row N" and keep their basis text. Inserted runbook steps take a letter suffix (`6a`).
-- **A review's finding is binding; its stated evidence is not.** Re-check the source before adopting the review's wording — "narrower than stated" and "does not exist" prescribe different requirements. Two specific forms: before adopting a proposed **test seam**, grep for an existing test of the same symbol, because the shipped pattern is often a different mechanism whose own comment encodes the trap the review reasoned toward; and when a review "corrects" a **line number** and both numbers resolve to real lines, neither is wrong — drop the number, cite the symbol, and record that the original was not wrong, or the next reviewer re-files it.
+- **A review's finding is binding; its stated evidence is not.** Re-check the source before adopting the review's wording — "narrower than stated" and "does not exist" prescribe different requirements. Two specific forms:
+  - **A proposed test seam:** before adopting it, grep for an existing test of the same symbol. The shipped pattern is often a different mechanism, whose own comment encodes the trap the review reasoned toward.
+  - **A "corrected" line number:** when both numbers resolve to real lines, neither is wrong. Drop the number, cite the symbol, and record that the original was not wrong, or the next reviewer re-files it.
 - **Sweep the spec's own summary and overview tables after applying a review.** A review cites the section that argues a claim, never the two or three places the same spec restates it in condensed form — a "settled as" row, a contract binding, a cross-reference. Those restatements are what a TDD planner skims, so a corrected requirement plus an uncorrected summary row ships the original defect. Grep the whole file for the corrected claim's distinctive phrase and for the requirement ids near it.
 - **A reframing leaks into every condensed restatement, not just the section that argues it.** Changing what a slice *is* touches the header and chips, overview tables and their column headings, contract-binding rows, section titles and every cross-reference to them, runbook step headings, exclusion-row notes, acceptance criteria, and flag remediation text. Grep for `ships|shipped|deliverable|engineering work|branch` and read every hit.
 
@@ -179,7 +181,14 @@ Every PRD must contain these sections. How they are formatted is determined by t
 
 9. **Success Criteria** — Testable assertions. These become the basis for TDD test cases.
 
-**Map-derived PRDs additionally carry**, in place of feature sections: the **cross-cutting contract** as numbered, citable rules; the **slice list**, each entry linked to its spec and each **vault-gating** slice marked as one (`docs/sdlc.md` §3 → Landing the stack); the **implementation graph** and its wave table; and the **hard gates**. See "Two shapes" above. Feature-level detail lives in the slice specs, not here.
+**Map-derived PRDs additionally carry**, in place of feature sections (see "Two shapes" above):
+
+- the **cross-cutting contract**, as numbered, citable rules;
+- the **slice list**, each entry linked to its spec and each **vault-gating** slice marked as one (`docs/sdlc.md` §3 → Landing the stack);
+- the **implementation graph** and its wave table;
+- the **hard gates**.
+
+Feature-level detail lives in the slice specs, not here.
 
 ### Phase 3: Taleform-Specific Quality Checks
 

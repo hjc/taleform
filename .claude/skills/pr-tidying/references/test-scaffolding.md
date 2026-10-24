@@ -8,7 +8,11 @@ Tests that scaffold the development process rather than protect behavior. Five f
 
 ## What to flag
 
-- **Absence tests** — assert behavior is GONE rather than that behavior is correct. Tells: a function or export does not exist; a removed builder id is absent from `BUILDERS`; a retired code path is no longer called (`expect(spy).not.toHaveBeenCalled()`); names like `"no longer …"`, `"removed …"`, `"drops the old …"` for something introduced on THIS branch; a whole `describe` whose sole purpose is asserting deleted code is gone.
+- **Absence tests** — assert behavior is GONE rather than that behavior is correct. Tells:
+  - a function or export does not exist; a removed builder id is absent from `BUILDERS`;
+  - a retired code path is no longer called (`expect(spy).not.toHaveBeenCalled()`);
+  - names like `"no longer …"`, `"removed …"`, `"drops the old …"` for something introduced on THIS branch;
+  - a whole `describe` whose sole purpose is asserting deleted code is gone.
 
 - **Regression-guard / snapshot tests** — freeze a tunable value and assert it survives, exercising no behavior. A direct equality on a module constant (`expect(STATUS_COLOR.played).toBe("4")`, a layout width, the debounce interval, `STATUSES` deep-equaling a literal), or the same literal asserted passed into a call via a spy. Tells: the assertion restates a value production already defines; names like "exposes …", "declares …", "still uses …".
 
@@ -16,7 +20,9 @@ Tests that scaffold the development process rather than protect behavior. Five f
 
 - **Plumbing tests** — assert something the language, a dependency or the engine's own wiring guarantees by construction. The assertion holds for ANY correctly-declared builder and fails only on a rename. Tells: a builder's `id` or `description` equals a string; `BUILDERS` contains a builder or has a length (a registration test); `yaml`'s `parse` round-trips a value; a `Map`/`Set` built and read straight back; a bare "builds without throwing" on a fixture with no assertion on output.
 
-- **Source-introspection tests** — assert how the code is WRITTEN, by reading source text at test time. No product code runs. Tells: `readFileSync`/`readdirSync` over `src/`, a regex or substring matched against a `.ts` file (`"core never imports obsidian"` as a grep), `Object.keys(await import(...))` asserting "the public surface is exactly these names". Two failure modes make these worse than they read: a **literal** pattern silently misses every spelling it did not anticipate, and a **substring** match invents hits that do not exist — so the true coverage is neither what the test claims nor visible from reading it.
+- **Source-introspection tests** — assert how the code is WRITTEN, by reading source text at test time. No product code runs. Tells: `readFileSync`/`readdirSync` over `src/`, a regex or substring matched against a `.ts` file (`"core never imports obsidian"` as a grep), `Object.keys(await import(...))` asserting "the public surface is exactly these names".
+
+  Two failure modes make these worse than they read. A **literal** pattern silently misses every spelling it did not anticipate, and a **substring** match invents hits that do not exist. So the true coverage is neither what the test claims nor visible from reading it.
 
   Replace with the behavior the structure stood in for. Where there is none, the rule belongs in `CLAUDE.md` § Invariants, a reviewing rule, or a Category A check of this pass — not a test. Import-layer rules are Category A's.
 

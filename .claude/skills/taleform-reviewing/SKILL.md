@@ -178,8 +178,17 @@ Route each finding by **who else inherits the change**, not by how important it 
 | Blast radius | Route |
 |---|---|
 | Confined to this slice's own new code: a new builder's internals, its tests, a new helper only it calls, a new region or `nid` family only it emits | **Required plan amendment.** The planner applies it on re-dispatch; no gate. |
-| A shared contract: the frontmatter schema (a property's name, type or shape; `RETIRED`), the CLI's flags, exit codes or `--json` shape, the plugin's `run` signature, `prefs` keys or command ids, an existing generated identity (a `nid` input, region id, marker value, output path), a `src/core/` signature another builder or slice uses, or `BUILDERS` order another builder depends on | **Proposed PRD amendment**, in the PRD's contract-rule form. It goes back to the DM's PRD gate (`docs/sdlc.md` §4 step 3), which is never suspended. Do not write it into the plan as if decided. |
+| A shared contract (listed below the table) | **Proposed PRD amendment**, in the PRD's contract-rule form. It goes back to the DM's PRD gate (`docs/sdlc.md` §4 step 3), which is never suspended. Do not write it into the plan as if decided. |
 | A shared contract on a standalone fix with no PRD | **Open question for the DM**, stated with your recommended answer. Schema and interface changes are proposed, never implied (`CLAUDE.md` § Working style). |
+
+A **shared contract** is any of:
+
+- the frontmatter schema: a property's name, type or shape; `RETIRED`;
+- the CLI's flags, exit codes or `--json` shape;
+- the plugin's `run` signature, `prefs` keys or command ids;
+- an existing generated identity: a `nid` input, region id, marker value, output path;
+- a `src/core/` signature another builder or slice uses;
+- `BUILDERS` order another builder depends on.
 
 A finding in a PRD or slice spec under review is, by definition, a proposed amendment to that document.
 

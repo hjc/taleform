@@ -19,7 +19,14 @@ of a test whoever added the feature wrote ("draws the X card" → "draws no X ca
 Grep for it: one of the two must be deleted, and it won't fail loudly — it will just
 contradict.
 
-**The vehicle is scaffolding — delete it in a Refactor Phase in the same commit.** The invariant test above is required to make the removal red→green, but `/pr-tidying` Category B deletes exactly these shapes on sight: absence tests, registration tests ("`BUILDERS` is exactly these ids"), and directory-listing introspection. Both rules are right; they describe different moments. Category B states the resolution: *"where there is none, the rule belongs in `CLAUDE.md` § Invariants, a reviewing rule, or a Category A check of this pass — not a test."* So every plan whose red phase asserts structure rather than behaviour must (a) say "scaffolding" in the test's name or a comment and in the plan, so the executor does not ship it, and (b) name the durable home for the rule it stood in for — a context doc, `CLAUDE.md`, or a reviewing rule.
+**The vehicle is scaffolding — delete it in a Refactor Phase in the same commit.**
+
+- The invariant test above is required to make the removal red→green.
+- But `/pr-tidying` Category B deletes exactly these shapes on sight: absence tests, registration tests ("`BUILDERS` is exactly these ids"), and directory-listing introspection.
+- Both rules are right; they describe different moments. Category B states the resolution: *"where there is none, the rule belongs in `CLAUDE.md` § Invariants, a reviewing rule, or a Category A check of this pass — not a test."*
+- So every plan whose red phase asserts structure rather than behaviour must:
+  - (a) say "scaffolding" in the test's name or a comment and in the plan, so the executor does not ship it;
+  - (b) name the durable home for the rule it stood in for: a context doc, `CLAUDE.md`, or a reviewing rule.
 
 ## Atomic-ordering traps (broken intermediate states)
 
@@ -37,7 +44,11 @@ in ONE step:
 
 - **Grep the callsite for now-dead locals.** A variable assigned solely to feed the removed call becomes dead — remove it too; grep confirms no other use.
 - **Narrowing an over-broad filter: audit the NEGATIVE path before removing it.** A bug where "X is wrongly excluded" tempts a bare removal, but the exclusion often also (correctly) protected a negative case (an act note, an optional beat, a non-story note with a `kind`). Fix value-aware and FAIL-CLOSED (claim only the affirmative variant), and write a baseline-green guard test pinning that the negative case stays excluded.
-- **Removing code does not remove what it already wrote.** The DM's vault still holds every region, callout and canvas item the removed builder generated. Decide in the plan, and state it as a design decision: either leave the orphaned output for the DM to delete (and say so in the PR), or ship a cleanup — `setRegion` with empty content removes a region; canvas items carrying the old `"generated"` value can be dropped — with a test that hand-made content beside it survives. Never leave the choice implicit.
+- **Removing code does not remove what it already wrote.** The DM's vault still holds every region, callout and canvas item the removed builder generated. Decide in the plan, and state it as a design decision. Either:
+  - leave the orphaned output for the DM to delete (and say so in the PR); or
+  - ship a cleanup, with a test that hand-made content beside it survives. `setRegion` with empty content removes a region; canvas items carrying the old `"generated"` value can be dropped.
+
+  Never leave the choice implicit.
 - **Removing a frontmatter property is a retirement.** Add it to `RETIRED` in `src/builders/schema.ts` with what replaces it (or `"nothing: …"` with the reason, as `resume` has), and test that a note still carrying it gets that error. Never drop support silently (`CLAUDE.md` § Invariants 4).
 
 ## Test surgery (reversing tests that already pass)

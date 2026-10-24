@@ -7,7 +7,12 @@ description: Write a manual acceptance walkthrough for a Taleform feature — ho
 
 A manual QA checklist is **acceptance testing**: it walks the DM through the feature as they would meet it while prepping and running a session, so they can judge the experience and sign off on the requirements. It is not regression testing. Anything `npm run check` or Claude can check is checked there, and the checklist says so in one section at the end.
 
-What a test suite cannot see is how generated output *reads*: whether an Adventure Map is legible at a glance, whether a region sits where the DM expects it in a note, whether a header's `← prev • **this** • next →` line helps at the table, and whether the 1500 ms auto-build feels right while typing. That is what the checklist is for.
+What a test suite cannot see is how generated output *reads*, and that is what the checklist is for:
+
+- whether an Adventure Map is legible at a glance;
+- whether a region sits where the DM expects it in a note;
+- whether a header's `← prev • **this** • next →` line helps at the table;
+- whether the 1500 ms auto-build feels right while typing.
 
 Write it as a Markdown file beside the feature's plans (`docs/features/<feature>/qa-checklist.md`) unless told otherwise.
 

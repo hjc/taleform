@@ -6,7 +6,11 @@
 
 **Every HTML artifact is edited with `planr`, never by hand**, followed by `node .claude/skills/html-planning/planr.js check <file>` — the authoritative structure validation.
 
-**Run `node .claude/skills/wayfinding/check-tooling.js` before auditing by reading.** Its `tddplans`, `issuedocs` and `memindex` checks assert this category's mechanical half — no TDD plan tracked, no issue doc carrying a status its lifecycle has no end state for, every `.claude/agent-memory/*/MEMORY.md` pointer resolving with no topic file beside one unindexed — and `W70` asserts every map slice badge agrees with the status of the spec it links. Its output IS those findings; the judgement passes below still apply. The checker registry itself lives in `.claude/skills/pr-tidying/references/docs-sync.md`.
+**Run `node .claude/skills/wayfinding/check-tooling.js` before auditing by reading.** Its output IS this category's mechanical findings; the judgement passes below still apply.
+
+- `tddplans`, `issuedocs` and `memindex` assert: no TDD plan tracked; no issue doc carrying a status its lifecycle has no end state for; every `.claude/agent-memory/*/MEMORY.md` pointer resolving, with no topic file beside one unindexed.
+- `W70` asserts every map slice badge agrees with the status of the spec it links.
+- The checker registry itself lives in `.claude/skills/pr-tidying/references/docs-sync.md`.
 
 **Pass 1 runs on every tidy. Pass 2 runs only on the final branch of a stack** — the close slice (`docs/sdlc.md` §3) — never early, or the cleanup scatters and gets redone.
 
@@ -19,7 +23,12 @@
 - **This pass is the only thing that writes those badges**; no step in `wayfinding` does. A pass that reads them without writing them finds every slice `open`, always.
 - Also flip any QA checklist the branch consumed to `implemented` — a doc whose body says `CONSUMED` and whose header says `draft` contradicts itself (`docs/sdlc.md` §4e).
 
-**Drain the agent memory.** Agent memory is a staging area kept near-empty, and this pass is its primary drain — run at every PR, not only when an agent has visibly sprawled. Invoke `agent-memory-compacting` whenever any agent under `.claude/agent-memory/<agent>/` holds more than a thin index: loose topic files, relocation-hook `*.drift.md` copies, or a `MEMORY.md` grown past pointers plus a few load-bearing facts. Its **graduate-or-drop** gate drops point-in-time facts, promotes durable reference facts to `docs/context/` or `CLAUDE.md` and durable behavioral judgment to the agent's own definition or skill, and keeps only judgment not yet stable enough to codify. Present its plan and apply after approval; promotions to shared artifacts need per-item approval. No `.claude/agent-memory/` directory → nothing to drain; say so.
+**Drain the agent memory.** Agent memory is a staging area kept near-empty, and this pass is its primary drain — run at every PR, not only when an agent has visibly sprawled.
+
+- Invoke `agent-memory-compacting` whenever any agent under `.claude/agent-memory/<agent>/` holds more than a thin index: loose topic files, relocation-hook `*.drift.md` copies, or a `MEMORY.md` grown past pointers plus a few load-bearing facts.
+- Its **graduate-or-drop** gate drops point-in-time facts and keeps only judgment not yet stable enough to codify. It promotes durable reference facts to `docs/context/` or `CLAUDE.md`, and durable behavioral judgment to the agent's own definition or skill.
+- Present its plan and apply after approval; promotions to shared artifacts need per-item approval.
+- No `.claude/agent-memory/` directory → nothing to drain; say so.
 
 ## Pass 2 — stack-close, final branch only
 

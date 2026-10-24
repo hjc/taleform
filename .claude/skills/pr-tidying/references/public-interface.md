@@ -34,7 +34,7 @@ Read `.tmp/pr-tidying-parity.txt`. Expected: "up to date" plus the one known war
 
 ## Affected vault docs
 
-When the branch changes the model — the frontmatter schema, what a builder generates or how it reads, or the CLI — list which vault docs now describe it wrongly: the story-maps spec (`.claude/skills/encounter-building/references/story-maps.md`), `run-sheet-format.md`, `_tpl/Story Beat.md`, and the vault `CLAUDE.md` § Taleform (paths are in `CLAUDE.md` § The vault). Name what each one now gets wrong. **Never edit them, and never open a finding to edit them**; they go to the DM and into the PR body.
+When the branch changes the model — the frontmatter schema, what a builder generates or how it reads, or the CLI — list which vault docs now describe it wrongly, and name what each one now gets wrong. The docs are the story-maps spec (`.claude/skills/encounter-building/references/story-maps.md`), `run-sheet-format.md`, `_tpl/Story Beat.md`, and the vault `CLAUDE.md` § Taleform (paths are in `CLAUDE.md` § The vault). **Never edit them, and never open a finding to edit them**; they go to the DM and into the PR body.
 
 ## What NOT to flag
 

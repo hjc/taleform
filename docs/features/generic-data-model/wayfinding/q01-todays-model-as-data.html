@@ -7,18 +7,10 @@
   <!-- ── highlight.js (syntax highlighting) ── -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <!-- ── Inline loader: the skill folder, relative to this file (`planr relink` after a move) ── -->
   <script>
     (function() {
-      var segs = location.pathname.split('/');
-      var idx = segs.indexOf('.claude');
-      if (idx === -1) { /* fallback: try parent dirs */
-        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
-        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
-        if (base) idx = base.split('/').indexOf('.claude');
-      }
-      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
-      var skillBase = root + '/skills/html-planning';
+      var skillBase = '../../../../.claude/skills/html-planning';
       var link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = skillBase + '/plan-styles.css';
@@ -72,7 +64,7 @@
   </table>
 </plan-table></plan-section>
 
-  <plan-section id="resolution" title="Resolution"><p>Answered: <a href="assets/todays-model-inventory.md">the inventory</a> is the seed for the default config. Its three output bugs are filed as issue docs; the conventions issue doc was corrected against it.</p>
+  <plan-section id="resolution" title="Resolution"><p>Answered: <a href="assets/todays-model-inventory.md">the inventory</a> is the seed for the default config. Its three output bugs were fixed on main (PR #3) before the rewrite; the conventions issue doc was corrected against it.</p>
 <p><strong>No decision.</strong> A research ticket fixes facts; the calls they inform are made in <a href="q04-base-concepts.html">The base concepts</a>, <a href="q08-builders-as-config.html">Builders as config</a> and <a href="q12-parity-baseline.html">The parity baseline</a>.</p>
 
 <h3>For the register</h3>

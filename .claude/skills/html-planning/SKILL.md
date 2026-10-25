@@ -616,7 +616,7 @@ node .claude/skills/html-planning/planr.js templates tdd      # what tdd is for,
 
 **Setting values.** `new --set` takes two key shapes, told apart by whether the key has a dot:
 
-- **bare** — `--set lang=fr` — fills a `{{placeholder}}` the template declares. The shell offers `lang`, `title`, `subtitle`, `status`, `date`, `skillSubpath`; `templates <name>` lists any others, with defaults.
+- **bare** — `--set lang=fr` — fills a `{{placeholder}}` the template declares. The shell offers `lang`, `title`, `subtitle`, `status`, `date`, `skillSubpath`, `runtimeBase`; `templates <name>` lists any others, with defaults.
 - **dotted** — `--set header.status=review` — is a node address applied to the rendered document, reaching any `<plan-*>` node whether or not the template parameterised it.
 
 Both are validated identically (`--set status=aproved` and `--set header.status=aproved` both fail), and a key that matches nothing is an error listing the ones that exist — never a silent drop.
@@ -958,7 +958,7 @@ planr wordy plan.html --format json         # the work list
 └── SKILL.md          ← This file (agent instructions)
 ```
 
-The inline loader in each generated plan file finds `.claude/` in the file path and resolves the skill assets from there, appending the install subpath that `planr new` baked in at generation time (so the skill works under any folder name within `.claude/skills/`). Plan files contain only semantic markup — no CSS or JS.
+The inline loader in each generated plan file loads the skill assets from a path relative to the file, which `planr new` bakes in from where the file is written, so a plan renders anywhere in the repo (`docs/` included). **After moving a plan, run `planr relink <file>`**; `planr check` fails on a loader that no longer reaches `plan-runtime.js`. Plan files contain only semantic markup — no CSS or JS.
 
 Every rendered plan also gets a **view-settings gear** (floating, top-right) injected by the runtime. Its per-reader toggles persist via `localStorage`:
 

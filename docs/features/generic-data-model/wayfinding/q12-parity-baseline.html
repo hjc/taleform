@@ -49,7 +49,9 @@
   <strong>What exactly must the rewrite reproduce: are the three known output bugs fixed on <code>main</code> before the rewrite (so parity is against corrected output) or carried through it, and which paths the test vault never exercises must it gain first?</strong>
 </plan-callout></plan-section>
 
-  <plan-section id="context" title="Context"><p>The destination's completion bar is byte-for-byte parity with today's <code>test-vault/</code> output. <a href="q01-todays-model-as-data.html">Today's model as data</a> found that this output contains three bugs (the ledger's optional cap, overlapping map cards, the resume-marker wording), each now an issue doc under <code>docs/issues/</code>, and that the test vault never exercises <code>reference</code>, <code>bench</code>, <code>skipped</code>, <code>related</code>, a level-up line or a missing <code>party-size</code> (<a href="assets/todays-model-inventory.md">the inventory</a> §13). Output drift on an unexercised path passes the parity check unseen.</p></plan-section>
+  <plan-section id="context" title="Context"><p>The destination's completion bar is byte-for-byte parity with today's <code>test-vault/</code> output. <a href="q01-todays-model-as-data.html">Today's model as data</a> found that this output contains three bugs (the ledger's optional cap, overlapping map cards, the resume-marker wording), each now an issue doc under <code>docs/issues/</code>, and that the test vault never exercises <code>reference</code>, <code>bench</code>, <code>skipped</code>, <code>related</code>, a level-up line or a missing <code>party-size</code> (<a href="assets/todays-model-inventory.md">the inventory</a> §13). Output drift on an unexercised path passes the parity check unseen.</p>
+    <plan-callout type="success"><strong>Answered in part by the developer, 2026-10-25:</strong> the three bugs are fixed on <code>main</code> before the rewrite, so parity is measured against corrected output (PR #3). Still open: which unexercised paths the test vault must gain.</plan-callout>
+</plan-section>
 
   <plan-section id="findings" title="Findings">
     <p>

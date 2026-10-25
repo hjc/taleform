@@ -127,7 +127,7 @@ Include observed evidence: `git show --stat` for commits, `git branch --show-cur
 3. **Never rewrite published history** (rebase, amend, squash pushed commits) without explicit approval.
 4. **Always report status**, 1–3 lines, with: the action, abbreviated hashes, the current branch, and any warnings (unstaged files, diverged branches). Examples:
    - `Committed 3 files on <handle>/feat--arc-map (a1b2c3d): "feat: add the arc-map builder"`
-   - `Opened PR #12 <handle>/feat--arc-map → <handle>/feat--story-map-base.`
+   - `Opened PR #12 <handle>/feat--arc-map → <handle>/map--arc-map.`
    - `Landed segment: PR #14 retargeted to main, merged (e4f5g6h); closed #12, #13 linking #14.`
    - `Pushed <handle>/fix--resume-order to origin (a1b2c3d..f8g9h0i). Tracking set.`
 5. **Check before acting**: `git status` before commits, merges, stashes or branch switches.

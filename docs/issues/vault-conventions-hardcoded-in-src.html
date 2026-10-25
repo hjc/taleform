@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>src/ hard-codes one vault's conventions, so an adopter's vault builds wrong or not at all</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="src/ hard-codes one vault's conventions, so an adopter's vault builds wrong or not at all"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+
+  <plan-meta>
+    <plan-field key="type">issue</plan-field>
+    <plan-field key="reference-paths" hidden>src/builders,src/core,src/cli,src/plugin</plan-field>
+    <plan-field key="class" tone="muted">portability</plan-field>
+    <plan-field key="reach" tone="info">adopter</plan-field>
+    <plan-field key="source">code audit of src/ for adopter portability</plan-field>
+    <plan-field key="impact" tone="info">medium</plan-field>
+    <plan-field key="urgency" tone="muted">low</plan-field>
+    <plan-field key="effort" tone="warn">large</plan-field>
+    <plan-field key="priority" tone="muted">p3</plan-field>
+  </plan-meta>
+
+  <plan-section id="overview" title="Overview">
+    <plan-callout type="danger">
+      Taleform's builders assume the note shapes, prose markers, glyphs, rules tables and locale of the developer's own campaign vault, with no way to change any of them, so an adopter whose notes differ gets a refused map, silently skipped cross-checks or output in the wrong shape. The assumptions have been literals since each builder was written; most fail loudly (a map error, a missing-region warning), a few silently (an unparsed XP line, a retired-name collision).
+    </plan-callout>
+</plan-section>
+
+  <plan-section id="root-cause" title="Root cause">
+    <p>Every convention below is a literal in <code>src/</code>. The one setting the plugin has is <code>autoBuild</code>; the CLI has no config file; a mission's frontmatter carries only <code>party-size</code>, <code>party-xp</code> and <code>handoff</code>. There is nowhere an adopter could state a different convention.</p>
+    <plan-file path="src/plugin/main.ts" lines="6-12">
+interface Settings {
+  /** Rebuild shortly after any note's metadata changes. */
+  autoBuild: boolean;
+}
+
+const DEFAULTS: Settings = { autoBuild: true };
+    </plan-file>
+    <p>Candidate routes: <strong>mission</strong> (frontmatter on the mission note, so two missions in one vault can differ), <strong>config</strong> (a vault-level plugin setting or config file) and <strong>fixed</strong> (keep the literal and document it as the contract). They are candidates for the PRD, not decisions.</p>
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Convention</th><th>Where</th><th>An adopter with other conventions sees</th><th>Candidate</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>^card</code> block id a map card and the resume callout embed</td><td><code>src/builders/adventureMap.ts:30</code> (regex), <code>:60-61</code> (exactly one per beat), <code>:116</code> (<code>![[note#^card]]</code>); <code>src/builders/resume.ts:204</code></td><td>Every beat without exactly one trailing <code> ^card</code> is a build <em>error</em>, and the message names the developer's own section wording ("Trigger / Lands when"). A beat with zero cards falls back to a bare file card; the resume callout embeds a block that does not exist.</td><td>Mission frontmatter or config (block id, or "embed the first paragraph"); error text made generic regardless</td></tr>
+          <tr><td>2</td><td>Required H1 and header shape on every sequence note</td><td><code>src/builders/navigation.ts:141-158</code>, <code>:148</code> (regex <code>^\*?\[\[|^← |^%%</code>); <code>src/core/index.ts:53-57</code></td><td>No H1 is an error. Any other text between frontmatter and H1 makes the header skipped with a warning, so the DM's own banner or callout disables navigation for that note.</td><td>Fixed (document it); the allow-list could be config</td></tr>
+          <tr><td>3</td><td>Header and footer wording and glyphs: <code>## Next</code>, <code>[!tip] Next →</code>, <code>Act N</code>, the arrows and bullets, trailing <code>---</code></td><td><code>src/builders/navigation.ts:158-172</code></td><td>Fixed English wording and arrows. A note with its own <code>## Next</code> heading has everything from it to the end of the file replaced.</td><td>Config (labels); heading name could be mission frontmatter</td></tr>
+          <tr><td>4</td><td>Title glyphs and how labels are derived</td><td>Labels are each target's own H1 (<code>src/builders/navigation.ts:129</code>); the glyph set (▶ ◆ ⚔ ⚙) appears only in a comment (<code>:111</code>)</td><td>Nothing breaks: the label is the H1 verbatim, so any glyph or none works. The map's act-group label splits the act note's basename on the literal <code> — </code> (<code>src/builders/adventureMap.ts:103</code>); a basename without it shows the whole name.</td><td>Fixed for H1 labels; act-title split could be config</td></tr>
+          <tr><td>5</td><td>Generated-output glyphs and wording: <code>▶ Resume here</code>, <code>▶ RESUME HERE</code>, <code>🟥 AWARD XP NOW — N EACH</code>, <code>OPTIONAL XP</code>, <code>⚔ COMBAT XP</code>, status marks <code>✓ ◐ ○ ✗</code>, legend emoji and text</td><td><code>src/builders/resume.ts:204-205</code>; <code>src/builders/awards.ts:150,154-155</code>; <code>src/builders/ledger.ts:29,34,56,64</code>; <code>src/builders/adventureMap.ts:129,132-142,248,252,262</code></td><td>English text with fixed emoji; a DM who reads the ledger in another language, or whose font lacks the emoji, cannot change them. Callout types (<code>danger</code>, <code>tip</code>, <code>abstract</code>, <code>success</code>) are Obsidian built-ins and fixed.</td><td>Config (a label table); or fixed, documented</td></tr>
+          <tr><td>6</td><td>AWARD callout styling: a <code>[!danger]</code> red-square banner placed right under the H1</td><td><code>src/builders/awards.ts:100-103,150,155</code></td><td>Every award is a danger callout with the red-square glyph, and the placement rule is fixed. With no H1 the region is not inserted at all.</td><td>Config (callout type and glyph)</td></tr>
+          <tr><td>7</td><td><code>**Encounter:** … N XP</code> prose line the ledger cross-checks</td><td><code>src/builders/ledger.ts:36-38</code></td><td>A beat that states combat XP any other way (another label, another language, a period as thousands separator) is never cross-checked and produces no warning. Silent.</td><td>Config (pattern or label) or opt-out; or fixed and documented</td></tr>
+          <tr><td>8</td><td><code>encounter</code> code block in the Initiative Tracker shape, at the start of a line</td><td><code>src/core/story.ts:92-114</code></td><td>Another plugin's block name or shape yields no combat XP anywhere (ledger, map card, running totals). An unreadable entry is a warning; a missing block is nothing.</td><td>Fixed (contract: Initiative Tracker); entry shape could be config</td></tr>
+          <tr><td>9</td><td>Stat-block shape: <code>statblock: true</code>, <code>name</code>, a <code>cr</code> keyed into the XP table</td><td><code>src/core/story.ts:115-117,128-132</code></td><td>A creature note without <code>statblock: true</code> gets a "no stat block with a known CR" warning and its XP is dropped from the total. A <code>cr</code> written <code>0.5</code> instead of <code>1/2</code> does the same (reasoned from the table keys; not run).</td><td>Fixed, with the flag name in config; <code>cr</code> normalisation in code</td></tr>
+          <tr><td>10</td><td>2024 5e XP-by-CR table and level thresholds; flat <code>floor(total / party-size)</code> split</td><td><code>src/core/story.ts:75-81,137-143</code>; <code>src/builders/ledger.ts:33</code>; <code>src/builders/awards.ts:128</code></td><td>Another edition or system gets wrong XP, level-ups and "level N at" lines, silently. Unequal XP shares (a character joining mid-mission) cannot be expressed. The comment at <code>story.ts:74</code> also cites the developer's own script.</td><td>Config (named table or per-mission override); edition could be mission frontmatter</td></tr>
+          <tr><td>11</td><td>Frontmatter vocabulary: the <code>kind</code> values, <code>mission</code>, <code>prev</code>, <code>next</code>, <code>act</code>, <code>beat</code>, <code>beat-status</code> and its four words, <code>optional</code>, <code>entry</code>, <code>branches</code>, <code>outcomes</code>, <code>awards</code>, <code>related</code>, <code>handoff</code>, <code>party-size</code>, <code>party-xp</code></td><td><code>src/core/index.ts:6</code>; <code>src/builders/schema.ts:227,253,276-285</code>; <code>src/core/story.ts:8-9,14-17</code></td><td>Any other name or status word is a schema error (<code>kind … is not one of</code>) or is ignored. Resume derivation depends on exactly the four status words (<code>story.ts:26-34</code>).</td><td>Fixed (the schema is the product); aliases could be config</td></tr>
+          <tr><td>12</td><td>Retired-property names enforced as errors: <code>resume</code>, <code>map</code>, <code>map-label</code>, <code>map-branches</code>, <code>map-if</code>, <code>map-handoff</code>, <code>xp-award</code></td><td><code>src/builders/schema.ts:234-242,254</code></td><td>The names record the developer's vault history. An adopter who uses <code>resume</code> or <code>map</code> as an ordinary property on a story note gets an "is retired" error for a property they never had.</td><td>Config, or only enforced when a vault opts in</td></tr>
+          <tr><td>13</td><td>Region ids and placement: <code>taleform:resume</code> and <code>taleform:xp</code> on the mission note, <code>taleform:awards</code> under each beat's H1</td><td><code>src/builders/resume.ts:208-211</code>; <code>src/builders/ledger.ts:67-70</code>; <code>src/builders/awards.ts:103</code></td><td>Resume and ledger need the DM to hand-place a marker; a missing one is a warning and no output. The awards region is inserted into every sequence note without being asked for.</td><td>Fixed (documented contract)</td></tr>
+          <tr><td>14</td><td>Map file name and location: <code>&lt;Mission&gt; — Adventure Map.canvas</code> beside the mission note</td><td><code>src/builders/adventureMap.ts:51,298</code></td><td>A different naming scheme or a folder of maps cannot be chosen. A vault that already has a file of that name has its generated items merged into it.</td><td>Mission frontmatter (map path) or config (name pattern)</td></tr>
+          <tr><td>15</td><td>Map labels, colours and geometry: <code>skip — optional</code>, <code>hands off to</code>, <code>IF …</code>, canvas colour ids, card size and spacing</td><td><code>src/builders/adventureMap.ts:22-31,187,236,275</code></td><td>Fixed English edge labels and palette. Layout can be dragged per card; the text cannot be changed.</td><td>Config for labels; layout fixed</td></tr>
+          <tr><td>16</td><td>Number formatting <code>en-US</code></td><td><code>src/core/story.ts:145</code></td><td>Every XP figure is written <code>14,700</code>. A vault using <code>14.700</code> or <code>14 700</code> sees generated numbers in a style unlike its own prose; with row 7, the cross-check cannot read the adopter's own notes.</td><td>Config (locale)</td></tr>
+          <tr><td>17</td><td>Templates folder skipped from the core Templates plugin setting only</td><td><code>src/cli/main.ts:25-30</code>; <code>src/plugin/main.ts:19-21</code></td><td>A Templater or QuickAdd folder is indexed as story data. A template with <code>kind: beat</code> and a placeholder <code>mission</code> raises schema errors.</td><td>Config (extra ignored folders)</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+</plan-section>
+
+  <plan-section id="impact" title="Impact">
+    <plan-table>
+      <table>
+        <thead><tr><th>Area</th><th>What breaks</th><th>Consequence</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>Adventure Map (row 1)</td><td>Build error for any beat without exactly one <code> ^card</code></td><td>The error names wording the adopter never used; the card falls back to a bare file card.</td><td>medium</td></tr>
+          <tr><td>Schema (rows 11-12)</td><td>Valid-for-them kinds, statuses or property names are errors</td><td>Build and <code>check</code> exit non-zero on notes the adopter considers correct.</td><td>medium</td></tr>
+          <tr><td>XP (rows 7-10, 16)</td><td>Other edition, locale, encounter plugin or stat-block shape</td><td>Wrong or missing XP and level lines, or a cross-check that never fires; mostly silent.</td><td>medium</td></tr>
+          <tr><td>Navigation (rows 2-3)</td><td>Text above the H1 skips the header; an existing <code>## Next</code> is overwritten to end of file</td><td>No header for that note (warning), or the adopter's trailing text replaced.</td><td>medium</td></tr>
+          <tr><td>Wording and glyphs (rows 4-6, 15)</td><td>English text and fixed emoji</td><td>Cosmetic for an English-language DM; a language barrier otherwise.</td><td>low</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="info">No adopter exists yet (<code>docs/GLOSSARY.md</code>), so no row has been reproduced by a real vault; all are read from the source. The developer's own vault is built on these conventions and is unaffected.</plan-callout>
+</plan-section>
+
+  <plan-section id="remediation" title="Remediation">
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Step</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Write a PRD (<code>prd-writing</code>) that sorts the 17 rows into mission, config and fixed.</td><td>Fix the config surface first: a vault-level config file read by both the plugin and the CLI, since the plugin today has only <code>prefs.autoBuild</code>.</td></tr>
+          <tr><td>2</td><td>Document the "fixed" rows as the frontmatter and note-shape contract in <code>README.md</code>.</td><td>Rows 2, 8, 9, 11 and 13 are likely candidates.</td></tr>
+          <tr><td>3</td><td>Make the error and warning text generic (row 1's message names the developer's wording).</td><td>Small and independent of the PRD.</td></tr>
+          <tr><td>4</td><td>Slice the configurable rows by builder, each with a fixture test proving the default output is byte-identical.</td><td>Invariant 3 and the parity check guard that the default stays unchanged.</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+</plan-section>
+
+  <plan-section id="not-affected" title="What is not affected">
+    <plan-callout type="warn">
+      Not affected: mission membership (the <code>mission</code> link, never the folder, <code>src/core/index.ts:94-97</code>); link resolution (basename or shortest path, like Obsidian). Title text (each H1 is used verbatim); region marker syntax and canvas merge rules, which are invariants rather than conventions; canvas node ids (<code>nid()</code>), which hash note basenames. No vault-specific beat, mission or path names appear in code, only in comments (<code>src/core/story.ts:74</code>, <code>src/builders/navigation.ts:111,147</code>).
+    </plan-callout>
+</plan-section>
+
+  <plan-section id="open" title="Open">
+    <ul>
+      <li>Which of the 17 rows will an adopter hit first? Unknown until one adopts; the table order is by reasoned reach, not evidence.</li>
+      <li>Row 9, a decimal <code>cr</code>: reasoned from the <code>XP_BY_CR</code> keys, not run. A fixture through <code>build()</code> settles it.</li>
+      <li>Row 3: does a hand-written <code>## Next</code> lose its trailing text? Read from <code>navigation.ts:165-174</code> (the body is cut at that heading); not reproduced.</li>
+      <li>Should configuration be per mission (two systems in one vault) or per vault? It decides the whole config surface.</li>
+      <li>The glossary describes a committed <code>test-vault/</code>, but it is untracked in this checkout and no claim above used it; the PRD's parity guard should confirm its notes follow the same conventions.</li>
+      <li>Triage: <code>class=portability</code> is capped at <code>p3</code> until an adopter appears (<code>issue-triaging</code> §6, floor 9). The rating is that cap, not a judgement that the work is small.</li>
+    </ul>
+</plan-section>
+
+
+</main>
+
+</body>
+</html>

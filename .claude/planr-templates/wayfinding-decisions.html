@@ -1,0 +1,95 @@
+  <!-- ════════════════════════════════════════════════════════
+       Decision register — every decision an effort has made, what it
+       rests on, and where it graduated to.
+
+       This register is an INDEX INTO THE CONTEXT DOCS, not a second copy
+       of them. A decision is written into the relevant
+       docs/context/ doc as it is made, so context always reflects
+       truth and a branch cut halfway through an effort is still correct.
+       The register then records WHERE that landed. Finding one specific
+       fact inside a large context doc is hard; the `Graduated to` column
+       is the answer to that, and it is why the register is worth keeping
+       even though the facts live elsewhere.
+
+       Conventions this template encodes:
+         · One row, one rule, one normative sentence. If a decision needs
+           a paragraph, the paragraph belongs in its ticket and the row
+           carries the rule.
+         · `Decided in` names the ticket that decided the rule, and takes
+           exactly one non-ticket value: `slicing`. The slicing happens
+           after every ticket is closed, so the calls it makes have no
+           ticket to cite; they are the only decisions that do. Any other
+           non-ticket value is a decision whose reasoning was never
+           written down.
+         · `Rests on` is mandatory and is the column that earns the
+           register its keep. An evidence id, `measured live` with a
+           date, or `user call` — a decision resting on nothing is how a
+           value nobody checked reaches production.
+         · `Binds` says what the decision constrains: a slice, a module,
+           a contract section. A decision that binds nothing is a note,
+           not a decision.
+         · `Graduated to` is the context doc and section. Empty means the
+           fact is not yet in context, which is a debt — a decision that
+           lives only here is invisible to anyone not reading the map.
+         · Superseded decisions are MOVED, not deleted. What was believed
+           and why it was wrong is the most expensive thing an effort
+           learns, and a register that quietly drops overturned rows
+           teaches the next reader nothing.
+         · This spine is a FLOOR. An effort may add a column it genuinely
+           needs — but `Graduated to` and `Context corrected` STAY LAST,
+           because the close-time graduation check matches on each row's
+           final cell. An added column is either back-ported here or
+           declared effort-specific in the artifact that added it; one
+           that exists to serve a single migration is the latter.
+
+       At effort close the register is the checklist: every row must have
+       graduated before the wayfinding artifacts are retired.
+       ════════════════════════════════════════════════════════ -->
+
+  <plan-section id="register" title="Register">
+    <p>
+      Every decision this effort has made and not reversed. Newest last, so the file appends cleanly and a
+      diff reads as a history.
+    </p>
+    <plan-table>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Decision</th><th>Decided in</th><th>Rests on</th><th>Binds</th><th>Graduated to</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>D01</code></td>
+            <td>The rule, as one normative sentence &mdash; what must or must not be done, not a summary of a discussion</td>
+            <td><code>q01</code></td>
+            <td><code>E01</code>, or <code>measured live 2026-01-01</code>, or <code>user call</code></td>
+            <td>The slice, module or contract section it constrains</td>
+            <td><code>context/&lt;doc&gt;.md</code> &sect; section</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="superseded" title="Superseded">
+    <p>
+      Decisions that were overturned, with what replaced them and what proved them wrong. Kept because the
+      reasoning that failed is what stops it being repeated &mdash; and because a fact recorded in a context
+      doc under an old decision has to be found and corrected, which this table is the trail for.
+    </p>
+    <plan-table>
+      <table>
+        <thead>
+          <tr><th>#</th><th>What was decided</th><th>Replaced by</th><th>What overturned it</th><th>Context corrected</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>D00</code></td>
+            <td>The rule as it stood</td>
+            <td><code>D0n</code></td>
+            <td>The measurement or event that falsified it</td>
+            <td>Yes / the doc still to fix</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>

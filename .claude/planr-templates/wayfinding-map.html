@@ -1,0 +1,222 @@
+  <!-- ════════════════════════════════════════════════════════
+       Wayfinding map — the meta document for one effort: where it is
+       going, what documents it has produced, and which questions are
+       still open.
+
+       THE MAP HOLDS POINTERS AND STATUS, NEVER CONTENT. If a fact lives
+       in a register or a context doc, the map cites it and does not
+       restate it. A map that carries content grows without bound and
+       stops being something anyone can hold in their head.
+
+       Everything that grows monotonically lives beside the map. Three
+       registers, each with its own template:
+
+         decisions.html    every decision, what it rests on, and where
+                           it graduated to in docs/context/
+         vocabulary.html   the effort's glossary, per domain-modeling
+         evidence.html     the asset manifest, with an authority rank
+
+       and, beside them, the reasoning and what it was measured against:
+
+         q##-<slug>.html   one ticket per open question
+         assets/           the artifacts themselves, indexed by
+                           evidence.html — never browsed directly
+
+       Conventions this template encodes:
+         · Destination is bounded and stated once. If it needs more than
+           a paragraph and a completion bar, the effort is not scoped.
+           Standing constraints live there too, one row each: the
+           constraint, and what it costs whoever ignores it.
+         · The Documents index is the entry point for a session that has
+           never seen this effort — including the PRD and slice specs
+           once they exist, not only wayfinding artifacts. That index is
+           how the map ties back to the PRD. Every concrete path in it is
+           a hyperlink, href relative to THIS file, so the effort can be
+           explored by clicking. A glob is not a file and is not linked.
+         · Tickets carries one row per question — id, title, question,
+           type, status, what blocks it, where the answer went, and which
+           slice builds it — and never the answer itself; the reasoning
+           stays in the ticket. A RESOLVED TICKET KEEPS ITS ROW, so the
+           trail from question to answer to slice survives. What the table
+           does not accumulate is content, not rows.
+           Blocking is declared on the ticket's blocked-by field and mirrored here, so
+           the frontier — open, unblocked, unclaimed — is readable off this
+           table alone. Type is here for the same reason: instructions act
+           on it ("dispatch every research ticket"), and a field an
+           instruction acts on has to be readable off the map.
+         · Slices are owned here only until the PRD exists. Once it does,
+           this table keeps one row per slice — id, name, status,
+           blockers, path — and the PRD owns everything else. The
+           handoff is one-way.
+         · Status badges are authored EMPTY. `planr badge --set` rewrites
+           the type attribute and not the text, so a badge carrying its
+           own label silently keeps the old one; the runtime derives the
+           label from the type when the tag is empty. Pass --text only
+           for a label the type cannot express ("Claimed", "Out of
+           scope"), and pass --text "" to CLEAR one when flipping back to
+           a state the type can name — `--set decided` alone on a claimed
+           ticket renders decided-coloured and still reads "Claimed".
+         · The horizon is in scope but not yet sharp enough to ticket; a
+           horizon entry sharpens into a ticket. Out of scope is past the
+           destination and never sharpens into anything.
+         · "Graduate" is reserved for a decision reaching a
+           docs/context/ doc. Nothing else in this document graduates.
+         · Changelog is LAST and its id is reserved. A session returning
+           after a week reads it first; keeping it at a fixed address
+           means tooling can find it later.
+
+       The map is rewritten, not appended to. Sections that would grow
+       without bound belong in a register.
+       ════════════════════════════════════════════════════════ -->
+
+  <plan-section id="destination" title="Destination">
+    <p>
+      Where this effort ends, in one paragraph — the state of the world that means it is done. Write it so
+      that someone can hold a finished thing against it and say yes or no.
+    </p>
+    <plan-callout type="info">
+      <strong>Completion bar.</strong> The single observable that closes the effort. Not a list of
+      deliverables — the outcome those deliverables exist to produce.
+    </plan-callout>
+    <p>
+      <strong>Standing constraints.</strong> What holds for the whole effort, whoever is working it. One row
+      each, with what it costs to ignore.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Constraint</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr><td>The constraint, as one normative sentence</td><td>What breaks, or what it costs, if it is ignored</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="documents" title="Documents">
+    <p>
+      Every artifact this effort owns, and what each holds. This is the entry point for a session that has
+      never seen the effort. Include the PRD and slice specs once they exist: the index is how the map ties
+      back to them.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Path</th><th>Type</th><th>Holds</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><a href="decisions.html"><code>decisions.html</code></a></td>
+            <td>Register</td>
+            <td>Every decision, what it rests on, where it graduated to</td>
+            <td>Live</td>
+          </tr>
+          <tr>
+            <td><a href="vocabulary.html"><code>vocabulary.html</code></a></td>
+            <td>Register</td>
+            <td>Terms bound to referents in this codebase</td>
+            <td>Live</td>
+          </tr>
+          <tr>
+            <td><a href="evidence.html"><code>evidence.html</code></a></td>
+            <td>Register</td>
+            <td>Measured artifacts and their authority rank</td>
+            <td>Live</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="tickets" title="Tickets">
+    <p>
+      The frontier. One row per question, with where its answer ended up — never the answer itself. A
+      resolved ticket keeps its row so the trail survives; the reasoning stays in the ticket and the rule
+      stays in the decision register. <strong><code>Blocked by</code> mirrors the ticket's own <code>blocked-by</code> field</strong>,
+      so the frontier — open, unblocked, unclaimed — is readable off this table alone.
+    </p>
+    <p>
+      <strong><code>Title</code> is the ticket's own title, minus its <code>q##</code> prefix.</strong> It is
+      how a human refers to the ticket and what <code>badge map.html --match</code> addresses the row by, so
+      it must stay identical to the title in the ticket document. Match on the title, never on the bare
+      <code>q##</code> id — the id recurs in <code>Blocked by</code> and <code>Answer landed in</code>, so it
+      matches several rows at once.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Title</th><th>Question</th><th>Type</th><th>Status</th><th>Blocked by</th><th>Answer landed in</th><th>Built in</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>q01</code></td>
+            <td>The ticket's title, without its <code>q##</code> prefix</td>
+            <td>The question, phrased so it can be answered yes/no or with a named choice</td>
+            <td>Grilling</td>
+            <td><plan-badge type="open"></plan-badge></td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="slices" title="Slices">
+    <p>
+      How the work divides. <strong>Owned here only until the PRD exists</strong> — after that this table
+      keeps one row per slice and the PRD owns the contract, the sequencing rationale and the acceptance
+      bars. Duplicating them here is how the two drift.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Slice</th><th>Status</th><th>Blocked by</th><th>Spec</th></tr></thead>
+        <tbody>
+          <tr><td><code>S1</code></td><td>What it delivers, in one line</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="horizon" title="On the horizon">
+    <p>
+      In scope, but not sharp enough to ticket — the suspected question, the area to revisit. A horizon entry
+      sharpens into a ticket the moment it can be phrased as a question with an answerable shape.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Area</th><th>What is dim about it</th></tr></thead>
+        <tbody>
+          <tr><td>The area</td><td>The suspected question, and what would sharpen it into a ticket</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="out-of-scope" title="Out of scope">
+    <p>
+      Past the destination. This is a <em>scope</em> judgement, not a sharpness one, and it never sharpens
+      into a ticket — it returns only if the destination is redrawn, and then as a fresh effort. Anything
+      here that deserves to outlive the effort also gets an issue doc.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Ruled out</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>The thing</td><td>Why it is past the destination, and where it went if it went anywhere</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="changelog" title="Changelog">
+    <p>
+      Newest first. What a session returning after a week reads before anything else: what moved, and where
+      to look. <strong>This section stays last and its id is reserved</strong> — keeping it at a fixed
+      address is what lets tooling surface it later.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Date</th><th>What changed</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>{{date}}</td><td>Map charted</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>

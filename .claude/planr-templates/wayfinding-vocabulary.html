@@ -1,0 +1,121 @@
+  <!-- ════════════════════════════════════════════════════════
+       Vocabulary register — the effort's glossary, every term bound to a
+       concrete referent in this codebase or marked NEW.
+
+       Per the domain-modeling skill: a word that is not bound is a word
+       two people will use two ways, and the cost lands in a PRD or a
+       schema where it is expensive to unpick. Binding is cheap while the
+       effort is still unmapped and dear afterwards.
+
+       The four columns are domain-modeling's own, verbatim. This
+       register IS that skill's glossary; it does not paraphrase it.
+
+       Conventions this template encodes:
+         · `Binds to` names a real referent — a model, a field, a table,
+           an external object — or the word NEW. There is no third
+           option. "Roughly the account" is an unbound term wearing a
+           binding's clothes.
+         · `Not` IS NOT OPTIONAL. A term without stated edges gets
+           stretched, and the stretch is only ever noticed downstream,
+           in a PRD or a schema, where it is expensive to unpick.
+         · A NEW term states what will carry it once it exists, and that
+           row is a debt: it gets a real referent or it gets cut.
+         · States and Relationships are scaffolded below and are the
+           optional blocks: an entity whose states you cannot enumerate
+           is a decision still open, not a glossary row. A domain with
+           neither removes both sections with `rm-section`, exactly as a
+           ticket does with `obligations`.
+         · Collisions are tracked separately because they are a different
+           problem. A term used two ways is not missing a definition — it
+           has two, and the fix is to rename one of them, in the code as
+           well as the prose.
+         · A decision that invalidates a binding corrects the row in the
+           same commit. A stale glossary is worse than none, because it
+           is consulted with confidence.
+
+       At effort close this register graduates into the relevant
+       docs/context/ doc, where it becomes the vocabulary the codebase
+       is held to.
+       ════════════════════════════════════════════════════════ -->
+
+  <plan-section id="terms" title="Terms">
+    <p>
+      One row per term. Loaded every session an effort is worked on, which is why it stays short: a glossary
+      long enough to skim past is not doing its job.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Term</th><th>Means</th><th>Binds to</th><th>Not</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>The word as spoken</strong></td>
+            <td>What it denotes, in one line</td>
+            <td><code>app.Model.field</code>, an external object, or <strong>NEW</strong></td>
+            <td>The near-neighbour it is <em>not</em> &mdash; never left blank</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="collisions" title="Collisions">
+    <p>
+      Terms used two ways, and which one wins. A collision is resolved by <strong>renaming one side</strong>
+      &mdash; in the code, not only in the prose &mdash; because a glossary note explaining that a word
+      means two things is a footnote nobody reads at the moment they need it.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Term</th><th>Sense A</th><th>Sense B</th><th>Resolution</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>The overloaded word</strong></td>
+            <td>What one group means</td>
+            <td>What the other means</td>
+            <td>Which sense keeps the word, what the other is renamed to, and whether the code was changed</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="states" title="States">
+    <p>
+      For anything with a lifecycle: the states, the legal transitions, and what causes each.
+      <strong>An entity whose states you cannot enumerate is a decision still open, not a glossary row.</strong>
+      <em>Optional &mdash; <code>rm-section</code> this if the domain has no lifecycle.</em>
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Entity</th><th>State</th><th>Enters when</th><th>Can then reach</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>app.Model</code></td>
+            <td><code>the_state</code></td>
+            <td>What causes the transition in</td>
+            <td>The states it can legally reach next</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="relationships" title="Relationships">
+    <p>
+      One line each, with cardinality and the direction that owns the reference. Where the relation already
+      exists, <strong>cite the field from <code>data-model.md</code> rather than describing it</strong>.
+      <em>Optional &mdash; <code>rm-section</code> this if the domain has none worth stating.</em>
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Relation</th><th>Reference owned by</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>Role 1&mdash;N RoleAssignment</code></td>
+            <td><code>RoleAssignment.role</code></td>
+            <td>Where it already exists, cite it &mdash; do not re-describe it</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>

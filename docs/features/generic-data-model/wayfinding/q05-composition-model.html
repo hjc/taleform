@@ -42,7 +42,9 @@
   <strong>What is a data element (the unit a config defines): what does it declare (properties, relations, ordering, derived values, generated output), and how does one element extend or compose another?</strong>
 </plan-callout></plan-section>
 
-  <plan-section id="context" title="Context"><p>The developer: "create data elements we can compose and extend to create our structure of Missions / Acts / Arcs / Campaigns / whatever, while also letting us build a bunch of functionality on top." Settles whether extension is inheritance, mixins or composition by reference, and how the shipped default config is overridden by a DM's own. Needs the concepts from <a href="q04-base-concepts.html">The base concepts</a> and the prior art from <a href="q02-prior-art-declarative-models.html">Prior art for declarative models</a>.</p></plan-section>
+  <plan-section id="context" title="Context"><p>The developer: "create data elements we can compose and extend to create our structure of Missions / Acts / Arcs / Campaigns / whatever, while also letting us build a bunch of functionality on top." Settles whether extension is inheritance, mixins or composition by reference, and how the shipped default config is overridden by a DM's own. Needs the concepts from <a href="q04-base-concepts.html">The base concepts</a> and the prior art from <a href="q02-prior-art-declarative-models.html">Prior art for declarative models</a>.</p>
+    <p><strong>Settled by <a href="q04-base-concepts.html">The base concepts</a></strong> (D01&ndash;D09): three open families; open nesting with config-named levels; Moment and Beat as recipe and instance with key-by-key override; Creature and NPC the same; Encounter a relation. This ticket decides how a config expresses them; its obligations are listed in that ticket.</p>
+</plan-section>
 
   <plan-section id="findings" title="Findings">
     <p>

@@ -28,7 +28,7 @@
 <plan-header
   title="q04 — The base concepts"
   subtitle=""
-  status="draft"
+  status="approved"
   date="2026-10-25">
 </plan-header>
 
@@ -44,76 +44,52 @@
 
   <plan-section id="context" title="Context"><p>The developer wants the core concepts settled first: "What is a mission at its base layer? What is an NPC? What is an encounter?" Today a mission is <code>kind: mission</code>, membership is the <code>mission</code> link, and acts and beats are sequence kinds ordered by <code>act</code>/<code>beat</code> numbers. An encounter is only an Initiative Tracker <code>encounter</code> block summed against stat blocks. NPCs are not modelled at all. Arc and Campaign are named in <code>CLAUDE.md</code> but not designed, and this effort models them without building their maps. Run with <code>domain-modeling</code>; every answer is a row in <a href="vocabulary.html">the vocabulary</a>.</p></plan-section>
 
-  <plan-section id="findings" title="Findings">
-    <p>
-      What the world turned out to be. Measurements, portal reads, probe output, quoted code &mdash; each
-      with its evidence id, or marked as read live with the date. <strong>This section survives its own
-      resolution being overturned</strong>, which is why it is kept apart from it.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>What is true, stated flatly</td>
-            <td>Measured, read from the portal, quoted from the code, or told to us by someone with access</td>
-            <td><code>E01</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </plan-table>
-    <plan-callout type="warn">
-      <strong>An unverified assumption is not a finding.</strong> If the answer rests on external behaviour
-      nobody has measured, that is a blocker to raise now &mdash; not a caveat to record here and not a step
-      to defer to whoever builds it.
-    </plan-callout>
-  </plan-section>
+  <plan-section id="findings" title="Findings"><p>Grilling with the developer, 2026-10-25, against <a href="assets/todays-model-inventory.md">the inventory</a>.</p>
+<plan-table>
+  <table>
+    <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Today a mission is <code>kind: mission</code>, and membership, the map, the ledger and the regions all hang off it in code.</td><td>Inventory §1, §8</td><td><code>E01</code></td></tr>
+      <tr><td>Sequence notes (<code>act</code>, <code>beat</code>, <code>scene</code>, <code>combat</code>, <code>challenge</code>) behave identically apart from <code>act</code>; each note carries both its content and its position and status.</td><td>Inventory §1, §5</td><td><code>E01</code></td></tr>
+      <tr><td>An encounter is only an Initiative Tracker block inside a note, summed against <code>statblock: true</code> notes matched by <code>name</code>; NPCs, Arcs and Campaigns are not modelled.</td><td>Inventory §1, §6</td><td><code>E01</code></td></tr>
+      <tr><td>At the table the DM works inside one beat note, so a container-declared order is only usable if the note itself shows where it sits.</td><td>The developer, 2026-10-25</td><td>user</td></tr>
+    </tbody>
+  </table>
+</plan-table></plan-section>
 
-  <plan-section id="resolution" title="Resolution">
-    <p>
-      The decision, and why this option and not the others. Name who made it: a call that turns on product
-      or architecture belongs to the user, and a ticket that quietly made one on their behalf is a defect
-      in the process even when the answer is right.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
-        <tbody>
-          <tr><td>The one taken</td><td><plan-badge type="decided">chosen</plan-badge></td><td>What decided it</td></tr>
-          <tr><td>The one not taken</td><td>Rejected</td><td>What ruled it out &mdash; kept so it is not re-litigated</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
+  <plan-section id="resolution" title="Resolution"><p>Every call below is the developer's, made one question at a time on 2026-10-25; the agent proposed, the developer chose. The model is recorded in <a href="../../../context/story-model.md"><code>docs/context/story-model.md</code></a> &sect; Families and the sections after it.</p>
+<plan-table>
+  <table>
+    <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Three families: Structure, Moments, Cast &amp; world, with the set open to more</td><td><plan-badge type="decided">chosen</plan-badge></td><td>Matches what the code already separates (membership and order; status and XP; stat blocks by name) and gives NPC a home. Threads, Clues and Sessions fit none, so the set must stay open.</td></tr>
+      <tr><td>Structure as open nesting, levels from config</td><td><plan-badge type="decided">chosen</plan-badge></td><td>Over a fixed Campaign &gt; Arc &gt; Mission &gt; Act ladder: composition and reuse, any depth, any level names.</td></tr>
+      <tr><td>Placements on the container (the container lists its scenes)</td><td><plan-badge type="decided">chosen, via recipe and instance</plan-badge></td><td>The developer wanted A's expressiveness but saw that a shared note loses its back-links at the table. Recipe and instance resolves it: each placement is its own beat note whose navigation is derived from its container.</td></tr>
+      <tr><td>Placements on the moment, as a list or a shorthand plus a list</td><td>Rejected</td><td>Keeps state on a shared note, so two placements cannot each show their own navigation and status.</td></tr>
+      <tr><td>Encounter as its own type</td><td>Rejected</td><td>Combat or not, meeting cast is the same relation; the word names the relation instead.</td></tr>
+    </tbody>
+  </table>
+</plan-table>
 
-    <h3>For the register</h3>
-    <plan-callout type="success">
-      The rule in one normative sentence, exactly as it will appear in
-      <a href="decisions.html"><code>decisions.html</code></a>. Then: what it rests on, what it binds, and which
-      <code>docs/context/</code> doc it graduates into.
-    </plan-callout>
+<h3>For the register</h3>
+<plan-callout type="success">Nine rules, <code>D01</code>&ndash;<code>D09</code> in <a href="decisions.html">the decision register</a>, each resting on a user call and graduated to <a href="../../../context/story-model.md"><code>docs/context/story-model.md</code></a>.</plan-callout>
 
-    <h3>What would change this answer</h3>
-    <p>
-      The observation that would reopen it. A ticket that
-      cannot name one has usually not been pushed hard enough.
-    </p>
-  </plan-section>
+<h3>What would change this answer</h3>
+<p>A storytelling style the three families cannot hold without a fourth; or a probe showing that live embeds of a moment in its beat notes do not update in Obsidian as the model assumes.</p></plan-section>
 
-  <plan-section id="obligations" title="Obligations">
-    <p>
-      What this answer commits a <em>downstream</em> artifact to &mdash; a PRD requirement, a build check, a
-      context-doc rule, an amendment another ticket needs. At map close these are the PRD's structured input.
-      <strong>Optional: delete this section if the ticket earned none.</strong>
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Owes</th><th>What</th></tr></thead>
-        <tbody>
-          <tr><td>The artifact that must carry it</td><td>The requirement, check or rule it is now committed to</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
-  </plan-section>
+  <plan-section id="obligations" title="Obligations"><plan-table>
+  <table>
+    <thead><tr><th>Owes</th><th>What</th></tr></thead>
+    <tbody>
+      <tr><td><a href="q05-composition-model.html">The composition model</a></td><td>Express families as an open set; recipe and instance with key-by-key override; container levels with a configurable membership property and ordering property; order from a container's list or from each beat's numbers. A beat's position must be derivable, so a later seeded generator can place moments.</td></tr>
+      <tr><td><a href="q08-builders-as-config.html">Builders as config</a></td><td>Builders bind to container levels by config (Adventure Map, ledger and Resume here per Mission); navigation derives prev/next from the container's order. Decide whether <code>reference</code> and <code>bench</code> survive, and how the default config keeps <code>kind: beat</code> building now that "beat" means a placed moment.</td></tr>
+      <tr><td><a href="q12-parity-baseline.html">The parity baseline</a></td><td>Decide whether the test vault gains a reused moment, an NPC instance of a creature, and an Arc, or whether parity covers today's shapes only.</td></tr>
+      <tr><td><a href="q10-model-view.html">The model view</a></td><td>Show families, container levels, moments and their beats, and cast with what each is an instance of.</td></tr>
+      <tr><td><a href="q11-view-in-test-vault.html">A view in the test vault</a></td><td>Also probe that an embedded moment updates live in its beat notes, which the override model assumes.</td></tr>
+      <tr><td>The PRD</td><td>Builds stay derivation-only; creating a beat is an authoring action (a command or the assistant). Whether this PRD ships an "instantiate" command is open on the horizon.</td></tr>
+    </tbody>
+  </table>
+</plan-table></plan-section>
 
 
 </main>

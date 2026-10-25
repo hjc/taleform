@@ -18,3 +18,7 @@ docs/features/**/tdds/*
 # Local Claude customizations
 CLAUDE.local.md
 .claude/settings.local.json
+
+# The test vault's Obsidian state: the deployed plugin and per-session UI files.
+test-vault/.obsidian/plugins/
+test-vault/.obsidian/workspace*.json

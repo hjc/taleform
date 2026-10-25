@@ -12,7 +12,9 @@
     "dev": "node esbuild.config.mjs --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check": "npm run typecheck && npm test && npm run build",
+    "check:vault": "node dist/cli.cjs check --vault test-vault",
+    "build:vault": "npm run build && node dist/cli.cjs build --vault test-vault",
+    "check": "npm run typecheck && npm test && npm run build && npm run check:vault",
     "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {

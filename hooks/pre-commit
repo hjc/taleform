@@ -1,0 +1,8 @@
+#!/bin/sh
+# Taleform: rebuild generated story output before every commit, staging only outputs that carry
+# no unrelated edits. It never blocks a commit. Installed by `npm run deploy -- <vault> --hooks`.
+# The CLI is the one deployed in the vault's plugin folder; TALEFORM_CLI overrides it.
+VAULT="$(git rev-parse --show-toplevel)"
+CLI="${TALEFORM_CLI:-$VAULT/.obsidian/plugins/taleform/cli.cjs}"
+[ -f "$CLI" ] && node "$CLI" pre-commit --vault "$VAULT"
+exit 0

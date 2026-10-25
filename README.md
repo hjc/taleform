@@ -55,12 +55,22 @@ declarations are the source of truth, and everything generated can be rebuilt at
   `check` changes nothing and exits 1 when anything is stale or invalid.
 - **Git hook:** `taleform pre-commit` builds, then stages only the outputs that cannot drag
   unrelated work along: a map, or a note that was already in the commit and has no other unstaged
-  edits. It never blocks a commit.
+  edits. It never blocks a commit. `npm run deploy -- <vault> --hooks` installs it.
+- **Claude Code hook:** `claude-hook.mjs`, shipped in the plugin folder, rebuilds after an agent
+  edits a note while Obsidian is closed, and reports build errors back to the agent. Register it
+  in the vault's `.claude/settings.json` (the command is in the file's header).
+
+Both hooks run the CLI deployed in the vault's plugin folder
+(`.obsidian/plugins/taleform/cli.cjs`); `TALEFORM_CLI` overrides it.
 
 ## Development
 
 ```
 npm install
-npm run check                 # typecheck + tests + bundle
-npm run deploy -- <vault dir> # copy main.js + manifest.json into <vault>/.obsidian/plugins/taleform
+npm run check                          # typecheck + tests + bundle + test-vault parity check
+npm run build:vault                    # rebuild test-vault/ after a change to generated output
+npm run deploy -- [<vault>] [--hooks]  # install the plugin, CLI and Claude hook (default: test-vault)
 ```
+
+`test-vault/` is a small fictional campaign covering every builder, committed with its generated
+output. A change that alters output shows up as a diff there, for review.

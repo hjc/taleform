@@ -81,7 +81,7 @@ feature branch ──PR──▶ main ──▶ npm run deploy -- "<vault>"
 
 ### Branch and commit types
 
-A branch is `<github-handle>/<type>--<slug>` (for example, `hjc/feat--arc-map`). The prefix is the author's GitHub handle, not their initials.
+A branch is `<github-handle>/<type>--<slug>` (for example, `<handle>/feat--arc-map`). The prefix is the author's GitHub handle, not their initials.
 
 **The branch type names the branch's *primary* work. Each commit takes the prefix matching what that commit actually does.** They usually agree, but they don't have to:
 

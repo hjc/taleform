@@ -4,7 +4,7 @@
 
 **Read `docs/GLOSSARY.md` before writing any doc, plan, review or PR body.** It fixes the terms; above all, the **developer** works on Taleform in this repo, and the **DM** is the end user who keeps a campaign in a vault. Taleform targets D&D 5e (2024) and is meant to be adopted by any DM, so `src/` carries no vault-specific names or paths; everything comes from frontmatter.
 
-Machine-specific facts (the developer's own vault, local paths) live in `CLAUDE.local.md`, which is gitignored. **Never write them into a tracked file.**
+Machine- and developer-specific facts (the developer's GitHub handle, their own vault, local paths) live in `CLAUDE.local.md`, which is gitignored. **Never write them into a tracked file.**
 
 ## Commands
 

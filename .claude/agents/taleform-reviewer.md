@@ -64,7 +64,7 @@ Write the full review, exactly the structure above, to `.claude/reviews/<subject
 | `docs/features/<feature>/prd-<feature>.html` | `prd-<feature>` |
 | `docs/features/<feature>/slices/<n>-<slug>.html` | `<feature>-slice-<n>-<slug>` |
 | `docs/features/<feature>/tdds/<name>.html` | `<feature>-<name>` |
-| a branch diff | `<branch slug>-diff` (`hjc/feat--arc-map` → `arc-map-diff`) |
+| a branch diff | `<branch slug>-diff` (`<handle>/feat--arc-map` → `arc-map-diff`) |
 | no file (subject given inline) | a short kebab-case slug |
 
 - Write it on every dispatch, including a clean APPROVED.

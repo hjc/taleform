@@ -42,7 +42,7 @@ When asked to commit:
 **Commit messages describe code changes only.** Never reference plan names, step or phase numbers, slice ids or FR labels. Someone reading `git log` with no knowledge of the planning process must understand it.
 
 ### 2. Branch Management
-- **Creating branches**: `<github-handle>/<type>--<slug>`, type from the `docs/sdlc.md` §3 table. The developer's handle is `hjc` (e.g. `hjc/feat--arc-map`, `hjc/fix--resume-order`). Create from `main`, or — in a stack — from the branch below, as the caller says.
+- **Creating branches**: `<github-handle>/<type>--<slug>`, type from the `docs/sdlc.md` §3 table. The developer's handle is in `CLAUDE.local.md` (e.g. `<handle>/feat--arc-map`, `<handle>/fix--resume-order`). Create from `main`, or — in a stack — from the branch below, as the caller says.
 - **Switching branches**: check for uncommitted changes first. Warn if dirty; don't stash unasked.
 - **Deleting branches**: identify merged ones with `git branch --merged`. Confirm before deleting. Never delete `main`. `git branch -d` only; `-D` only when explicitly instructed.
 - **Pushing**: `git push origin <branch>`; new branches `git push -u origin <branch>`. Report the output.
@@ -126,10 +126,10 @@ Include observed evidence: `git show --stat` for commits, `git branch --show-cur
 2. **Never force-push** without explicit developer approval, and warn about the implications.
 3. **Never rewrite published history** (rebase, amend, squash pushed commits) without explicit approval.
 4. **Always report status**, 1–3 lines, with: the action, abbreviated hashes, the current branch, and any warnings (unstaged files, diverged branches). Examples:
-   - `Committed 3 files on hjc/feat--arc-map (a1b2c3d): "feat: add the arc-map builder"`
-   - `Opened PR #12 hjc/feat--arc-map → hjc/map--arc-map.`
+   - `Committed 3 files on <handle>/feat--arc-map (a1b2c3d): "feat: add the arc-map builder"`
+   - `Opened PR #12 <handle>/feat--arc-map → <handle>/feat--story-map-base.`
    - `Landed segment: PR #14 retargeted to main, merged (e4f5g6h); closed #12, #13 linking #14.`
-   - `Pushed hjc/fix--resume-order to origin (a1b2c3d..f8g9h0i). Tracking set.`
+   - `Pushed <handle>/fix--resume-order to origin (a1b2c3d..f8g9h0i). Tracking set.`
 5. **Check before acting**: `git status` before commits, merges, stashes or branch switches.
 6. **Never miss companion files**: `package-lock.json` goes with a `package.json` dependency change. `dist/` is gitignored build output — never commit it. When unsure whether a file is a required companion, ask.
 7. **Atomic commits**: prefer small, focused commits; suggest splitting when the caller describes several logical changes.

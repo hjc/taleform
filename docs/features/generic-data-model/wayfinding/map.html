@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Declarative Model — Wayfinding Map</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="Declarative Model — Wayfinding Map"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+
+  <plan-section id="destination" title="Destination"><p>
+  <strong>One approved PRD, split into slices</strong>, for rebuilding Taleform on a declarative model: a glossary of core concepts; a YAML model config that defines composable, extensible data elements (Mission, Act, Beat, Encounter, NPC, Arc, Campaign and whatever a DM adds); a default config shipped with the plugin; the six builders rewritten to read that config; and a plugin view in Obsidian that shows the model in use. Hand-off: <code>prd-writing</code>, then the slices stack on <code>hjc/map--generic-data-model</code>.
+</p>
+<plan-callout type="info">
+  <strong>Completion bar.</strong> The developer approves a PRD whose slices, once built, reproduce today's <code>test-vault/</code> output byte for byte from the shipped default config, with every hard-coded convention moved into that config or written down as a fixed contract.
+</plan-callout>
+<p>
+  <strong>Standing constraints.</strong> What holds for the whole effort, whoever is working it.
+</p>
+<plan-table>
+  <table>
+    <thead><tr><th>Constraint</th><th>Consequence</th></tr></thead>
+    <tbody>
+      <tr><td>The shipped default config reproduces today's generated output exactly; output changes come afterwards, as config edits.</td><td>Without it there is no proof the config expresses what the code did, and every DM's vault churns on upgrade.</td></tr>
+      <tr><td>Arcs and Campaigns are modelled and shown in the view, but no Arc or Campaign Map builder is built.</td><td>Building them here doubles the destination; they are the first features on the new model, on the roadmap.</td></tr>
+      <tr><td>The config is plain YAML in its first cut, readable and editable by a human or Claude without tooling.</td><td>A bespoke language before the need is proven costs the editability that is the point.</td></tr>
+      <tr><td>The five invariants in <code>CLAUDE.md</code> hold throughout; above all, builders never write frontmatter.</td><td>A build that feeds back into its own input, or touches the DM's text.</td></tr>
+      <tr><td><code>src/core/</code> stays free of Obsidian imports; both runners read the same config.</td><td>The CLI and the hooks stop working headless.</td></tr>
+      <tr><td>Probes and tasks write only to a scratch copy of <code>test-vault/</code>, never a DM's vault.</td><td>Edits to a DM's real campaign.</td></tr>
+    </tbody>
+  </table>
+</plan-table>
+<p>Prior art: the issue <a href="../../../issues/vault-conventions-hardcoded-in-src.html">src/ hard-codes one vault's conventions</a> inventories 17 conventions; its line references are stale, and <a href="q01-todays-model-as-data.html">Today's model as data</a> replaces them.</p></plan-section>
+
+  <plan-section id="documents" title="Documents">
+    <p>
+      Every artifact this effort owns, and what each holds. This is the entry point for a session that has
+      never seen the effort. Include the PRD and slice specs once they exist: the index is how the map ties
+      back to them.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Path</th><th>Type</th><th>Holds</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><a href="decisions.html"><code>decisions.html</code></a></td>
+            <td>Register</td>
+            <td>Every decision, what it rests on, where it graduated to</td>
+            <td>Live</td>
+          </tr>
+          <tr>
+            <td><a href="vocabulary.html"><code>vocabulary.html</code></a></td>
+            <td>Register</td>
+            <td>Terms bound to referents in this codebase</td>
+            <td>Live</td>
+          </tr>
+          <tr>
+            <td><a href="evidence.html"><code>evidence.html</code></a></td>
+            <td>Register</td>
+            <td>Measured artifacts and their authority rank</td>
+            <td>Live</td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="tickets" title="Tickets">
+    <p>
+      The frontier. One row per question, with where its answer ended up — never the answer itself. A
+      resolved ticket keeps its row so the trail survives; the reasoning stays in the ticket and the rule
+      stays in the decision register. <strong><code>Blocked by</code> mirrors the ticket's own <code>blocked-by</code> field</strong>,
+      so the frontier — open, unblocked, unclaimed — is readable off this table alone.
+    </p>
+    <p>
+      <strong><code>Title</code> is the ticket's own title, minus its <code>q##</code> prefix.</strong> It is
+      how a human refers to the ticket and what <code>badge map.html --match</code> addresses the row by, so
+      it must stay identical to the title in the ticket document. Match on the title, never on the bare
+      <code>q##</code> id — the id recurs in <code>Blocked by</code> and <code>Answer landed in</code>, so it
+      matches several rows at once.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Title</th><th>Question</th><th>Type</th><th>Status</th><th>Blocked by</th><th>Answer landed in</th><th>Built in</th></tr></thead>
+        <tbody>
+          <tr><td><code>q01</code></td><td><a href="q01-todays-model-as-data.html">Today's model as data</a></td><td>What does Taleform model today, written down as data: every kind, property, enum value, relation, ordering rule, derived value, table, and every piece of text a builder generates?</td><td>Research</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q02</code></td><td><a href="q02-prior-art-declarative-models.html">Prior art for declarative models</a></td><td>How do existing declarative systems let users define types, compose and extend them, and compute derived values, and which of their choices fit a YAML-first model config for Obsidian notes?</td><td>Research</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q03</code></td><td><a href="q03-obsidian-view-api.html">Obsidian view API</a></td><td>What does the Obsidian plugin API offer for a view that shows a data model (custom views, settings tabs, modals), and how does such a view refresh when notes change?</td><td>Research</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q04</code></td><td><a href="q04-base-concepts.html">The base concepts</a></td><td>At its simplest, what is each of Mission, Act, Beat, Encounter, NPC, Arc and Campaign: which are kinds of note, which are relations or groupings, and which are blocks inside a note?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q01-todays-model-as-data.html">q01</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q05</code></td><td><a href="q05-composition-model.html">The composition model</a></td><td>What is a data element (the unit a config defines): what does it declare (properties, relations, ordering, derived values, generated output), and how does one element extend or compose another?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q04-base-concepts.html">q04</a>, <a href="q02-prior-art-declarative-models.html">q02</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q06</code></td><td><a href="q06-config-language.html">The config language</a></td><td>What can the first-cut YAML config express on its own, how are expressions (sums, min, max, filters) written inside it, and what would trigger the move to a language of our own?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q05-composition-model.html">q05</a>, <a href="q02-prior-art-declarative-models.html">q02</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q07</code></td><td><a href="q07-where-config-lives.html">Where config lives</a></td><td>Where does the model config live and how does it layer: one vault-level file or folder, overrides per mission or arc, and how does a DM edit on top of the shipped default without forking it?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q05-composition-model.html">q05</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q08</code></td><td><a href="q08-builders-as-config.html">Builders as config</a></td><td>For each of today's six builders, what becomes config data (wording, glyphs, region ids, tables, file names) and what stays code as a generic builder that the config parameterizes?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q05-composition-model.html">q05</a>, <a href="q01-todays-model-as-data.html">q01</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q09</code></td><td><a href="q09-bases-alignment.html">Bases alignment</a></td><td>Does the new type system align with Obsidian Bases (its property types, .base views, formula language) in this effort, or does reading through Bases stay parked?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q02-prior-art-declarative-models.html">q02</a>, <a href="q05-composition-model.html">q05</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q10</code></td><td><a href="q10-model-view.html">The model view</a></td><td>What does the first plugin view of the data model show and how is it laid out: the element definitions from config, the notes that match each, derived values, problems?</td><td>Prototype</td><td><plan-badge type="open"></plan-badge></td><td><a href="q05-composition-model.html">q05</a>, <a href="q03-obsidian-view-api.html">q03</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q11</code></td><td><a href="q11-view-in-test-vault.html">A view in the test vault</a></td><td>Does a minimal registered view open in Obsidian against a scratch copy of test-vault, render the StoryIndex, and refresh when a note's frontmatter changes?</td><td>Probe</td><td><plan-badge type="open"></plan-badge></td><td><a href="q03-obsidian-view-api.html">q03</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="slices" title="Slices">
+    <p>
+      How the work divides. <strong>Owned here only until the PRD exists</strong> — after that this table
+      keeps one row per slice and the PRD owns the contract, the sequencing rationale and the acceptance
+      bars. Duplicating them here is how the two drift.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Slice</th><th>Status</th><th>Blocked by</th><th>Spec</th></tr></thead>
+        <tbody>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="horizon" title="On the horizon">
+    <p>
+      In scope, but not sharp enough to ticket — the suspected question, the area to revisit. A horizon entry
+      sharpens into a ticket the moment it can be phrased as a question with an answerable shape.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Area</th><th>What is dim about it</th></tr></thead>
+        <tbody>
+          <tr><td>Validating config edits</td><td>A schema that lets an editor, the CLI and Claude check a config edit before a build. Sharpens once the config language is decided.</td></tr>
+          <tr><td>Versioning and migrating config</td><td>How a shipped default evolves without breaking a DM's overrides, and whether the <code>RETIRED</code> map becomes config. Sharpens once where config lives is decided.</td></tr>
+          <tr><td>From YAML to a language of our own</td><td>What would force the upgrade and how a YAML config converts. Sharpens from the config language decision.</td></tr>
+          <tr><td>Editing through the UI</td><td>The view starts read-only; which edits it takes on next. Sharpens from the model view prototype.</td></tr>
+          <tr><td>Proving parity during the rewrite</td><td>Whether the test vault covers every config path, or needs a second mission and NPC and arc notes. Sharpens once the base concepts and builders-as-config are decided.</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="out-of-scope" title="Out of scope">
+    <p>
+      Past the destination. This is a <em>scope</em> judgement, not a sharpness one, and it never sharpens
+      into a ticket — it returns only if the destination is redrawn, and then as a fresh effort. Anything
+      here that deserves to outlive the effort also gets an issue doc.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Ruled out</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Arc and Campaign Map builders</td><td>The model expresses Arcs and Campaigns; building their maps is the first work on top of it. Stays in <code>CLAUDE.md</code> § Roadmap.</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="changelog" title="Changelog">
+    <p>
+      Newest first. What a session returning after a week reads before anything else: what moved, and where
+      to look. <strong>This section stays last and its id is reserved</strong> — keeping it at a fixed
+      address is what lets tooling surface it later.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Date</th><th>What changed</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td>2026-10-25</td><td>Map charted: destination, 11 tickets (3 research on the frontier), horizon</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+
+</main>
+
+</body>
+</html>

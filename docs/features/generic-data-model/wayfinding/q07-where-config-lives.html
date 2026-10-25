@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>q07 — Where config lives</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="q07 — Where config lives"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+  <plan-meta>
+    <plan-field key="blocked-by" label="blocked by">q05-composition-model.html</plan-field>
+    <plan-field key="ticket-type" label="ticket type">grilling</plan-field>
+  </plan-meta>
+
+  <plan-section id="question" title="Question"><plan-callout type="info">
+  <strong>Where does the model config live and how does it layer: one vault-level file or folder, overrides per mission or arc, and how does a DM edit on top of the shipped default without forking it?</strong>
+</plan-callout></plan-section>
+
+  <plan-section id="context" title="Context"><p>Both runners must read it: the plugin through <code>app.vault</code>, the CLI through <code>FsVault</code>, which skips dot folders today (<plan-file path="src/cli/main.ts"></plan-file>). The issue doc left open whether configuration is per mission (two game systems in one vault) or per vault.</p></plan-section>
+
+  <plan-section id="findings" title="Findings">
+    <p>
+      What the world turned out to be. Measurements, portal reads, probe output, quoted code &mdash; each
+      with its evidence id, or marked as read live with the date. <strong>This section survives its own
+      resolution being overturned</strong>, which is why it is kept apart from it.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>What is true, stated flatly</td>
+            <td>Measured, read from the portal, quoted from the code, or told to us by someone with access</td>
+            <td><code>E01</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="warn">
+      <strong>An unverified assumption is not a finding.</strong> If the answer rests on external behaviour
+      nobody has measured, that is a blocker to raise now &mdash; not a caveat to record here and not a step
+      to defer to whoever builds it.
+    </plan-callout>
+  </plan-section>
+
+  <plan-section id="resolution" title="Resolution">
+    <p>
+      The decision, and why this option and not the others. Name who made it: a call that turns on product
+      or architecture belongs to the user, and a ticket that quietly made one on their behalf is a defect
+      in the process even when the answer is right.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>The one taken</td><td><plan-badge type="decided">chosen</plan-badge></td><td>What decided it</td></tr>
+          <tr><td>The one not taken</td><td>Rejected</td><td>What ruled it out &mdash; kept so it is not re-litigated</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+
+    <h3>For the register</h3>
+    <plan-callout type="success">
+      The rule in one normative sentence, exactly as it will appear in
+      <a href="decisions.html"><code>decisions.html</code></a>. Then: what it rests on, what it binds, and which
+      <code>docs/context/</code> doc it graduates into.
+    </plan-callout>
+
+    <h3>What would change this answer</h3>
+    <p>
+      The observation that would reopen it. A ticket that
+      cannot name one has usually not been pushed hard enough.
+    </p>
+  </plan-section>
+
+  <plan-section id="obligations" title="Obligations">
+    <p>
+      What this answer commits a <em>downstream</em> artifact to &mdash; a PRD requirement, a build check, a
+      context-doc rule, an amendment another ticket needs. At map close these are the PRD's structured input.
+      <strong>Optional: delete this section if the ticket earned none.</strong>
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Owes</th><th>What</th></tr></thead>
+        <tbody>
+          <tr><td>The artifact that must carry it</td><td>The requirement, check or rule it is now committed to</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+
+</main>
+
+</body>
+</html>

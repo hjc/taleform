@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Declarative Model — Vocabulary</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="Declarative Model — Vocabulary"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+
+  <plan-section id="terms" title="Terms">
+    <p>
+      One row per term. Loaded every session an effort is worked on, which is why it stays short: a glossary
+      long enough to skim past is not doing its job.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Term</th><th>Means</th><th>Binds to</th><th>Not</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Model config</strong></td><td>The YAML that defines a vault's data elements and what Taleform builds from them</td><td><strong>NEW</strong></td><td>Not the plugin's <code>prefs</code> (<code>autoBuild</code>); not a note's frontmatter, which stays the DM's data</td></tr>
+          <tr><td><strong>Default config</strong></td><td>The model config shipped with Taleform, reproducing today's behaviour exactly</td><td><strong>NEW</strong></td><td>Not a DM's override of it</td></tr>
+          <tr><td><strong>Data element</strong></td><td>The unit the model config defines and composes; its shape is decided in <a href="q05-composition-model.html">The composition model</a></td><td><strong>NEW</strong></td><td>Not a note; not a <code>kind</code> value, though a kind may be one</td></tr>
+          <tr><td><strong>Model view</strong></td><td>The plugin's Obsidian view that shows the model config and the notes it matches</td><td><strong>NEW</strong></td><td>Not the status-bar item; not a settings tab for <code>prefs</code></td></tr>
+          <tr><td><strong>Mission</strong></td><td>Today: a note with <code>kind: mission</code>, whose members link to it through <code>mission</code>. Redefined in <a href="q04-base-concepts.html">The base concepts</a></td><td><code>kind: mission</code>; <code>StoryIndex.missions()</code> in <code>src/core/index.ts</code></td><td>Not a folder; membership is the link</td></tr>
+          <tr><td><strong>Encounter</strong></td><td>Today: an Initiative Tracker <code>encounter</code> code block, summed against stat blocks for combat XP. Redefined in <a href="q04-base-concepts.html">The base concepts</a></td><td><code>combatOf</code> in <code>src/core/story.ts</code></td><td>Not a beat, though a beat may hold one</td></tr>
+          <tr><td><strong>NPC</strong></td><td>A non-player character; not modelled today</td><td><strong>NEW</strong></td><td>Not a stat block (<code>statblock: true</code>), which is a creature's combat numbers</td></tr>
+          <tr><td><strong>Parity</strong></td><td>The default config's output matching today's byte for byte</td><td><code>npm run check:vault</code> (<code>check --vault test-vault</code>)</td><td>Not frontmatter compatibility alone</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="collisions" title="Collisions">
+    <p>
+      Terms used two ways, and which one wins. A collision is resolved by <strong>renaming one side</strong>
+      &mdash; in the code, not only in the prose &mdash; because a glossary note explaining that a word
+      means two things is a footnote nobody reads at the moment they need it.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Term</th><th>Sense A</th><th>Sense B</th><th>Resolution</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Encounter</strong></td><td>The Initiative Tracker <code>encounter</code> block: a combat roster</td><td>A story moment where the party meets something, combat or not</td><td>Open: <a href="q04-base-concepts.html">The base concepts</a></td></tr>
+          <tr><td><strong>Config</strong></td><td>The model config</td><td>The plugin's <code>prefs</code>, shown in Obsidian as its settings</td><td>The model config is always "model config"; <code>prefs</code> stays "plugin settings"</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="states" title="States">
+    <p>
+      Today's only lifecycle, from <code>STATUSES</code> in <code>src/core/story.ts</code>. Whether status becomes config is open.
+      <strong>An entity whose states you cannot enumerate is a decision still open, not a glossary row.</strong>
+      <em>Optional &mdash; <code>rm-section</code> this if the domain has no lifecycle.</em>
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Entity</th><th>State</th><th>Enters when</th><th>Can then reach</th></tr></thead>
+        <tbody>
+          <tr><td>Beat (<code>beat-status</code>)</td><td><code>planned</code></td><td>The default when <code>beat-status</code> is absent</td><td><code>played</code>, <code>partial</code>, <code>skipped</code></td></tr>
+          <tr><td>Beat (<code>beat-status</code>)</td><td><code>played</code></td><td>The DM ran it at the table</td><td>Any: the DM edits frontmatter freely; nothing enforces transitions</td></tr>
+          <tr><td>Beat (<code>beat-status</code>)</td><td><code>partial</code></td><td>Ran, but only half landed; on the furthest touched beat it is where the table resumes</td><td>Any</td></tr>
+          <tr><td>Beat (<code>beat-status</code>)</td><td><code>skipped</code></td><td>Passed over at the table</td><td>Any</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="relationships" title="Relationships">
+    <p>
+      One line each, with cardinality and the direction that owns the reference. Where the relation already
+      exists, <strong>cite the property or the <code>StoryIndex</code> method rather than describing it</strong>.
+      <em>Optional &mdash; <code>rm-section</code> this if the domain has none worth stating.</em>
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Relation</th><th>Reference owned by</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>mission 1&mdash;N member</code></td><td>each member's <code>mission</code> link</td><td><code>StoryIndex.members</code> in <code>src/core/index.ts</code>; never the folder</td></tr>
+          <tr><td><code>sequence note N&mdash;1 position</code></td><td>the note's <code>act</code> and <code>beat</code> numbers</td><td><code>sequence</code> in <code>src/core/story.ts</code>; <code>prev</code>/<code>next</code> and <code>entry</code>/<code>branches</code>/<code>outcomes</code> add the edges</td></tr>
+          <tr><td><code>beat 1&mdash;N award</code></td><td>the beat's <code>awards</code> list</td><td><code>awardsOf</code></td></tr>
+          <tr><td><code>beat 1&mdash;0..1 encounter block</code></td><td>the note's text</td><td><code>combatOf</code>; each creature resolves to a <code>statblock: true</code> note by <code>name</code></td></tr>
+          <tr><td><code>mission 1&mdash;0..1 hand-off</code></td><td>the mission's <code>handoff</code> link</td><td>The only link between missions today; no Arc or Campaign exists</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+
+</main>
+
+</body>
+</html>

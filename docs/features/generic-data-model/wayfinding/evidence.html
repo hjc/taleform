@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Declarative Model — Evidence Manifest</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="Declarative Model — Evidence Manifest"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+
+  <plan-section id="manifest" title="Manifest">
+    <p>
+      One row per artifact. Cited by id from ticket findings and from the decision register.
+    </p>
+    <plan-table>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Artifact</th><th>Fixes</th><th>Taken</th><th>Authority</th><th>Known wrong about</th></tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </plan-table>
+  </plan-section>
+
+  <plan-section id="authority" title="Authority">
+    <p>
+      The ranking, strongest first. It is recorded here rather than assumed because the ordering only feels
+      obvious after it has been got wrong once.
+    </p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Rank</th><th>Means</th><th>Trust it for</th></tr></thead>
+        <tbody>
+          <tr><td><code>live</code></td><td>Read from the running system now</td><td>Anything. This is the tiebreaker</td></tr>
+          <tr><td><code>report</code></td><td>A command's dated, reproducible output</td><td>What it measured, as of when it ran</td></tr>
+          <tr><td><code>export</code></td><td>A point-in-time dump</td><td>Names, ids and shapes &mdash; not values or types that drift</td></tr>
+          <tr><td><code>prose</code></td><td>A summary, including our own context docs</td><td>Orientation. Never as the last word against any of the above</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="warn">
+      <strong>When two sources disagree, the higher rank wins and the disagreement gets recorded.</strong>
+      Note it in <code>Known wrong about</code> on the losing row. Silently preferring the right one leaves
+      the artifact looking trustworthy for the next reader.
+    </plan-callout>
+  </plan-section>
+
+
+</main>
+
+</body>
+</html>

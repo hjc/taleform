@@ -20,6 +20,23 @@ function vault() {
   });
 }
 
+/** A beat with everything the map puts beside it: awards, a long-jump label, two IF cards, the resume marker. */
+function crowded() {
+  return new MemoryVault({
+    [MISSION]: note({ kind: "mission", "party-size": 2 }, "# Job\n\n%% taleform:xp %%\n%% /taleform:xp %%\n"),
+    "Missions/Job/Job 1.01 — Start.md": seq("Job 1.01 — Start", "beat", 1, 1, "Job", "Job 1.02 — Middle", {
+      "beat-status": "partial",
+      awards: "\n  - xp: 100\n    for: done",
+      branches: '\n  - to: "[[Job 1.03 — End]]"\n    label: shortcut',
+      outcomes: "\n  - if: they win\n    then: onward\n  - if: they lose\n    then: retreat",
+    }),
+    "Missions/Job/Job 1.02 — Middle.md": seq("Job 1.02 — Middle", "beat", 1, 2, "Job 1.01 — Start", "Job 1.03 — End", {
+      awards: "\n  - xp: 25\n    type: optional\n    per: egg sac\n    max: 3",
+    }),
+    "Missions/Job/Job 1.03 — End.md": seq("Job 1.03 — End", "beat", 1, 3, "Job 1.02 — Middle", "Job"),
+  });
+}
+
 describe("navigation", () => {
   it("writes the two-line header and the Next footer from prev/next", async () => {
     const v = vault();
@@ -46,6 +63,14 @@ describe("navigation", () => {
     await build(v, BUILDERS);
     expect(v.files[p]).toContain("\r\n");
     expect(v.files[p]!.replace(/\r\n/g, "")).not.toContain("\n");
+  });
+});
+
+describe("xp ledger", () => {
+  it("caps optional XP at xp × max, not max", async () => {
+    const v = crowded();
+    await build(v, BUILDERS);
+    expect(v.files[MISSION]).toContain("plus up to 75 optional");
   });
 });
 
@@ -77,6 +102,24 @@ describe("adventure map", () => {
     const after = parseCanvas(v.files[path]);
     expect(after.nodes.some((n) => n.id === "mine")).toBe(true);
     expect(after.nodes.some((n) => n.x === 999)).toBe(false);
+  });
+
+  it("places no two generated cards on top of each other", async () => {
+    const v = crowded();
+    await build(v, BUILDERS);
+    const cards = parseCanvas(v.files["Missions/Job/Job — Adventure Map.canvas"]).nodes.filter((n) => n.type !== "group");
+    const overlaps = cards.flatMap((a, i) => cards.slice(i + 1)
+      .filter((b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height)
+      .map((b) => `${String(a.text ?? a.file).split("\n")[0]} / ${String(b.text ?? b.file).split("\n")[0]}`));
+    expect(overlaps).toEqual([]);
+  });
+
+  it("says the table stopped inside a partial resume beat", async () => {
+    const v = crowded();
+    await build(v, BUILDERS);
+    const resume = parseCanvas(v.files["Missions/Job/Job — Adventure Map.canvas"]).nodes.find((n) => String(n.text).includes("RESUME HERE"));
+    expect(resume?.text).not.toContain("the first planned beat after");
+    expect(resume?.text).toContain("stopped partway through this beat");
   });
 
   it("fails a beat without exactly one ^card", async () => {

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Builder run order is array position, not a declared dependency graph</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="Builder run order is array position, not a declared dependency graph"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+
+  <plan-meta>
+    <plan-field key="type">issue</plan-field>
+    <plan-field key="reference-paths" hidden>src/core,src/builders,test</plan-field>
+    <plan-field key="class" tone="muted">quality</plan-field>
+    <plan-field key="reach" tone="muted">developer</plan-field>
+    <plan-field key="detection" tone="warn">silent</plan-field>
+    <plan-field key="source">review of the builder registration rule in the reviewing skill</plan-field>
+    <plan-field key="impact" tone="info">medium</plan-field>
+    <plan-field key="urgency" tone="muted">low</plan-field>
+    <plan-field key="effort" tone="muted">medium</plan-field>
+    <plan-field key="priority" tone="muted">p3</plan-field>
+  </plan-meta>
+
+  <plan-section id="overview" title="Overview">
+    <plan-callout type="danger">
+      Builder run order is an unchecked array position in <code>BUILDERS</code>, so a new builder (Arc Map, Campaign Map) that must follow another is wired only by where its author places it, and a wrong position, a duplicate id or an unregistered builder raises nothing. Today's output is not wrong; the order has always been implicit, and a mistake would fail silently.
+    </plan-callout>
+</plan-section>
+
+  <plan-section id="root-cause" title="Root cause">
+    <p><code>BUILDERS</code> is a flat array, and <code>build()</code> runs it front to back. The comment on the array is the only statement of what depends on what.</p>
+    <plan-file path="src/builders/index.ts" lines="9-14">
+/**
+ * Every builder, in the order they run. A builder may read what an earlier one emitted, so the
+ * order is a dependency list: schema validates first, then notes are rewritten, then the views
+ * that summarise them (mission note regions, maps) are built last.
+ */
+export const BUILDERS: Builder[] = [schema, navigation, awards, resume, ledger, adventureMap];
+    </plan-file>
+    <plan-file path="src/core/engine.ts" lines="38-55">
+  for (const builder of builders) {
+    const ctx: BuildContext = {
+      index,
+      options,
+      read: (path) =&gt; overlay.get(path)?.content ?? preload.get(path),
+      emit: (path, content, opts?: EmitOptions) =&gt; {
+        const entry: { content: string; builder: string; same?: EmitOptions["same"] } = { content, builder: builder.id };
+        if (opts?.same) entry.same = opts.same;
+        overlay.set(path, entry);
+      },
+      problem: (severity: Severity, message: string, path?: string) =&gt; {
+        const p: Problem = { builder: builder.id, severity, message };
+        if (path) p.path = path;
+        problems.push(p);
+      },
+    };
+    await builder.run(ctx);
+  }
+    </plan-file>
+    <p><code>Builder</code> (<code>src/core/builder.ts</code> lines 42-46) is <code>{ id, description, run }</code>. It has no field to declare a dependency, and the engine validates neither the list it is handed nor the ids. The cross-reads that exist today:</p>
+    <plan-table>
+      <table>
+        <thead><tr><th>Builder</th><th>Reads</th><th>Kind</th></tr></thead>
+        <tbody>
+          <tr><td><code>navigation</code></td><td><code>ctx.read</code> of each sequence note (<code>navigation.ts</code> line 38)</td><td>overlay read; emits the same note</td></tr>
+          <tr><td><code>awards</code></td><td><code>ctx.read</code> of each sequence note (<code>awards.ts</code> line 23)</td><td>overlay read; emits the same note navigation emits</td></tr>
+          <tr><td><code>resume</code></td><td><code>ctx.read</code> of the mission note (<code>resume.ts</code> line 22)</td><td>overlay read; emits the mission note</td></tr>
+          <tr><td><code>ledger</code></td><td><code>ctx.read</code> of the mission note (<code>ledger.ts</code> line 66); imports <code>runningTotals</code> and <code>runningText</code> from <code>awards</code> (line 5)</td><td>overlay read; static import; emits the mission note resume emits</td></tr>
+          <tr><td><code>adventure-map</code></td><td><code>ctx.read</code> of its own canvas (<code>adventureMap.ts</code> line 67); the rest comes from <code>index</code></td><td>no dependency on another builder's emit</td></tr>
+          <tr><td><code>awards</code>, <code>resume</code>, <code>ledger</code>, <code>adventure-map</code></td><td>import <code>selectMissions</code> from <code>navigation</code></td><td>helper import, not an ordering requirement</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <p>Measured with a scratch script that ran <code>build()</code> over a small in-memory mission (one act, two beats, one with an <code>awards</code> entry; a mission note with <code>resume</code> and <code>xp</code> regions) under all 720 permutations of the six builders:</p>
+    <ul>
+      <li>Every permutation produced files byte-identical to the registered order, because the shared-path builders read the overlay and edit disjoint text. In that fixture the array order carries no output dependency.</li>
+      <li>540 of 720 permutations attribute at least one changed path to a different builder in <code>Change.builder</code>, because <code>overlay.set</code> keeps only the last emitter of a path.</li>
+      <li>Not measured: schema-problem paths, <code>--mission</code> filtering, CRLF notes, or a builder that replaces a file instead of patching it.</li>
+    </ul>
+</plan-section>
+
+  <plan-section id="impact" title="Impact">
+    <plan-table>
+      <table>
+        <thead><tr><th>Area</th><th>What breaks</th><th>Consequence</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>New builders</td><td>An Arc or Campaign Map that consumes another builder's emit is placed correctly only if its author follows the reviewing skill's prose and positions it by hand</td><td>A misplaced builder reads stale text and nothing is reported; the next build may settle it, a quiet idempotence break (invariant 3)</td><td>medium</td></tr>
+          <tr><td>Registration</td><td>A duplicate <code>id</code>, or a builder never added to <code>BUILDERS</code>, is not detected by the engine</td><td>An unregistered builder never runs and raises no problem; a duplicate id collides in <code>Change.builder</code> and <code>Problem.builder</code></td><td>medium</td></tr>
+          <tr><td>Review</td><td><code>.claude/skills/taleform-reviewing/SKILL.md</code> section 4, "Builder shape and registration" (around line 93), has reviewers check position by hand</td><td>A manual check of a property the engine could verify</td><td>low</td></tr>
+          <tr><td>Attribution</td><td><code>Change.builder</code> is the last emitter of a path in array order</td><td>Reordering, or inserting a builder, changes <code>--json</code> attribution for paths several builders edit (mission note, sequence notes) with no change to the files</td><td>low</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <plan-callout type="info">
+      The Arc and Campaign Map builders and the Bases API read-through (<code>CLAUDE.md</code> section "Roadmap and open questions") are the work that adds builders. No roadmap entry owns the ordering.
+    </plan-callout>
+</plan-section>
+
+  <plan-section id="remediation" title="Remediation">
+    <plan-table>
+      <table>
+        <thead><tr><th>#</th><th>Step</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Add an optional dependency declaration to <code>Builder</code> in <code>src/core/builder.ts</code></td><td>The developer proposed <code>after: ["awards"]</code>, or reads and produces. Undecided: <code>after</code> is simple; reads and produces also documents what a builder touches and lets the engine order by data.</td></tr>
+          <tr><td>2</td><td>Add a resolver in <code>src/core/engine.ts</code> that topologically sorts the builders before the run loop</td><td>Reject, naming the ids: a cycle, an unknown dependency id, a duplicate builder id.</td></tr>
+          <tr><td>3</td><td>Break ties by registration order</td><td>Keeps the six builders' order, <code>Change.builder</code> attribution and <code>Problem</code> order unchanged, so <code>--json</code> does not move.</td></tr>
+          <tr><td>4</td><td>Declare the six builders' dependencies</td><td>From the table in root cause. Declare <code>ledger</code> after <code>awards</code> and the shared-path pairs deliberately.</td></tr>
+          <tr><td>5</td><td>Tests through <code>build()</code> on fixtures: a cycle, an unknown id, a duplicate id, registration-order independence</td><td>Assert the existing fixtures' <code>changes</code> are identical before and after.</td></tr>
+          <tr><td>6</td><td>Reword the reviewing skill section 4 and the <code>BUILDERS</code> comment; update the "builder" entry in <code>docs/GLOSSARY.md</code></td><td>Reviewers check the declaration, not the position.</td></tr>
+        </tbody>
+      </table>
+    </plan-table>
+    <p><strong>Must stay stable (public interface).</strong> <code>--json</code> prints the whole <code>BuildResult</code> (<code>src/cli/main.ts</code> line 124): <code>changes[]</code> as <code>{path, builder, created}</code>, <code>problems[]</code> as <code>{builder, severity, path?, message}</code>, and <code>written</code>. The vault hooks read it.</p>
+    <ul>
+      <li>The ids <code>schema</code>, <code>navigation</code>, <code>awards</code>, <code>resume</code>, <code>ledger</code>, <code>adventure-map</code> keep their values.</li>
+      <li><code>Change.builder</code> stays the last builder to emit the path; <code>changes</code> and <code>problems</code> keep their current order for the existing builders.</li>
+      <li>A graph error reaches the caller as an <code>error</code> problem or a documented failure, not a new exit path: the CLI already exits 2 on a throw and 1 on errors.</li>
+      <li>No new required field on <code>Builder</code>.</li>
+    </ul>
+</plan-section>
+
+  <plan-section id="not-affected" title="What is not affected">
+    <plan-callout type="warn">
+      Today's output is not affected: the six builders produce the same files in every order tried (see root cause), and the vault hooks' contract is untouched. The schema builder's validation, the region rules and the canvas rules are not part of this. Parallel builder execution is not asked for.
+    </plan-callout>
+</plan-section>
+
+  <plan-section id="open" title="Open">
+    <ul>
+      <li>Do the six existing builders need declared edges at all, given the permutation run found no output difference? The need is the next builder; existing edges would be documentation. Measured on one fixture only.</li>
+      <li><code>after</code>, or reads and produces? Reads and produces could also let the engine reject two builders emitting the same path undeclared.</li>
+      <li>Should a graph error be an <code>error</code> problem, or a throw the CLI maps to exit 2 as a builder throw is today? <code>build()</code> has no try/catch.</li>
+      <li>Triage: classed <code>quality</code>, not <code>gap</code>. No usable capability is missing and no output is wrong; it is structural work serving the roadmap's builders, so impact is <code>medium</code> (serves a committed item), not <code>high</code> (does not block one).</li>
+    </ul>
+</plan-section>
+
+
+</main>
+
+</body>
+</html>

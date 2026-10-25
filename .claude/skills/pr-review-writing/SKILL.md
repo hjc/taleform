@@ -1,6 +1,6 @@
 ---
 name: pr-review-writing
-description: Write the Markdown PR body for a Taleform branch — diffs the branch against its parent (`main`, or the branch below it in a stack), then states what the branch introduces, where review judgment is needed, the vault-parity result, the invariants, and any schema / CLI / vault-doc impact. Use when asked to write a PR description, PR body, or PR comment for GitHub.
+description: Write the Markdown PR body for a Taleform branch — diffs the branch against its parent (`main`, or the branch below it in a stack), then states what the branch introduces, where review judgment is needed, the test-vault parity result, the invariants, and any schema / CLI / DM-vault impact. Use when asked to write a PR description, PR body, or PR comment for GitHub.
 ---
 
 # PR Body Writer
@@ -8,7 +8,7 @@ description: Write the Markdown PR body for a Taleform branch — diffs the bran
 ## Overview
 
 Write the **Markdown PR body** for a branch, to be posted on GitHub. The audience is a
-reviewer (usually the DM) who is about to read the diff cold: the body's job is to give them
+reviewer (usually the developer) who is about to read the diff cold: the body's job is to give them
 the map before the territory — what the branch introduces and why, what it does to the
 generated output and the vault, and where to spend their attention so they can leave
 *helpful* review comments instead of re-deriving the branch's intent from scratch.
@@ -44,9 +44,10 @@ not `main`.
    `docs/context/` doc for the area so the narrative matches the documented model.
 5. **Trace the load-bearing change.** Every branch has a spine — the one domain rule, builder
    or schema property the rest hangs off. Find it; the body leads the reviewer to it first.
-6. **Run the checks the body reports.** `npm run check`, then the read-only parity check
-   against the live vault: `node dist/cli.cjs check --vault "<vault>"` (`CLAUDE.md` § The
-   vault has the path and the one known warning). Never `build` against the vault for a PR.
+6. **Run the checks the body reports.** `npm run check`, which ends with the parity check
+   against the test vault (`node dist/cli.cjs check --vault test-vault`). List the test-vault
+   files the branch regenerated: `git diff --stat <parent>..HEAD -- test-vault/`. Never
+   `build` against a DM's vault for a PR.
 
 ### Phase 2: Write the body
 
@@ -57,10 +58,10 @@ Use this shape. Omit a section only where the "omit when" note says so.
 2. **The load-bearing changes** — grouped by behaviour, not by file. What a reviewer needs to
    hold in their head to read the diff. Name the primary files; use a short fenced snippet
    only where a few lines say it better than a sentence.
-3. **Generated output & vault parity** — the result of the read-only parity check, verbatim
-   in substance: "up to date, one known warning", or the list of files whose generated output
-   changes and whether each change is intended. A `refactor:` branch with any parity diff is
-   not a refactor — say so. If you did not run it, say that instead.
+3. **Generated output & parity** — the parity check's result ("up to date", or what it
+   reports), and every `test-vault/` file the branch regenerated, each with whether the change
+   is intended. A `refactor:` branch that regenerates any test-vault file is not a refactor —
+   say so. If you did not run it, say that instead.
 4. **Invariants** — one line each for the three checked on every PR (`docs/sdlc.md` §2):
    builders never write frontmatter; only generated text is touched; a rebuild is idempotent
    (name the test that asserts the second `build` reports 0 changes for the touched output).
@@ -69,23 +70,24 @@ Use this shape. Omit a section only where the "omit when" note says so.
 5. **Interface changes** — omit when none. Any change to:
    - **frontmatter schema**: new, renamed or retired properties, and the `RETIRED` entry in
      `src/builders/schema.ts` that names each replacement;
-   - **CLI flags or the `--json` shape**: the vault's git `pre-commit` hook and
-     `taleform-hook.mjs` call `dist/cli.cjs` directly, so state what they will see;
+   - **CLI flags, the `--json` shape or the plugin folder**: a DM's vault hooks (git
+     `pre-commit`, `claude-hook.mjs`) run `cli.cjs` from the plugin folder, so state what
+     they will see after the next deploy;
    - **generated-output stability**: anything that changes `nid()` inputs or region ids, which
      churns maps or orphans regions in existing notes.
 
    Mark a change that must reach the vault before the slice above can be built as a **vault
    gate** (`docs/sdlc.md` §3, Landing the stack).
-6. **Affected vault docs** — omit when the model did not change. Name which of the vault docs
-   that describe Taleform's model need updating (the story-maps spec, `run-sheet-format.md`,
-   `_tpl/Story Beat.md`, the vault `CLAUDE.md` § Taleform) and what in each. They are listed
-   for the DM, never edited from this repo.
+6. **Affected vault docs** — omit when the model did not change. Name what a DM must change in
+   their own vault after deploying: notes to migrate, templates, hook setup, and any docs of
+   theirs that describe the model. They are listed for the developer, never edited from this
+   repo.
 7. **Where to focus review** — the 2–3 places judgment is genuinely required, each with a
    `file:line` anchor and framed as a concrete question, not a verdict.
 8. **What it does not do / out of scope** — deferred work, and anything the branch
    deliberately leaves alone.
 9. **Notes** — test status (`npm run check` result you observed), follow-ups, blocked items
-   needing the DM.
+   needing the developer.
 
 End the body with:
 
@@ -161,5 +163,5 @@ repo — a PR body is never committed.
   inefficiency, doc drift). Run it before opening the PR; run this to *explain* the PR.
 - `docs/sdlc.md` — §2 (parity check, invariants), §3 (stacked PRs, landing points, vault
   gates, vault docs).
-- `CLAUDE.md` — § Invariants, § The vault (parity command, known warning, vault-doc paths, the
-  hooks that call the CLI).
+- `CLAUDE.md` — § Invariants, § Commands (the parity check, deploy and the vault hooks).
+- `docs/GLOSSARY.md` — the terms; the reviewer is the developer, the end user is the DM.

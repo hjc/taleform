@@ -36,7 +36,7 @@ Research the codebase per `tdd-planning` Phase 1 before writing a line of the pl
 Redirect large command output to `.tmp/` and inspect it only when errors surface.
 
 ### Phase 3: Question Resolution
-If reconnaissance reveals ambiguities or decisions that need the DM:
+If reconnaissance reveals ambiguities or decisions that need the developer:
 - State each question clearly, with your recommended answer and rationale.
 - Return them to the calling agent as **Questions** — do NOT assume product decisions. Anything touching the frontmatter schema, the CLI flags or `--json` shape, or what a builder writes into the DM's notes is a product decision (`CLAUDE.md` § Working style: propose before restructuring the schema).
 - You CAN make technical decisions (which pattern, which module) from codebase conventions.
@@ -135,7 +135,7 @@ Every Red Phase test includes:
 Taleform is one package, so the executor runs from the repo root:
 - **`src/core/`** — no Obsidian imports. `VaultIO`, `StoryIndex`, story rules, engine, regions, canvas, `nid()`.
 - **`src/builders/`** — `{id, description, run(ctx)}`, emitting through the engine; run order in `BUILDERS`.
-- **`src/cli/main.ts`** and **`src/plugin/main.ts`** — the two runners. The CLI's flags and `--json` shape are a public interface (the vault's hooks call `dist/cli.cjs`).
+- **`src/cli/main.ts`** and **`src/plugin/main.ts`** — the two runners. The CLI's flags and `--json` shape are a public interface (a DM's vault hooks run `cli.cjs` from the plugin folder).
 - **`test/`** — Vitest; builder tests go through `build()` on in-memory fixture vaults.
 
 You need not be the deepest expert in each area. After you write the plan, the orchestrator sends it to **`taleform-reviewer`** (correctness against Taleform's conventions and invariants) and **`taleform-abstraction-spotter`** in plan mode (whether the convention the plan reaches for is the right one). Your job is:
@@ -154,8 +154,8 @@ When reviewers send corrections, incorporate them without ego. A correction that
 4. **Generated identity is stable.** Canvas node IDs come from `nid(...)`; region ids and the `"generated": "adventure-map"` marker are what find existing output. Changing any of them churns the DM's maps and needs a rename plan.
 5. **Report, don't throw.** Bad story data becomes `ctx.problem(...)` with a deliberate severity; an error fails `check` and the vault's hooks.
 6. **Prefer deriving to declaring.** No magic names, folder matching or implicit wiring (`CLAUDE.md` § Working style); membership is the `mission` link, never the folder.
-7. **The parity check is read-only.** Verification lists `node dist/cli.cjs check --vault "<vault>"` with its expected result for any builder change. Never `build` against the live vault in a plan, and never plan an edit to vault content.
-8. **Name the affected vault docs** when the model changes (`CLAUDE.md` § The vault), so the PR can list them for the DM.
+7. **The parity check is the test vault.** Verification states, for any builder change, whether `npm run check`'s test-vault check passes as is, or which `test-vault/` files `npm run build:vault` regenerates. Never plan a `build` against, or an edit to, a DM's vault.
+8. **Name the affected vault docs** when the model changes (`CLAUDE.md` § The vault), so the PR can list them for the developer.
 9. **Redirect large command output to `.tmp/`.**
 10. **No FR labels in code** — FR numbers are planning artifacts. They never appear in production code, test titles, type names or comments. Use behavioral descriptions.
 
@@ -177,7 +177,7 @@ Before finalizing, verify:
 - [ ] Every step's prose agrees with its own diffs
 - [ ] No `plan-file new` block for an existing file is a partial — whole-file blocks reproduce the COMPLETE file
 - [ ] Invariants hold: no frontmatter writes, only generated text touched, idempotent rebuild, `RETIRED` updated, no Obsidian import in `src/core/`, no vault names in `src/`
-- [ ] Verification has runnable commands: `npm run check`, and the parity check with its expected result for builder changes
+- [ ] Verification has runnable commands: `npm run check`, and, for builder changes, the test-vault output it expects
 - [ ] Any CLI change states its `--json` impact; any model change lists the affected vault docs
 - [ ] Anti-patterns section covers gotchas from research
 - [ ] **No deliberation text remains**

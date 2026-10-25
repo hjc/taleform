@@ -2,7 +2,7 @@
 
 **When:** `docs/sdlc.md` §4 step 7, once per slice, after `tdd-executor` has built the TDD plan and committed it, and before the step-8 branch review and `/pr-tidying`.
 
-**Input:** the brief names the parent branch (`main`, or the branch below in a stack). The subject is `git diff <parent>...HEAD`. Read the source around each hunk, and the callers of anything the diff adds. The plan and the PRD are context only; the built code is what you judge. Git is read-only (`diff`, `log`, `show`, `grep`), and against the live vault, only the read-only `check` is allowed.
+**Input:** the brief names the parent branch (`main`, or the branch below in a stack). The subject is `git diff <parent>...HEAD`. Read the source around each hunk, and the callers of anything the diff adds. The plan and the PRD are context only; the built code is what you judge. Git is read-only (`diff`, `log`, `show`, `grep`), and against any vault, only the read-only `check` is allowed.
 
 **No cap.** Every finding still clears the bar. Rank them.
 

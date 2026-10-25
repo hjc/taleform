@@ -19,7 +19,7 @@ Three kinds of name are bound by things `tsc` and the suite never see:
 |---|---|---|
 | A frontmatter property | the DM's notes (and another DM's) | A `RETIRED` entry in `src/builders/schema.ts` naming the replacement, in the SAME step as the rename, plus a test that a note still using the old name gets that error. The slice is a **vault gate** if the DM must migrate notes before the next slice (`docs/sdlc.md` §3). |
 | A region id, a builder id used as a canvas `generated` value, the canvas file name | text already generated into the DM's vault | A decision on what happens to existing output. An old `%% taleform:<old> %%` region is no longer found: the `awards` builder inserts the new one under the H1 and leaves the old one orphaned, while an opt-in region (`resume`, `xp`) just warns that it is missing. Canvas items whose `generated` value no longer matches are kept as hand-made unless a new generated item reuses their id, so the map doubles whenever the node ids change too. Either ship a migration in the builder, with a fixture holding the old shape, or state that the DM cleans up and list it in the PR. |
-| A CLI flag or `--json` field | the vault's git `pre-commit` hook and `taleform-hook.mjs` | The vault-side change the DM must make, listed for the DM. Rebuilding `dist/` makes the new CLI live for the hooks immediately (`docs/sdlc.md` §1), so this is a vault gate. |
+| A CLI flag or `--json` field | a DM's vault hooks (git `pre-commit` and `claude-hook.mjs`), which run the CLI from the plugin folder | The vault-side change the DM must make, listed for the developer. The new CLI reaches a DM's hooks on their next `npm run deploy` (`docs/sdlc.md` §1), so this is a vault gate. |
 
 A `nid(...)` input change is the same family: every existing node id changes, so every
 dragged position on every existing map is lost. Treat it as a rename of every node.
@@ -110,10 +110,11 @@ and the test now asserts something the new code no longer means.
 So a plan of this kind specifies as exit criteria:
 
 - `npm run check` green, run once from a clean `dist/`;
-- the read-only parity check, `node dist/cli.cjs check --vault "<vault>"`, with its
-  expected result stated in advance — for a property rename, the exact set of notes
-  now reporting the `RETIRED` error (that list is what the DM migrates); for a region
-  or id rename, the exact set of files whose output changes.
+- the parity check against `test-vault/` that ends `npm run check`, with its expected
+  result stated in advance — for a property rename, the exact set of test-vault notes
+  now reporting the `RETIRED` error (that list is what a DM migrates); for a region
+  or id rename, the exact set of test-vault files whose output changes, regenerated
+  with `npm run build:vault`.
 
 Say in the plan that reds from that run are expected and are plan-silent gaps rather
 than executor error, and that each is dispositioned on its merits — deleted when the

@@ -8,7 +8,7 @@ description: Create a structured Taleform PRD from a high-level prompt — groun
 ## Overview
 
 Create structured Product Requirements Documents for Taleform features. PRDs
-translate high-level intent from the DM ("the Adventure Map should show who is owed
+translate high-level intent from the developer ("the Adventure Map should show who is owed
 optional XP") into a complete product specification covering problem, solution,
 schema changes, generated-output changes, plugin and CLI changes, edge cases, and
 success criteria.
@@ -69,7 +69,7 @@ Alongside the slice table, a `<plan-diagram>` Mermaid flowchart of the slice dep
 
 **State rules; cite tickets for the why.** Never reproduce the map's catalogs, inventories, or decision prose. The rule ids plus a one-line gloss are the deliverable.
 
-**Treat every count, list and asserted fact in the map as a claim to re-verify — except two, which are settled: a measured result recorded in the map's `evidence.html` at rank `live`, and anything the DM stated directly.** Take those as given and move on. Re-measuring either, or asking the user to reconfirm one, is the error.
+**Treat every count, list and asserted fact in the map as a claim to re-verify — except two, which are settled: a measured result recorded in the map's `evidence.html` at rank `live`, and anything the developer stated directly.** Take those as given and move on. Re-measuring either, or asking the user to reconfirm one, is the error.
 
 | The claim | What governs |
 |---|---|
@@ -163,7 +163,7 @@ Every PRD must contain these sections. How they are formatted is determined by t
 
 #### Required Sections (all must be present)
 
-1. **Problem** — Concrete, scenario-based. Use bold names for actors (**the DM**, **another DM** adopting Taleform). 2-4 specific scenarios where current behavior fails or is confusing. Ground each scenario in real prep or table workflows (the worked-example mission in the live vault is the reference).
+1. **Problem** — Concrete, scenario-based. Use bold names for actors (**the DM**, **another DM** adopting Taleform). 2-4 specific scenarios where current behavior fails or is confusing. Ground each scenario in real prep or table workflows (the test vault's mission is the reference).
 
 2. **Solution** — 2-3 sentence summary. Number the high-level changes.
 
@@ -203,7 +203,7 @@ Before finalizing, verify:
 2. **Frontmatter is input only** — no requirement may have a builder write
    frontmatter. A state the DM must record is a property they set; anything
    derivable is derived (resume, combat XP and running totals are the precedents).
-   Propose schema changes to the DM; never imply them.
+   Propose schema changes to the developer; never imply them.
 
 3. **Only generated text is touched** — every new output lives in a region, the
    sequence header / `## Next` footer, or a canvas item carrying a `"generated"`
@@ -236,7 +236,7 @@ Writing patterns:
 - **Open-question resolution** — surface Open Questions interactively via `AskUserQuestion` with a recommended default per question, then fold every answer into the PRD body (do not leave the questions in the finished doc).
 - **Phase slicing** — a common shape, in dependency order: Phase 1 = the core rule or schema change (`src/core/`, `schema.ts`); Phase 2 = the builder that renders it; Phase 3 = the plugin or CLI surface and visual polish.
 - **v0 simplification** — when validation complexity is uncertain, default to "all fields required" in v0 and note the planned refinement for a later phase.
-- **The DM vs. another DM** — make explicit when a requirement serves only the live vault's conventions; anything that must hold for **another DM** adopting Taleform is stated without the live vault's names.
+- **The DM vs. another DM** — make explicit when a requirement serves only one vault's conventions; anything that must hold for **another DM** adopting Taleform is stated without any one vault's names.
 
 ## No Deliberation in Output
 
@@ -272,6 +272,7 @@ docs/features/<feature>/
 ## References
 
 - `references/taleform_domain.md` — Taleform's story model, builders, invariants, the Obsidian facts that shape the schema, and the deferred items list. Consult during Phase 1 reconnaissance.
-- `CLAUDE.md` — architecture, § Invariants, § Obsidian facts we tested, § The vault (vault docs a model change affects), § Roadmap.
+- `CLAUDE.md` — architecture, § Invariants, § Obsidian facts we tested, § Roadmap.
+- `docs/GLOSSARY.md` — the terms a PRD uses; DM and developer are not interchangeable.
 - `README.md` — the typed model and builder table, as the DM reads them.
 - `docs/context/` — any context doc for the area the PRD touches.

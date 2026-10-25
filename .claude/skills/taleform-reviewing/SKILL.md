@@ -1,19 +1,19 @@
 ---
 name: taleform-reviewing
-description: Conformance review of a Taleform TDD plan, slice spec, PRD or branch diff against the invariants and the core, builder, schema, interface and test conventions. Corrects the subject before the DM sees it, routing each finding by blast radius. Loaded by the `taleform-reviewer` agent; use directly when a plan is ready for review or when moving from planning to execution.
+description: Conformance review of a Taleform TDD plan, slice spec, PRD or branch diff against the invariants and the core, builder, schema, interface and test conventions. Corrects the subject before the developer sees it, routing each finding by blast radius. Loaded by the `taleform-reviewer` agent; use directly when a plan is ready for review or when moving from planning to execution.
 ---
 
 # Taleform Conformance Review
 
 ## Overview
 
-This skill reviews a subject against Taleform's established rules and corrects it to match them. It sits between `tdd-planning` (or `prd-writing`) and the DM's approval gate (`docs/sdlc.md` §4 step 5): every plan, slice spec and PRD gets this pass, alongside `taleform-abstraction-spotter`, before a human reads it.
+This skill reviews a subject against Taleform's established rules and corrects it to match them. It sits between `tdd-planning` (or `prd-writing`) and the developer's approval gate (`docs/sdlc.md` §4 step 5): every plan, slice spec and PRD gets this pass, alongside `taleform-abstraction-spotter`, before a human reads it.
 
 It reviews four kinds of subject. The checklist is the same; § Subject modes says what changes.
 
 | Subject | Where | Gate it feeds |
 |---|---|---|
-| TDD plan | `docs/features/**/tdds/*.html` | The DM's plan review (step 6) |
+| TDD plan | `docs/features/**/tdds/*.html` | The developer's plan review (step 6) |
 | Slice spec | `docs/features/<feature>/slices/*.html` | The PRD gate (step 3) |
 | PRD | `docs/features/<feature>/prd-<feature>.html` | The PRD gate (step 3) |
 | Branch diff | `git diff <parent>..HEAD` | Before `/pr-tidying` (step 8) |
@@ -53,7 +53,7 @@ The most critical section. Each invariant names what to look for and the test th
 **2. Only generated text is touched.**
 - Note output lives in one of three places: between `%% taleform:<id> %%` markers, written with `setRegion` (`src/core/regions.ts`); a sequence note's two-line header; or its `## Next` footer. Hand-rolled marker strings, or a regex that finds them, duplicate `findRegion` and drift from it. Require `setRegion`.
 - Canvas output carries a `generated` marker on every node and edge. Hand-made items survive: nodes without the marker, and edges without it whose endpoints still exist. Dragged positions survive unless `options.relayout`. A new canvas builder follows the merge in `buildMap` (`src/builders/adventureMap.ts`, the tail of the function), not a fresh write.
-- **The marker value is per-builder.** `adventureMap` treats anything whose `generated` is not `"adventure-map"` as hand-made. A second builder writing into the same `.canvas` would have its items preserved forever by the first, and the reverse. A new canvas builder writes its own file under its own marker value. Two builders sharing one canvas is a design question for the DM (and the spotter), not a convention call.
+- **The marker value is per-builder.** `adventureMap` treats anything whose `generated` is not `"adventure-map"` as hand-made. A second builder writing into the same `.canvas` would have its items preserved forever by the first, and the reverse. A new canvas builder writes its own file under its own marker value. Two builders sharing one canvas is a design question for the developer (and the spotter), not a convention call.
 - **Required test:** a fixture with hand-made content beside the output (text outside the region, a hand card, a dragged position) that survives a build. The precedent is `"keeps hand-made nodes and dragged positions"` in `test/builders.test.ts`.
 
 **3. A rebuild is idempotent.**
@@ -85,7 +85,7 @@ Apply the import table in `pr-tidying/references/imports.md`. In a plan:
 Apply `pr-tidying/references/vault-coupling.md` in full. Plan-specific checks:
 - **Membership** is `index.members(mission)`: the `mission` link, never the folder. **Mission selection** is `selectMissions(ctx.index, ctx.options.missions)`, so that `--mission` is honoured. A builder iterating `index.missions()` directly ignores the flag.
 - Placing an output beside its mission note (`mission.folder`) is placement, not membership. It is not a finding.
-- A new property the DM must keep in step with something Taleform can compute is a declared-vs-derived finding. Route it as a proposed PRD amendment: schema shape is the DM's call (`CLAUDE.md` § Working style).
+- A new property the DM must keep in step with something Taleform can compute is a declared-vs-derived finding. Route it as a proposed PRD amendment: schema shape is the developer's call (`CLAUDE.md` § Working style).
 
 ### 4. Builder shape and registration
 
@@ -93,7 +93,7 @@ Apply `pr-tidying/references/vault-coupling.md` in full. Plan-specific checks:
 - **It is registered in `BUILDERS`** (`src/builders/index.ts`) at the position its reads require. The array is a dependency list: a builder that reads another's output through `ctx.read`, or reuses its exports (`ledger` imports `runningTotals` from `awards`), runs after it. A builder missing from `BUILDERS` never runs. This is the canonical "built but never wired" failure, and it is blocking.
 - The `id` is kebab-case and unique. It is not cosmetic: it is `Problem.builder` and `Change.builder` in the `--json` output the vault hooks read.
 - **Report, never throw, on story data.** `build()` has no try/catch around `builder.run`. One throw aborts every builder in the run: the CLI exits 2 and the plugin's run rejects. Bad input becomes `ctx.problem("error" | "warning", message, path)`.
-- **Choose severity deliberately and say why in the plan.** An `error` makes `check` exit 1 and fails the vault's Claude hook; a `warning` does neither. A missing opt-in region or a prose/data disagreement is a warning (`resume`, `ledger`). Data a builder cannot use is an error.
+- **Choose severity deliberately and say why in the plan.** An `error` makes `check` exit 1 and fails a DM's vault Claude hook; a `warning` does neither. A missing opt-in region or a prose/data disagreement is a warning (`resume`, `ledger`). Data a builder cannot use is an error.
 - **Report a validation once.** `schema` reports malformed data; consuming builders call the shared reader with a no-op (`awardsOf(n, () => undefined)`). A plan whose new builder reports the same malformed property again gives the DM duplicate problems.
 - **Placement of a new region**: opt-in (fill only where the DM placed markers, warn otherwise, as `resume` and `xp` do), or inserted at a fixed anchor (`awards`, under the H1). The plan states which and why. Inserting into a note the DM did not mark is a product decision.
 
@@ -109,7 +109,7 @@ Apply `pr-tidying/references/vault-coupling.md` in full. Plan-specific checks:
 ### 6. Canvas identity
 
 - Ids come from `nid(...)` (exported from `src/builders/adventureMap.ts`, built on `sha1`). **The inputs are semantic identity**: a prefix naming the id family (`"n"`, `"e"`, `"g"`, `"if"`, `"xp"`, …) plus basenames, act numbers or link targets. Never array positions, coordinates, or anything layout decides. An input that changes when nothing in the story changed churns the DM's map and discards their dragged positions.
-- A new family takes a new prefix. Changing an existing `nid` call's inputs is a rename of every id in that family: a rename plan (`tdd-planning/rename-and-signature-plans.md`) and a parity diff the plan must state. The `nid("legend")` vector in `test/core.test.ts` pins legacy ids; it is never loosened to make a step pass.
+- A new family takes a new prefix. Changing an existing `nid` call's inputs is a rename of every id in that family: a rename plan (`tdd-planning/rename-and-signature-plans.md`) and regenerated test-vault output the plan must name. The `nid("legend")` vector in `test/core.test.ts` pins legacy ids; it is never loosened to make a step pass.
 - Parse, format and compare with `parseCanvas`, `formatCanvas` and `sameCanvas` (`src/core/canvas.ts`). Do not hand-roll `JSON.stringify` or compare text.
 - Keep the duplicate-id check (`buildMap` reports it as an error) in any new canvas builder.
 
@@ -117,7 +117,7 @@ Apply `pr-tidying/references/vault-coupling.md` in full. Plan-specific checks:
 
 Apply the surfaces table in `pr-tidying/references/public-interface.md`. At plan level, also check:
 - **A new `BuildOptions` field** is threaded end to end: `src/core/builder.ts`, the CLI argv loop, `USAGE`, and the plugin if it should be reachable there. A flag parsed but never read, or read but never parseable, is a wiring finding.
-- **`--json` is `BuildResult` serialized whole.** A field added to `BuildResult`, `Change` or `Problem` is additive. A renamed or removed field breaks the vault's hooks; it is a vault gate (`docs/sdlc.md` §3), marked in the PRD's slice list.
+- **`--json` is `BuildResult` serialized whole.** A field added to `BuildResult`, `Change` or `Problem` is additive. A renamed or removed field breaks a DM's vault hooks; it is a vault gate (`docs/sdlc.md` §3), marked in the PRD's slice list.
 - **Exit codes**: 0 ok, 1 errors (or anything stale, on `check`), 2 usage or crash. A plan that changes their meaning is a public-interface break.
 - **Affected vault docs.** When the model changes, the plan or PRD lists which vault docs now describe it wrongly. Never a step that edits them.
 
@@ -136,10 +136,10 @@ The rules are in `tdd-planning` § Building a Robust Red Phase and the `pr-tidyi
 - **Every output test asserts idempotency and no errors**: `r.problems.filter((p) => p.severity === "error")` equal to `[]`. Without it, a fixture that trips `schema` first is red or green for the wrong reason.
 - Assertions on generated text pin the surrounding line or region, not a bare substring (red-phase self-check, "matcher can't pass by accident").
 - An option-gated behaviour passes the option (`{ threads: true }`, `{ relayout: true }`).
-- No `node:fs`, no child process, no `dist/`, no live vault, no absolute path, no `obsidian` import, no real timers. Vitest only.
+- No `node:fs`, no child process, no `dist/`, no real vault, no absolute path, no `obsidian` import, no real timers. Vitest only.
 - **No immediately-passing Red Phase, and no stub Green Phase.** Each red names the diff that flips it. Each green is the full implementation: no `TODO`, no "implement the layout here", no signature with an empty body. The executor cannot fill gaps.
 - **Diff the design decisions against the hunks.** Every claimed behaviour has a Green hunk that realizes it and a Red test that pins it. A decision with no hunk, or a hunk with no test, is a finding. So is a plan that diagnoses its own gap in prose and delegates it ("Executor: resolve this one of two ways").
-- **Verification includes the parity check**: `node dist/cli.cjs check --vault "<vault>"`, expecting "up to date" plus the one known warning, or naming exactly the files whose output is meant to change. A plan that runs `build` against the live vault is blocking.
+- **Verification includes the parity check**: `npm run check`, whose test-vault check (`node dist/cli.cjs check --vault test-vault`) passes as is, or the plan names exactly the `test-vault/` files `npm run build:vault` regenerates. A plan that runs `build` against a DM's vault is blocking.
 
 ### 10. Types
 
@@ -167,9 +167,9 @@ Flag missing wiring as **PLAN INCOMPLETE** and list the swaps.
 - §5: new properties are whole-value links and top-level lists.
 - §7: CLI and plugin surface changes are marked as vault gates where they break, and the affected vault docs are listed.
 - Every new property has a "notes that don't have it" paragraph that degrades safely: a warning or omitted output, never an error on an untouched vault.
-- No parked roadmap items are re-proposed. Arc and Campaign maps need the DM's design confirmation; the Bases-API read path needs design before code (`CLAUDE.md` § Roadmap).
+- No parked roadmap items are re-proposed. Arc and Campaign maps need the developer's design confirmation; the Bases-API read path needs design before code (`CLAUDE.md` § Roadmap).
 
-**Branch diff.** The whole checklist against `git diff <parent>..HEAD -- src/ test/`, reading each touched file in full. Run `npx tsc --noEmit` and `npx vitest run` if the dispatch did not supply results. **Do not run `npm run check` or `npm run build`**: they rewrite `dist/cli.cjs`, which the vault's hooks execute live. Take the parity result from the dispatch, or record it as not run.
+**Branch diff.** The whole checklist against `git diff <parent>..HEAD -- src/ test/`, reading each touched file in full. Run `npx tsc --noEmit` and `npx vitest run` if the dispatch did not supply results. `npm run check` is read-only outside `dist/` and includes the parity check; run it if the dispatch did not supply its result. Never `build` against a vault or `deploy`.
 
 ## Routing: blast radius decides where a finding goes
 
@@ -178,8 +178,8 @@ Route each finding by **who else inherits the change**, not by how important it 
 | Blast radius | Route |
 |---|---|
 | Confined to this slice's own new code: a new builder's internals, its tests, a new helper only it calls, a new region or `nid` family only it emits | **Required plan amendment.** The planner applies it on re-dispatch; no gate. |
-| A shared contract (listed below the table) | **Proposed PRD amendment**, in the PRD's contract-rule form. It goes back to the DM's PRD gate (`docs/sdlc.md` §4 step 3), which is never suspended. Do not write it into the plan as if decided. |
-| A shared contract on a standalone fix with no PRD | **Open question for the DM**, stated with your recommended answer. Schema and interface changes are proposed, never implied (`CLAUDE.md` § Working style). |
+| A shared contract (listed below the table) | **Proposed PRD amendment**, in the PRD's contract-rule form. It goes back to the developer's PRD gate (`docs/sdlc.md` §4 step 3), which is never suspended. Do not write it into the plan as if decided. |
+| A shared contract on a standalone fix with no PRD | **Open question for the developer**, stated with your recommended answer. Schema and interface changes are proposed, never implied (`CLAUDE.md` § Working style). |
 
 A **shared contract** is any of:
 
@@ -196,7 +196,7 @@ A finding in a PRD or slice spec under review is, by definition, a proposed amen
 
 - **APPROVED**: no issues, or only notes that need no change.
 - **NEEDS CHANGES**: required plan amendments, none of them invariant breaks.
-- **MAJOR ISSUES**: an invariant break, a layering violation, missing wiring (PLAN INCOMPLETE), or any proposed PRD amendment. The last because the plan cannot proceed until the DM rules on it.
+- **MAJOR ISSUES**: an invariant break, a layering violation, missing wiring (PLAN INCOMPLETE), or any proposed PRD amendment. The last because the plan cannot proceed until the developer rules on it.
 
 Do not add features or expand scope during review. Correct the subject to match existing rules, and nothing more.
 

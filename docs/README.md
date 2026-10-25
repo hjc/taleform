@@ -5,6 +5,7 @@ Everything Taleform knows, plans, tracks and decides lives here. The AI tooling 
 | Path | Holds | Tracked |
 |---|---|---|
 | `context/<name>.md` | Context docs: the hard-won facts about tricky parts of the codebase, read by agents before they plan or review. They outlive every effort; decisions graduate into them (`docs/sdlc.md` §4d) | yes |
+| `GLOSSARY.md` | The terms every doc, plan and PR uses, each with one meaning. `CLAUDE.md` mandates loading it | yes |
 | `sdlc.md` | How Taleform is built and delivered: the development loop, branches and stacks, the AI tooling | yes |
 | `roadmap.md` | The PRD register, its dependency graph, and unscheduled product ideas | yes |
 | `issues/<slug>.html` | One issue doc per defect or gap not being fixed right now (`issue-creating`), triaged in place (`issue-triaging`) | yes |

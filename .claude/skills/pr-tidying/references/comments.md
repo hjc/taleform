@@ -14,7 +14,7 @@ Comments that reference internal planning artifacts or are excessively descripti
 - References to deleted functions, retired properties, or "the old approach" when the reader has no context for what was old. A retired frontmatter property is documented by its `RETIRED` entry in `src/builders/schema.ts`, not by a comment.
 - Stream-of-thought comments explaining WHY a decision was made during development rather than WHAT the code does.
 - JSDoc referencing a planning document ("all the fields the PRD lists").
-- **Conversational double-quotes — a comment quoting the development chat, not the code.** A double-quoted phrase that paraphrases a DM-reported *symptom* or restates the *request*, usually appended as a breadcrumb via "hence", "i.e.", "so-called", "the … case", or a parenthetical aside: `// …dragged cards snap back (hence "my layout keeps resetting")`. Rewrite the comment to state the behavior in technical terms and drop the quoted aside, keeping any genuine technical detail it carried.
+- **Conversational double-quotes — a comment quoting the development chat, not the code.** A double-quoted phrase that paraphrases a developer-reported *symptom* or restates the *request*, usually appended as a breadcrumb via "hence", "i.e.", "so-called", "the … case", or a parenthetical aside: `// …dragged cards snap back (hence "my layout keeps resetting")`. Rewrite the comment to state the behavior in technical terms and drop the quoted aside, keeping any genuine technical detail it carried.
 
   To find candidates, scan ADDED comment lines in the diff for a `"` — any quote on a comment line, not just same-line `"…"` pairs, so a phrase split across two lines is caught — then triage each by hand.
 
@@ -33,4 +33,4 @@ Comments that reference internal planning artifacts or are excessively descripti
 | F1 | `src/builders/adventureMap.ts` | 14 | `// Phase 2: lay out the missions per slice 3 spec` | Rewrite as a plain description of the step |
 | F2 | `src/builders/adventureMap.ts` | 88 | `// …positions reset (hence "my layout keeps resetting")` | Drop the quoted aside; state the behaviour technically |
 
-**Quote the offending text in every finding.** The false-positive rate on the double-quote rule is high enough that the DM needs to see the string to review it.
+**Quote the offending text in every finding.** The false-positive rate on the double-quote rule is high enough that the developer needs to see the string to review it.

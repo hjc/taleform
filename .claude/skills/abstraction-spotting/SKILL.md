@@ -138,14 +138,14 @@ A specialization of **A**: the relation is "these two properties mean the same t
 
 ### G — A declared external end state the plan's own rule makes unreadable
 
-A builder's correctness has two halves: one this repo writes, one that lives in the DM's vault (the notes, the hand-placed canvas items, the vault docs that describe the model). The effort declares the vault half **in writing, to a contract, as a gate** (the vault gate, the parity check), then the slice that would compare against it disables the comparison by following a local rule, and the verification that matters degrades to the DM reading by eye. The disabling rule is always right for the case it was written for and wrong for a property this same effort creates.
+A builder's correctness has two halves: one this repo writes, one that lives in the DM's vault (the notes, the hand-placed canvas items, the vault docs that describe the model). The effort declares the vault half **in writing, to a contract, as a gate** (the vault gate, the parity check), then the slice that would compare against it disables the comparison by following a local rule, and the verification that matters degrades to the developer reading by eye. The disabling rule is always right for the case it was written for and wrong for a property this same effort creates.
 
 **The one question:** *is the declared vault end state reachable by a check this repo can run, or does the plan's own rule disable the comparison?*
 
 **Signatures:**
 
 - **A blanket "never touch the vault" rule** generalised from the genuine prohibition on *writing* vault content from this repo. `check` is read-only by design. Ask: *does the read path share code with the write path?* If `check` and `build` already split on `write`, the blanket ban collapses the very split it honours.
-- **An expected output left unpinned because "the vault isn't migrated yet"**, while a sibling artifact (the PRD, a slice spec, a vault-doc change listed for the DM) already declares it. If an approved sibling names the value, an unpinned expectation asserts nothing.
+- **An expected output left unpinned because "the vault isn't migrated yet"**, while a sibling artifact (the PRD, a slice spec, a vault-doc change listed for the developer) already declares it. If an approved sibling names the value, an unpinned expectation asserts nothing.
 - **A fixture vault whose notes were invented to make the tests pass** rather than mirroring the shape the vault's template and spec declare. The machine-readable expectation was only ever fed to tests.
 
 **How to apply:**
@@ -227,7 +227,7 @@ A heavyweight or awkward mechanism chosen because `CLAUDE.md`, a skill or a cont
   - "lists of objects stay top-level" applied to a value that is not a list of objects;
   - the Windows file-watcher workaround applied to a CLI path that only runs with Obsidian closed;
   - "prefer deriving" applied to a fact the vault does not hold anywhere.
-- A rule written for the one live vault, or the largest mission in it, applied uniformly to every case.
+- A rule written for one vault (the test vault, or one DM's), or the largest mission in it, applied uniformly to every case.
 
 **Cost units:** extra frontmatter keys or adoption steps; instances where the rule's premise does not hold.
 
@@ -296,7 +296,7 @@ Say nothing about any of these. They are other reviewers' work or nobody's.
 
 - A convention or invariant **violation**. That is `taleform-reviewer`'s.
 - Names, test placement and tests that pin configuration or schema: `taleform-reviewer`'s. Near-identical sibling test files: `pr-tidying`'s.
-- A parity-check diff against the live vault. Whether changed output is intended is the step-8 review's call.
+- Regenerated test-vault output. Whether changed output is intended is the step-8 review's call.
 - File moves, dead-code removal, test coverage, formatting.
 - "This would be cleaner / more idiomatic / more testable" with no counted cost.
 - An abstraction for a second case that does not exist yet, including a roadmap builder no PRD commits to.
@@ -313,7 +313,7 @@ Every finding is routed by **blast radius**, and the test is mechanical rather t
 | It changes a shared signature in `src/core/`, the `Builder` / `BuildContext` contract, the frontmatter schema (`schema.ts`, `RETIRED`), the CLI's flags or `--json` shape, generated-output identity (`nid()` inputs, region ids, the `generated` marker), or anything another slice or branch inherits | **Do not build it.** Raise it as a **proposed amendment to the PRD's cross-cutting contract**, in that document's rule format, and stop. It goes to the unconditional PRD gate (sdlc §4 step 3). |
 | Shape K: the defect is a rule in `CLAUDE.md`, a skill or a context doc | **Build the plain version in the slice**, and propose narrower wording for the rule. Log both in the effort's decision log. Never the PRD gate: a working rule is tooling, not product contract. |
 
-A cross-cutting abstraction *is* a contract rule, so it goes to the contract gate, never suspended, on any branch. **This is what lets everything below the contract line run autonomously.** The test is mechanical on purpose: *who else inherits this?*, not how important the finding feels. A finding whose fix would change what the vault docs describe (the spec `story-maps.md`, `run-sheet-format.md`, `_tpl/Story Beat.md`, the vault `CLAUDE.md` § Taleform) names them in the amendment, so the DM can update them; never edit them.
+A cross-cutting abstraction *is* a contract rule, so it goes to the contract gate, never suspended, on any branch. **This is what lets everything below the contract line run autonomously.** The test is mechanical on purpose: *who else inherits this?*, not how important the finding feels. A finding whose fix would change what the vault docs describe (the spec `story-maps.md`, `run-sheet-format.md`, `_tpl/Story Beat.md`, the vault `CLAUDE.md` § Taleform) names them in the amendment, so the developer can update them; never edit them.
 
 **Two carve-outs that route up regardless of size:**
 - **Author-owned text.** Where the cost is a builder touching text outside its generated regions, header and footer, or canvas items without the `generated` marker, or writing frontmatter (invariants 1 and 2), route up even if the change is confined to one slice.

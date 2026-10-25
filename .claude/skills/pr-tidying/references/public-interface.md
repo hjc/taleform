@@ -2,7 +2,7 @@
 
 **Findings file:** `.tmp/pr-tidying-findings-public-interface.md`
 **ID prefix:** `G1`, `G2`, …
-**Read-set:** the `src/` diff (`.tmp/pr-tidying-diff-src.txt`), the parity output (`.tmp/pr-tidying-parity.txt`), `CLAUDE.md` § Invariants, § Obsidian facts we tested and § The vault, and `docs/sdlc.md` §1 and §3. **At a landing point, the whole segment** — `git diff <segment base>..HEAD -- src/` rather than `<parent>..HEAD` — because the segment lands on `main`, and the vault, as one change.
+**Read-set:** the `src/` diff (`.tmp/pr-tidying-diff-src.txt`), the parity output (`.tmp/pr-tidying-parity.txt`), the branch's diff under `test-vault/`, `CLAUDE.md` § Invariants and § Obsidian facts we tested, and `docs/sdlc.md` §1 and §3. **At a landing point, the whole segment** — `git diff <segment base>..HEAD -- src/` rather than `<parent>..HEAD` — because the segment lands on `main`, and reaches a DM's vault on their next deploy, as one change.
 
 Taleform has no deployed environments, but it has contracts other things depend on (`docs/sdlc.md` §1): the DM's notes depend on the frontmatter schema, the vault's hooks depend on the CLI, and every generated file depends on stable ids and markers. This audit asks one question: **does this branch change any of them, and is each change intended, compatible, and recorded?**
 
@@ -11,10 +11,11 @@ Taleform has no deployed environments, but it has contracts other things depend 
 | Surface | Where it lives | Who depends on it |
 |---|---|---|
 | Frontmatter schema | every `fm[...]` / `fm.<key>` read in `src/`; `RETIRED` and the checks in `src/builders/schema.ts`; `README.md` § The typed model | The DM's notes; another DM's notes |
-| CLI | `USAGE`, the argv loop and exit codes in `src/cli/main.ts` (0 ok, 1 errors or stale on `check`, 2 usage); the `--json` shape, which is `BuildResult` (`src/core/engine.ts`) with `Problem` (`src/core/builder.ts`) | The vault's `.git/hooks/pre-commit` and `.claude/scripts/taleform-hook.mjs` |
+| CLI | `USAGE`, the argv loop and exit codes in `src/cli/main.ts` (0 ok, 1 errors or stale on `check`, 2 usage); the `--json` shape, which is `BuildResult` (`src/core/engine.ts`) with `Problem` (`src/core/builder.ts`) | A DM's vault hooks: git `pre-commit` and the Claude `PostToolUse` hook `claude-hook.mjs`, both running `cli.cjs` from the plugin folder |
+| Plugin folder | the files `scripts/deploy.mjs` installs into `<vault>/.obsidian/plugins/taleform/` (`main.js`, `manifest.json`, `cli.cjs`, `claude-hook.mjs`) | A DM's vault hooks, which look for the CLI there; a renamed or dropped file breaks them |
 | `pre-commit` | `preCommit` in `src/cli/main.ts` | The DM's commits (invariant 5) |
 | Plugin scripting | `run(options, write, loud)` and the persisted `prefs` keys in `src/plugin/main.ts`; command ids | Vault scripts calling `app.plugins.plugins.taleform.run(...)`; the DM's saved settings and hotkeys |
-| Generated-output identity | `nid(...)` inputs, region ids passed to `setRegion` (`awards`, `resume`, `xp`), the `generated` marker (`MARK`), the sequence header and `## Next` footer format, output paths (`<Mission> — Adventure Map.canvas`) | Every generated file in the vault: a change re-writes all of them |
+| Generated-output identity | `nid(...)` inputs, region ids passed to `setRegion` (`awards`, `resume`, `xp`), the `generated` marker (`MARK`), the sequence header and `## Next` footer format, output paths (`<Mission> — Adventure Map.canvas`) | Every generated file in a DM's vault, and in `test-vault/`: a change re-writes all of them |
 
 ## What to flag
 
@@ -24,22 +25,26 @@ Taleform has no deployed environments, but it has contracts other things depend 
 - **A write outside generated text** (invariant 2) — text outside region markers, the sequence header and `## Next` footer; or a canvas merge that drops or moves an item not carrying the `generated` marker, or a generated item emitted without it.
 - **Nondeterministic output** (invariant 3) — `Date.now()`, `Math.random()`, iteration order over unsorted `io.list()` results or object keys reaching emitted text, locale-dependent formatting without an explicit locale (`fmt` pins `"en-US"`; follow it).
 - **A new builder or new emitted output with no idempotency assertion** in `test/` — a `build` followed by a second `build` reporting 0 changes over a fixture that exercises the new output.
-- **A generated-identity change** — a `nid(...)` input, a region id, the `MARK` value, a header/footer format, an output path — that the parity output shows as a diff and the branch does not state as intended. Every existing map or region churns on the next build, and a renamed region id leaves the old region orphaned in every note. Intended changes are not findings; they are reported under **Parity** below.
+- **A generated-identity change** — a `nid(...)` input, a region id, the `MARK` value, a header/footer format, an output path — that the parity check or the regenerated `test-vault/` diff shows and the branch does not state as intended. Every existing map or region churns on the next build, and a renamed region id leaves the old region orphaned in every note. Intended changes are not findings; they are reported under **Parity** below.
 - **A CLI break** — a flag removed or renamed, an exit code's meaning changed, a field removed or renamed in the `--json` output, or `pre-commit` made able to block or to stage something invariant 5 forbids. Flag it unless the PRD's slice list marks this slice a vault gate for exactly that change (`docs/sdlc.md` §3).
 - **A plugin scripting break** — `run`'s parameters reordered or retyped, a `prefs` key renamed (the saved value is lost on load), a command id renamed (hotkeys bound to it break).
 
 ## Parity
 
-Read `.tmp/pr-tidying-parity.txt`. Expected: "up to date" plus the one known warning `CLAUDE.md` § The vault names. For every other line, report a row: the file it names, the builder, and whether the branch's intent explains it. An unexplained diff is a finding above; an explained one is an **open question for the DM** — whether to run `build` after landing (`docs/sdlc.md` §3 → After merging). If the file is absent, the branch did not touch `src/`; say so.
+Read `.tmp/pr-tidying-parity.txt` and the branch's diff under `test-vault/`. Expected: "up to date", and no regenerated test-vault file unless the branch means to change output. For every stale or regenerated file, report a row: the file, the builder, and whether the branch's intent explains it.
+
+- An unexplained change is a finding above.
+- An explained one goes in the PR body. It is an **open question for the developer** when a DM must rebuild their vault after deploying (`docs/sdlc.md` §3 → After merging).
+- If the parity file is absent, the branch did not touch `src/`; say so.
 
 ## Affected vault docs
 
-When the branch changes the model — the frontmatter schema, what a builder generates or how it reads, or the CLI — list which vault docs now describe it wrongly, and name what each one now gets wrong. The docs are the story-maps spec (`.claude/skills/encounter-building/references/story-maps.md`), `run-sheet-format.md`, `_tpl/Story Beat.md`, and the vault `CLAUDE.md` § Taleform (paths are in `CLAUDE.md` § The vault). **Never edit them, and never open a finding to edit them**; they go to the DM and into the PR body.
+When the branch changes the model — the frontmatter schema, what a builder generates or how it reads, the CLI, or the plugin folder — list what a DM must change in their own vault: notes to migrate, templates, hook setup, and any docs of theirs that describe the model. **Never edit a DM's vault, and never open a finding to edit it**; the list goes to the developer and into the PR body. In-repo docs (`README.md`, `docs/GLOSSARY.md`, the test vault's templates) are Category H's to update.
 
 ## What NOT to flag
 
 - An additive change: a new optional frontmatter property, a new CLI flag, a new field in the `--json` output, a new region id, a new builder appended to `BUILDERS`. These still go on the affected-vault-docs list when they change the model.
-- A refactor the parity output shows as identical.
+- A refactor the parity check shows as identical.
 - A CLI or schema break the PRD marks as a vault gate for this slice — it is planned; confirm only that its `RETIRED` entry exists.
 
 ## Report shape

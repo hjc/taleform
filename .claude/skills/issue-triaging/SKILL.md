@@ -5,7 +5,7 @@ description: Set an issue doc's triage metadata in one pass, from what the docum
 
 # Issue Triaging
 
-Triage reads one issue doc, the code it cites, the live vault's `check` output and the roadmap. It then sets the doc's triage metadata in one `planr meta` call: what kind of defect it is, who it reaches, what one occurrence costs, why it matters now, how big the fix is, and the priority bucket the work queue sorts on.
+Triage reads one issue doc, the code it cites, the test vault's `check` output and the roadmap. It then sets the doc's triage metadata in one `planr meta` call: what kind of defect it is, who it reaches, what one occurrence costs, why it matters now, how big the fix is, and the priority bucket the work queue sorts on.
 
 ## Key pointers
 
@@ -23,7 +23,7 @@ Triage reads one issue doc, the code it cites, the live vault's `check` output a
 - **Down:** interface stability, scale, portability to other vaults, latent defects and test gaps. They wait until they bite.
 - **Still `p0`:** destroying the DM's own writing. That is the DM's work, not platform reliability.
 
-When the focus moves (another DM adopts Taleform, or the vault outgrows the auto-build), rewrite this section and §6, then re-triage the corpus.
+When the focus moves (another DM adopts Taleform, or a DM's vault outgrows the auto-build), rewrite this section and §6, then re-triage the corpus.
 
 ## 0. Before rating: is it still an issue at all
 
@@ -47,7 +47,7 @@ Record it as `class`, with the slug in the second column.
 | **Material bug** | `material-bug` | A live path produces wrong generated output — wrong XP, wrong resume beat, a broken link, a map missing or misplacing beats — or a build/check that errors on valid frontmatter |
 | **Gap** | `gap` | Nothing is wrong, but something is missing: the typed model implies a capability no builder delivers, a builder does in one place what it skips in its sibling, or an output is half-built. Rated on value (§2), not correctness |
 | **Scale robustness** | `scale` | Correct today, fails or crawls on a bigger vault — auto-build cost per keystroke, whole-vault reparses, the Windows watcher dropping events under bulk writes |
-| **Portability** | `portability` | A vault-specific assumption in `src/` — a name, path, folder or plugin the live vault happens to have — that would break another DM's vault |
+| **Portability** | `portability` | A vault-specific assumption in `src/` — a name, path, folder or plugin one vault happens to have — that would break another DM's vault |
 | **Latent defect** | `latent` | The mechanism is real but no current path reaches it |
 | **Quality** | `quality` | Cleanup, dead code, a vacuous or missing test, duplication, naming |
 | **Not a defect** | `not-a-defect` | A refactor, a modelling question, an adjudicated non-bug, a new feature the model does not yet imply (that is a PRD, not an issue) |
@@ -62,9 +62,9 @@ Record it as `reach`: the first row, top down, that the failure reaches.
 
 | `reach` | Who the failure reaches |
 |---|---|
-| `dm` | The DM in Obsidian: generated notes, regions, the Adventure Map, the status bar, the plugin's commands and auto-build |
-| `hooks` | Only the automation that calls `dist/cli.cjs`: the vault's git `pre-commit`, the Claude `taleform-hook.mjs` PostToolUse hook, scripts reading `--json`. The DM meets it only when that automation runs |
-| `adopter` | Only another DM's vault — a vault shape, setting or plugin set the live vault does not have |
+| `dm` | End users: a DM in Obsidian, through generated notes, regions, the Adventure Map, the status bar, the plugin's commands and auto-build |
+| `hooks` | Only the automation that runs the CLI from the plugin folder: a vault's git `pre-commit`, the Claude `claude-hook.mjs` PostToolUse hook, scripts reading `--json`. The DM meets it only when that automation runs |
+| `adopter` | Only another DM's vault — a vault shape, setting or plugin set neither the test vault nor the developer's own vault has |
 | `developer` | Whoever works on Taleform: the repository, tests, `npm run check`, the build and deploy scripts |
 | `none` | No one today. Set exactly when `class=latent`, and never otherwise |
 
@@ -87,7 +87,7 @@ Record it as `detection`. `silent`: the failure raises nothing the DM or a hook 
 
 **Unrealized value counts as impact.** The ladder above measures what a failure costs; a gap costs what it never delivers. Both are impact, and the second is the easy one to under-rate.
 
-**Scale robustness and portability.** Rate what they do *today*: `medium` at most unless the scale problem has already bitten the live vault, or another DM has adopted Taleform and hit the portability one — then rate what happened.
+**Scale robustness and portability.** Rate what they do *today*: `medium` at most unless the scale problem has already bitten a DM's vault, or another DM has adopted Taleform and hit the portability one — then rate what happened.
 
 **A gap (`class=gap`) is rated on the value it is failing to deliver, not on correctness.** Nothing is broken, so the correctness ladder reads it as `low`; that is wrong. Ask what the DM cannot do:
 
@@ -111,7 +111,7 @@ Time-sensitivity, not severity. Default `low`, then raise:
 
 | Raise to | When |
 |---|---|
-| `high` | It **fires on the live vault today** and the DM reads the output; it **breaks invariant 1 or 2** (frontmatter written, DM text touched); it blocks or completes a roadmap item in flight; the DM is waiting on it for an upcoming session |
+| `high` | It **fires in a DM's vault today** and the DM reads the output; it **breaks invariant 1 or 2** (frontmatter written, DM text touched); it blocks or completes a roadmap item in flight; the DM is waiting on it for an upcoming session |
 | `medium` | Worsens with time (wrong output being copied into session notes, the DM authoring around it, a pattern being copied into new builders); the DM has hit it; it fires only through the hooks |
 | | **Already destroyed DM text** — rate `high` whatever the class |
 | `low` | Cleanup, test gaps, latent defects, scale and portability that have not bitten, anything waiting on a decision |
@@ -120,17 +120,17 @@ Time-sensitivity, not severity. Default `low`, then raise:
 
 A `critical` impact that nothing reaches is still low urgency. A `low` impact that breaks an invariant is still high urgency.
 
-## 3a. Ground it in the live vault
+## 3a. Ground it in a vault
 
-**A defect firing on the live vault is no longer a judgement call.** Before rating anything that would change output, check whether it is firing, read-only (`docs/sdlc.md` §2, Parity against the live vault):
+**A defect firing in a vault is no longer a judgement call.** Before rating anything that would change output, check whether it is firing (`docs/sdlc.md` §2, the parity check):
 
 ```bash
-npm run check
-node dist/cli.cjs check --vault "<vault>"          # exit 1 on stale output or schema errors; prints warnings
-node dist/cli.cjs build --vault "<vault>" --json   # only in a throwaway copy of the vault, never the live one
+npm run check                                      # includes check --vault test-vault
+node dist/cli.cjs check --vault <vault>            # read-only: a DM's vault, when the developer has one locally
+node dist/cli.cjs build --vault <copy> --json      # only in a throwaway copy, never a DM's vault
 ```
 
-`CLAUDE.md` § The vault names the vault path and the one known warning (3.03's Encounter line). Any other diff or warning is evidence. **Never run `build` against the live vault to triage** — that is the DM's call, and it rewrites the very output you are judging.
+The test vault's committed output is current on `main`, so any diff or warning there is evidence; so is one from a DM's vault that the developer reports. **Never run `build` against a DM's vault to triage** — that is the developer's call, and it rewrites the very output you are judging.
 
 **Reproduce it in a fixture.** A failing `build()` on a `test/memoryVault.ts` fixture vault is the strongest evidence there is, and it becomes the fix's first test.
 
@@ -167,7 +167,7 @@ A document reaches `p1` by passing **one** of these. Failing all three, it is `p
 
 | | Test | Evidence it takes |
 |---|---|---|
-| **Proven** | It is happening | A reproduction (§3a): a failing fixture test, a diff or warning from `check` on the live vault, or the DM reporting it. "3.03's XP total is wrong", not "could affect any beat" |
+| **Proven** | It is happening | A reproduction (§3a): a failing fixture test, a diff or warning from `check` on the test vault or a DM's vault, or a DM reporting it. "This beat's XP total is wrong", not "could affect any beat" |
 | **Felt** | It improves or completes an output the DM already uses | The working half is in use at the table: the Adventure Map, the resume region, the XP ledger, the navigation headers. A builder that is named but not designed (Arc Map, Campaign Map) is `p2` until its PRD is approved; after that, a gap that completes it passes this test |
 | **Irreversible** | When it does happen it is very painful or impossible to fix | Uncommitted DM text destroyed, a commit made with the wrong files staged, wrong numbers already played at the table. Unobserved is fine here — that is the point of the clause |
 
@@ -193,9 +193,9 @@ These still hold, as inputs to the judgement rather than arithmetic applied afte
 3. **A gap in an output the DM already uses is at least `p1`** (`class=gap`, `reach=dm`). Completing what is in use is the highest-value work there is.
 4. **A material bug in what the DM reads is at least `p1`** (`class=material-bug`, `reach=dm`).
 5. **A gap anywhere else is at least `p2`** (`class=gap`): unrealized value is never `p3`.
-6. **A reproduction on the live vault is at least `p1`** — a diff or warning from `check` beyond the known one (§3a).
-7. **An interface break is at most `p2`** (`class=interface-break`) until it breaks the live vault's hooks; then rate what happened. There is one consumer, and it is in the room.
-8. **Scale robustness is at most `p3`** (`class=scale`) until it has bitten the live vault; then rate what happened.
+6. **A reproduction in a vault is at least `p1`** — a diff or warning from `check` on the test vault or a DM's vault (§3a).
+7. **An interface break is at most `p2`** (`class=interface-break`) until it breaks a DM's vault hooks; then rate what happened. There is one consumer, and it is in the room.
+8. **Scale robustness is at most `p3`** (`class=scale`) until it has bitten a DM's vault; then rate what happened.
 9. **Portability is at most `p3`** (`class=portability`) until another DM adopts Taleform; then rate it as the break it causes them.
 10. **Quality, cleanup and test gaps are `p3`** (`class=quality`), unless the untested thing guards invariant 1 or 2 — then `p2`.
 11. **Unreachable is `p3`** (`class=latent`).

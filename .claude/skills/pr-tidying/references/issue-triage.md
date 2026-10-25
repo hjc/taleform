@@ -24,7 +24,7 @@ Collect every report into the findings file: one `M<n>` row per issue, then each
 |---|-------|---------|-------------------|------------|
 | M1 | `adventure-map-drops-hand-edge.html` | VERDICT | p1 | matrix p2 → p1: breaks invariant 2 on every rebuild |
 
-Follow the table with each issue's verdict table. **Every verdict needs the DM's approval, per issue** — approve, amend a field, or reject. A `RESOLVED` or `DUPLICATE` verdict is a deletion proposal under `issue-creating`, not a rating.
+Follow the table with each issue's verdict table. **Every verdict needs the developer's approval, per issue** — approve, amend a field, or reject. A `RESOLVED` or `DUPLICATE` verdict is a deletion proposal under `issue-creating`, not a rating.
 
 ## Apply (Phase 4, last)
 
@@ -42,5 +42,5 @@ Commit the triage alone as `mapping: triage <n> issue(s) filed on this branch`.
 ## What NOT to flag/do
 
 - Re-triage an issue whose triage is complete, or one this branch did not add.
-- Apply a verdict the DM has not approved.
+- Apply a verdict the developer has not approved.
 - Hand-edit an issue doc. Every write goes through `planr`.

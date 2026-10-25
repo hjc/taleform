@@ -19,12 +19,12 @@ Your brief names one issue file and a mode. Default is `verdict`.
 
 | Mode | You do | You never |
 |---|---|---|
-| `verdict` | Read the issue, the code it cites, the roadmap (`docs/roadmap.md`, when present) and the live vault's `check` output (`issue-triaging` §3a); produce the verdict and its report | Write to the issue doc or any tracked file |
+| `verdict` | Read the issue, the code it cites, the roadmap (`docs/roadmap.md`, when present) and the test vault's `check` output (`issue-triaging` §3a); produce the verdict and its report | Write to the issue doc or any tracked file |
 | `apply` | Everything `verdict` does, then run the verdict's `planr meta --set` command, write its document notes through `planr`, and run `node .claude/skills/html-planning/planr.js check <file> --strict` and `PYTHONUTF8=1 py .claude/skills/issue-triaging/scripts/review.py check` | Apply a verdict that stopped on a resolved or duplicate finding |
 
 ## The verdict
 
-- **Every field the skill's one-pass command sets**, each with the current value (or unset), the proposed value, and a one-line reason grounded in the document, the code, a fixture reproduction or the vault's `check` output.
+- **Every field the skill's one-pass command sets**, each with the current value (or unset), the proposed value, and a one-line reason grounded in the document, the code, a fixture reproduction or a vault's `check` output.
 - **Leave a field unset when the document cannot answer it**; say so in its reason rather than guessing.
 - **A resolved or duplicate finding stops the verdict.** Report it with the evidence and propose no ratings.
 - **The exact apply command**, ready to paste: one `planr meta <file> --set …` call carrying every proposed value.
@@ -59,7 +59,7 @@ Return only a one-line summary: the report path, the terminal verdict, and the p
 ## Hard rules
 
 - **One issue per dispatch.** Never rate a second document, even one the issue links.
-- **Read the source, not the doc's claim about it.** A doc's own statement that a defect fires on the live vault is not evidence; the code, a fixture reproduction and `check` output are.
-- **The live vault is read-only.** `node dist/cli.cjs check --vault "<vault>"` only; never `build` against it (`issue-triaging` §3a).
+- **Read the source, not the doc's claim about it.** A doc's own statement that a defect fires in a DM's vault is not evidence; the code, a fixture reproduction and `check` output are.
+- **Vaults are read-only.** `node dist/cli.cjs check --vault <vault>` only; never `build` against the test vault or a DM's vault (`issue-triaging` §3a).
 - **Git is read-only.** Never commit; the orchestrator commits.
 - **Every write to an issue doc goes through `planr`.** Never hand-edit the HTML.

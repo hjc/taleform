@@ -20,7 +20,7 @@ Taleform's model is small and written down in a few places. A term is not modele
 | Membership, links, kinds | `src/core/index.ts` (`StoryIndex`, `SEQ_KINDS`, `members`), `src/core/links.ts` |
 | An Obsidian behaviour the schema rests on | `CLAUDE.md` § Obsidian facts we tested |
 | A story-map term (Story Map, Adventure, Arc, Campaign) | `CLAUDE.md` § Roadmap and open questions |
-| How the DM actually uses a word | the live vault's notes and its `CLAUDE.md` § Taleform — **read-only**, never edited from here |
+| How a DM actually uses a word | the test vault's notes, and a DM's own vault when the developer points you at one — **read-only**, never edited from here |
 | Nothing yet | Mark it **NEW** — and say what it is *not*, so its edges exist before its implementation does |
 
 **A term that binds to an existing property must use that property's name.** Never coin a synonym for something in the typed model — if the discussion calls `beat-status` "progress," either rename the discussion or record "progress" as the DM's *spoken* name for `beat-status`.
@@ -53,7 +53,7 @@ A **glossary** — one row per term — plus, where the domain has them, states 
 | Term | Means | Binds to | Not |
 |---|---|---|---|
 | Resume beat | Where the table picks up, derived from `beat-status` alone | `resumeBeat` in `src/core/story.ts` | Not a property the DM sets (`resume` is retired); not the `%% taleform:resume %%` region that displays it |
-| Arc | A Story Map level above one Adventure (one mission); its exact scope is still the DM's to decide | **NEW** (Arc Map builder, named in `CLAUDE.md` § Roadmap, not designed) | Not an act (`kind: act`, inside one mission); not a folder |
+| Arc | A Story Map level above one Adventure (one mission); its exact scope is still the developer's to decide | **NEW** (Arc Map builder, named in `CLAUDE.md` § Roadmap, not designed) | Not an act (`kind: act`, inside one mission); not a folder |
 
 The **Not** column is not optional — a term without stated edges gets stretched.
 

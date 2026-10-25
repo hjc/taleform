@@ -123,7 +123,7 @@ export const nid = (...parts: string[]) =&gt; sha1(parts.join("|")).slice(0, 16)
           <tr>
             <td>3</td>
             <td>Prove no generated ID changed.</td>
-            <td>Run <code>npm run check</code>, then <code>node dist/cli.cjs check --vault "&lt;vault&gt;"</code>. Expect "up to date" and only the known 3.03 XP warning (14,700 vs 12,040); any diff means an ID moved. Read-only: never <code>build</code> in the live vault.</td>
+            <td>Run <code>npm run check</code>, which ends with the parity check against <code>test-vault/</code>. Expect it to pass with no rebuild; a stale Adventure Map means an ID moved.</td>
           </tr>
         </tbody>
       </table>
@@ -133,7 +133,7 @@ export const nid = (...parts: string[]) =&gt; sha1(parts.join("|")).slice(0, 16)
 
   <plan-section id="not-affected" title="What is not affected">
     <plan-callout type="warn">
-      <strong>Not firing on the live vault.</strong> Baseline measured: <code>node dist/cli.cjs check --vault "<vault>"</code> prints "up to date" with only the known 3.03 XP warning, and <code>npx vitest run test/core.test.ts</code> passes (8 tests). The helper's output is correct and stable; only its location is at issue. No generated ID, canvas or DM-facing text changes with the move. The planned hand-item merge and <code>MARK</code> are out of scope here.
+      <strong>Not firing.</strong> Baseline measured before filing: <code>check</code> against the developer's own vault printed "up to date" with only an unrelated, known XP warning, and <code>npx vitest run test/core.test.ts</code> passes (8 tests). The helper's output is correct and stable; only its location is at issue. No generated ID, canvas or DM-facing text changes with the move. The planned hand-item merge and <code>MARK</code> are out of scope here.
     </plan-callout>
   
 </plan-section>

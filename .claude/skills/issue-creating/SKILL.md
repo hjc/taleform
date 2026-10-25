@@ -63,7 +63,7 @@ Write them with `planr meta --set`, never by hand.
 | `class` | `author-data-loss` · `feedback-loop` · `interface-break` · `material-bug` · `gap` · `scale` · `portability` · `latent` · `quality` · `not-a-defect` | What kind of defect it is (`issue-triaging` §1) | Filing |
 | `reach` | `dm` · `hooks` · `adopter` · `developer` · `none` | The widest audience the failure reaches (`issue-triaging` §1a) | Filing |
 | `detection` | `silent` · `loud` | Does anything report it when it fires? (`issue-triaging` §1b) | Filing |
-| `source` | free text | Where it surfaced: `parity check on the live vault`, `pre-commit hook output` | Filing |
+| `source` | free text | Where it surfaced: `parity check on test-vault`, `pre-commit hook output` | Filing |
 | `impact` | `low` · `medium` · `high` · `critical` | The worst severity in the issue's own impact table | Filing |
 | `urgency` | `low` · `medium` · `high` | Is it live today, or latent/deferred? | Filing |
 | `effort` | `small` · `medium` · `large` | 1–2 / 3–5 / 6+ remediation steps | Filing |
@@ -71,7 +71,7 @@ Write them with `planr meta --set`, never by hand.
 | `priority` | `p0` · `p1` · `p2` · `p3` | The bucket the work queue sorts on | **Triage** |
 
 A new issue carries every field but `priority` — the evidence, read off the document you just wrote.
-**`priority` is not set at filing.** It is decided at triage, one issue at a time: dispatch the `issue-triager` agent on the new doc, and its verdict is applied only once the DM approves it.
+**`priority` is not set at filing.** It is decided at triage, one issue at a time: dispatch the `issue-triager` agent on the new doc, and its verdict is applied only once the developer approves it.
 
 An issue with no `priority` is not lost — it surfaces in the `triage` ranking, which exists for exactly that.
 `planr query docs/issues --rank triage` is the list of issues awaiting a bucket.
@@ -107,7 +107,7 @@ Delete a section that genuinely does not apply; do not rename or reorder one.
 - **Quote code with a path and line range.** A path plus gutter numbers is the difference between a report and a lead.
 - **Say what is *not* affected.** A reader who has just learned the mechanism assumes it is everywhere; bounding it is the cheapest thing you can give them.
 - **Distinguish measured from reasoned.** If a claim was measured, give the command or probe — they will re-run it. If it was reasoned, say so, and put the measurement in `open`.
-- **State the recoverability of anything lost.** It is usually what decides the priority. The vault is git-tracked, so ask whether the lost text was committed or was the DM's uncommitted work in progress — the second is the realistic loss, and git does not have it.
+- **State the recoverability of anything lost.** It is usually what decides the priority. If the vault is git-tracked, ask whether the lost text was committed or was the DM's uncommitted work in progress — the second is the realistic loss, and git does not have it.
 - **Name the invariant it breaks**, if any (`CLAUDE.md` § Invariants). A broken invariant is what separates `author-data-loss`, `feedback-loop` and `interface-break` from an ordinary `material-bug` (`issue-triaging` §1).
 
 ## What to keep out

@@ -29,13 +29,13 @@ Size the research to the claim, never to the document. A one-line issue verifica
 
 - **Search prior art first.** Grep `docs/context/`, `docs/issues/`, `docs/roadmap.md`, `docs/`, `CLAUDE.md` and `README.md` for the subject. An existing doc is updated, not duplicated; an existing issue is reported as a duplicate, not refiled.
 - **Read the source, not a claim about it.** Every path, symbol, line range, count and behaviour you write is read from the current code in `src/` and `test/`. The brief's own description of the code is a lead, not evidence.
-- **Measure what you can.** Run the grep, the scoped test (`npx vitest run <file>`), a `build()` on a `test/memoryVault.ts` fixture, or the read-only parity check against the live vault (`issue-triaging` §3a is the recipe) that settles a claim. Write the measured claims as fact and give the command.
+- **Measure what you can.** Run the grep, the scoped test (`npx vitest run <file>`), a `build()` on a `test/memoryVault.ts` fixture, or the read-only parity check against the test vault (`issue-triaging` §3a is the recipe) that settles a claim. Write the measured claims as fact and give the command.
 - **Mark what you could not measure.** A reasoned claim says so; an issue puts it in `open`. Never round a guess up to a fact.
 - **Bound it.** State what the subject does *not* cover, so a cold reader does not over-generalise.
 
 ## Verifying an issue
 
-Brief: an issue path and a request to verify it. Re-establish the root cause against today's code, a fixture reproduction, and the live vault's `check` output.
+Brief: an issue path and a request to verify it. Re-establish the root cause against today's code, a fixture reproduction, and the test vault's `check` output.
 
 | Finding | You do |
 |---|---|
@@ -58,7 +58,7 @@ Return at most ten lines: each path written or changed, the check result, the ve
 
 - Be concise. One fact per sentence; cut every word that does not carry one.
 - State conclusions. Strip reasoning and chain of thought from the document and from your summary.
-- Write about the subject and its material outcomes — what the code does, what output goes wrong, which DM text or vault automation it reaches. Never about how you got there, what prompted the search, or how the subject relates to unrelated parts of the system.
+- Write about the subject and its material outcomes — what the code does, what output goes wrong, which DM text or vault hook it reaches. Never about how you got there, what prompted the search, or how the subject relates to unrelated parts of the system.
 
 ## Authority and stop conditions
 
@@ -69,5 +69,5 @@ You hold standing authority over wording, structure, section choice, slugs and w
 - **One document per dispatch.** An adjacent defect or topic goes in your summary for its own dispatch, never a second section.
 - **Never set an issue's `priority`.** Filing sets every other field `issue-creating` names; priority is the `issue-triager`'s.
 - **Every write to a `planr` document goes through `planr`.** Never hand-edit its HTML.
-- **The live vault is read-only.** `node dist/cli.cjs check --vault "<vault>"` only; never `build`, `deploy` or an edit there. A vault doc that describes Taleform's model and has gone stale is named in your summary for the DM, never edited (`docs/sdlc.md` §3, Vault docs).
+- **Vaults are read-only.** `node dist/cli.cjs check --vault <vault>` only; never `build`, `deploy` or an edit in the test vault or a DM's vault. A vault doc that describes Taleform's model and has gone stale is named in your summary for the developer, never edited (`docs/sdlc.md` §3, Vault docs).
 - **Git is read-only.** Never commit; the orchestrator commits.

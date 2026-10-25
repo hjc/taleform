@@ -215,15 +215,15 @@ Every ticket is either **HITL** — human in the loop, worked *with* the user �
 
 - **Research** (AFK): Surface a fact a decision waits on. In-repo questions go to an `Explore` agent; external questions (the Obsidian API and its docs, the JSON Canvas spec, another plugin's behaviour as documented) go to a `general-purpose` agent with `WebSearch`/`WebFetch`. Findings land in the ticket's **Findings** section, each with its evidence id; any bulk dump goes to `wayfinding/assets/` and gets a row in `evidence.html`. **Research answers what a system documents. When the question is what it *does*, that is a Probe.**
 - **Probe** (AFK, or HITL when a credential is involved): Measure external behaviour with a throwaway script — one that exercises the system and records what it actually does, written to `wayfinding/assets/` with its output. Use when a decision rests on how a third-party system actually responds.
-  - For Taleform the system is usually Obsidian itself, read through the vault's CLI client `eval` (`CLAUDE.md` § The vault has the command). Or it is a round-trip: YAML through `yaml` and Obsidian's properties panel, a canvas through an Obsidian re-save.
-  - A probe reads the live vault and never writes to it; one that must write runs against a scratch copy.
+  - For Taleform the system is usually Obsidian itself, read through an `eval` in the running Obsidian (`CLAUDE.local.md` names the developer's CLI client, if any). Or it is a round-trip: YAML through `yaml` and Obsidian's properties panel, a canvas through an Obsidian re-save.
+  - A probe reads `test-vault/` or a DM's vault and never writes to either; one that must write runs against a scratch copy.
   - **The user runs any probe touching a credential**, receiving an exact invocation and handing back the output.
   - **Findings** records what was measured and when. The **Resolution** records **what it falsified** and the call made; correct the falsified claim at its source.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to — a hand-built `.canvas`, a mock note showing a generated region, an outline, a stub. Prototypes go in `wayfinding/assets/`. Use when "how should it look" or "how should it behave" is the key question.
 - **Grilling** (HITL): Conversation via the `grilling` skill, one question at a time — with `domain-modeling` alongside it whenever the ticket introduces or contests a term. **The default type.**
-- **Task** (HITL or AFK): Manual work blocking a decision — building a fixture vault, standing up a branch, having the DM open Obsidian for a probe. The one type that *does* rather than decides, and it must unblock a decision rather than deliver the destination. The agent drives it where it can; otherwise it hands the user a precise checklist. **Findings** records what was done and the facts later tickets depend on (note counts, fixture paths, which plugin version was loaded).
+- **Task** (HITL or AFK): Manual work blocking a decision — building a fixture vault, standing up a branch, having the developer open Obsidian for a probe. The one type that *does* rather than decides, and it must unblock a decision rather than deliver the destination. The agent drives it where it can; otherwise it hands the user a precise checklist. **Findings** records what was done and the facts later tickets depend on (note counts, fixture paths, which plugin version was loaded).
 
-Never write to the live vault as part of a Task ticket — no `build` against it, no `npm run deploy`, no note edits (`CLAUDE.md` § The vault). The read-only `node dist/cli.cjs check --vault "<vault>"` and an `eval` that reads state are fine; anything that writes is a HITL checklist item for the DM.
+Never write to a DM's vault as part of a Task ticket — no `build` against it, no `npm run deploy` to it, no note edits. The read-only `node dist/cli.cjs check --vault "<vault>"` and an `eval` that reads state are fine; anything that writes is a HITL checklist item for the developer. Build and deploy freely to a scratch copy of `test-vault/`.
 
 ## The horizon
 
@@ -289,7 +289,7 @@ The user invokes with a map path. A ticket is **optional** — without one, you 
 6. **Run `check` on every file touched** — the map, the ticket, any ticket amended. It exits 1 with line numbers on a structural break.
 7. **Commit.** See "Commit as you go" below.
 
-Autonomous calls made while resolving a ticket — decisions the user did not make explicitly — are attributed in the ticket's Resolution, per ticket rather than in one trailing table, so the DM can tell their own calls from the agent's.
+Autonomous calls made while resolving a ticket — decisions the user did not make explicitly — are attributed in the ticket's Resolution, per ticket rather than in one trailing table, so the developer can tell their own calls from the agent's.
 
 The user may run unblocked tickets in parallel sessions or worktrees, so expect the map to change under you — re-read it before writing to it.
 

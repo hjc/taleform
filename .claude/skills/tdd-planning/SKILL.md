@@ -54,7 +54,7 @@ This applies to every layer: `src/core/`, `src/builders/`, the CLI and the plugi
 - For a new domain rule in `src/core/story.ts`: write a unit test calling the function over a fixture (`StoryIndex.load(vault)` then the rule) before writing it.
 - For a schema change: write a test asserting the exact `problems` a malformed note produces, and that a clean note produces none.
 - For a bug fix: write a test that reproduces the bug (fails), then fix the code so it passes.
-- For a refactor: ensure existing tests pass before starting, then refactor while keeping them green. Add tests for any behavior not yet covered. A refactor must also leave the read-only parity check against the live vault unchanged (`docs/sdlc.md` §2).
+- For a refactor: ensure existing tests pass before starting, then refactor while keeping them green. Add tests for any behavior not yet covered. A refactor must also leave the test vault's generated output unchanged: the parity check in `npm run check` passes with no rebuild (`docs/sdlc.md` §2).
 
 ### Test Granularity
 
@@ -62,7 +62,7 @@ Plan tests at the right granularity for the change:
 - **Unit tests** for pure core logic: `story.ts` rules, `regions.ts`, `canvas.ts` (`sameCanvas`), `sha1.ts` (`nid`), `frontmatter.ts`, `links.ts`.
 - **Builder tests** through `build()` on fixture vaults — the integration layer, and the default for anything a builder emits.
 - **The plugin and CLI** are kept thin over `build()`. Test what they compute through the core; what only Obsidian can show (auto-build feel, canvas rendering) goes to `qa-checklist-writing`, not a test.
-- **Do not plan end-to-end tests against a running Obsidian** unless the DM explicitly requests them.
+- **Do not plan end-to-end tests against a running Obsidian** unless the developer explicitly requests them.
 
 ## Phase 1: Codebase Reconnaissance
 
@@ -99,9 +99,9 @@ For any feature that touches story data:
 ### 1.4 Check for Existing Constraints
 
 - **Read `CLAUDE.md` and project docs** for rules, conventions, and architecture notes — especially § Invariants and § Obsidian facts we tested.
-- **Check `.llm-resources/`** at the project root for ad-hoc reference files (samples, screenshots, docs) that the DM has placed for LLM consumption. Not every file will be relevant — use your judgment based on the current planning task.
+- **Check `.llm-resources/`** at the project root for ad-hoc reference files (samples, screenshots, docs) that the developer has placed for LLM consumption. Not every file will be relevant — use your judgment based on the current planning task.
 - **Check `docs/context/`** for known gotchas, prior failures, and derivation rules specific to this project.
-- **Never assert library or Obsidian behavior you have not verified.** A plan that claims what `yaml` parses, what a regex matches, or what Obsidian does on save is a claim the executor will build on — and a wrong one ships as a bug with no failing test. Verify with a throwaway probe instead: a scratch `test/probe-*.test.ts` or a node script in the scratchpad that runs the real call, deleted afterwards; record the OBSERVED output in the plan's recon section. For Obsidian behavior, cite `CLAUDE.md` § Obsidian facts we tested, or probe against a QA vault — never the live vault.
+- **Never assert library or Obsidian behavior you have not verified.** A plan that claims what `yaml` parses, what a regex matches, or what Obsidian does on save is a claim the executor will build on — and a wrong one ships as a bug with no failing test. Verify with a throwaway probe instead: a scratch `test/probe-*.test.ts` or a node script in the scratchpad that runs the real call, deleted afterwards; record the OBSERVED output in the plan's recon section. For Obsidian behavior, cite `CLAUDE.md` § Obsidian facts we tested, or probe a scratch copy of `test-vault/` — never a DM's vault.
 - **Check the breaking changes rule**: Only plan migration strategies for changes already on `main`. New features not yet merged do not need backward compatibility. On `main`, frontmatter properties, the CLI's flags and `--json` shape, and generated-output identity (`nid()` inputs, region ids, the `generated` marker) are public interfaces (`docs/sdlc.md` §1).
 
 ### 1.5 Callsite & Integration Audit (CRITICAL)
@@ -130,7 +130,7 @@ Every TDD plan must contain these sections. How they are formatted (HTML compone
 | Status | When | Who sets it |
 |--------|------|-------------|
 | `draft` | Plan is newly created, not yet reviewed | TDD Planner (default) |
-| `approved` | Plan has been reviewed and approved for execution | The DM |
+| `approved` | Plan has been reviewed and approved for execution | The developer |
 | `implemented` | All steps have been executed and verified | TDD Executor (after final verification) |
 
 **Steps carry their own status**, separate from the plan's: `todo` / `in-progress` / `done` / `blocked`. The planner writes every step as `todo`; the executor flips each one as it works. Under `html-planning` that is a `status` attribute on the step's section, set with `planr set <file> steps.<n>.status=done` and surveyed with `planr tasks <file>` — a cheap edit that never loads the plan into context.
@@ -149,7 +149,7 @@ Use these section **ids** verbatim — they are what make a plan addressable and
 | 5 | `steps` | Implementation Steps | One subsection per step (see below). |
 | 6 | `callsites` | Callsite Audit | **Every** reference to the changed symbol/behavior and its disposition, as a table (**# / Callsite / Change**) — including the `no change — why` rows. The complete inventory. **MANDATORY when the plan introduces replacement code.** |
 | 7 | `migration` | Callsite Migration List | The subset of the audit that actually changes, in execution order, as a table (**# / Callsite / Step / Notes**). Every row names the step under `steps` that performs the swap. Omit the section only when the audit is entirely `no change`. |
-| 8 | `verification` | Verification | `npm run check`; for any builder change, the read-only parity check `node dist/cli.cjs check --vault "<vault>"` and its expected result (`CLAUDE.md` § The vault); manual QA if applicable; expected test counts. |
+| 8 | `verification` | Verification | `npm run check`, which ends with the parity check against `test-vault/`; for any builder change, the exact test-vault files whose output is meant to change, regenerated with `npm run build:vault`; manual QA if applicable; expected test counts. |
 | 9 | `anti-patterns` | Anti-Patterns | Table of things NOT to do, specific to this plan (# / Don't / Why). |
 | — | `open-questions` | Open Questions *(optional)* | Unresolved items that need a decision before or during execution. |
 
@@ -251,7 +251,7 @@ The executor is less capable and takes the plan literally; internal contradictio
 
 ## Phase 3: Execution Guidance
 
-When executing the plan (after the DM's approval):
+When executing the plan (after the developer's approval):
 
 ### 3.1 Work in Test-Implementation Pairs
 
@@ -281,7 +281,7 @@ After every meaningful change, run the relevant file (`npx vitest run test/<file
 
 - Match the style of surrounding code (compact helpers, `ctx.problem` rather than throwing, `str`/`list`/`truthy` from `frontmatter.ts` for reading properties).
 - If the project uses a specific pattern (e.g., deriving a value in `story.ts` rather than declaring a property), follow it even if a "better" alternative exists.
-- Only introduce new patterns or dependencies when the DM explicitly approves.
+- Only introduce new patterns or dependencies when the developer explicitly approves.
 
 ## No Deliberation in Output Documents
 
@@ -309,7 +309,7 @@ Before finalizing, verify the plan specifies these where they apply:
   - Pre-commit staging never blocks.
 - **`src/core/` stays free of Obsidian imports, and `src/` names nothing from the DM's vault.** Anything vault-specific comes from frontmatter.
 - **Generated-output identity is stable.** A change to the arguments of a `nid(...)` call, a region id, a builder id, or the canvas file name churns every existing map or orphans every existing region. If the plan changes one, it is a rename plan (`rename-and-signature-plans.md`); if it must not, the `nid` vectors in `test/core.test.ts` and an existing-canvas fixture pin it.
-- **The parity check is a verification step.** Any change to a builder lists `node dist/cli.cjs check --vault "<vault>"` with the expected result: "up to date" plus the one known warning, or the exact set of files whose output is meant to change. Never `build` against the live vault in a plan.
+- **The parity check is a verification step.** Any change to a builder states its expected result: "up to date" with no rebuild, or the exact set of `test-vault/` files whose output is meant to change, regenerated with `npm run build:vault` and committed with the slice. Never `build` against a DM's vault in a plan.
 - **Report, don't throw.** Bad frontmatter becomes `ctx.problem("error" | "warning", …, path)`; a builder never throws on story data. Choose the severity deliberately: an error fails `check` and the vault's hooks, a warning does not.
 - **Opt-in output warns when it is absent.** A new mission-note region follows `resume`/`ledger`: fill it where the DM placed markers, warn otherwise; never insert it uninvited.
 - **CRLF and formatting.** Notes keep their line endings (there is a test); canvases compare through `sameCanvas`, because Obsidian re-saves them in its own format. A new emitted format says which comparison it uses.

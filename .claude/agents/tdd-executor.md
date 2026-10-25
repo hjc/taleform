@@ -80,12 +80,8 @@ For EACH step:
 ### Step 4: Verify the Slice
 After the last step:
 1. **`npm run check > .tmp/check.txt 2>&1`** (typecheck + vitest + bundle) must exit 0. Nothing is done until it passes.
-2. **If the plan changes builder output, or touches any builder at all**, run the read-only parity check against the live vault with the freshly bundled CLI:
-   ```
-   node dist/cli.cjs check --vault "<vault>"
-   ```
-   Expect "up to date" plus the one known warning (3.03's Encounter line; `CLAUDE.md` § The vault), or exactly the set of changed files the plan's Verification section predicts. Report any other diff verbatim — do not "fix" it by changing tests or code beyond the plan.
-3. **Never run `build` against the live vault**, and never edit, move or delete anything in the vault. `check` is the only command you run there. Fixture vaults in tests are where builds happen.
+2. **If the plan changes builder output, or touches any builder at all**, the parity check inside `npm run check` (`node dist/cli.cjs check --vault test-vault`) must pass. If the plan's Verification section predicts changed output, rebuild the test vault (`npm run build:vault`), confirm the regenerated files are exactly the predicted set, and commit them with the slice. Report any other diff verbatim — do not "fix" it by changing tests or code beyond the plan.
+3. **Never run `build` against a DM's vault**, and never edit, move or delete anything in one. `test-vault/` is the only vault you build, and only to regenerate predicted output. Fixture vaults in tests are where test builds happen.
 
 ### Step 5: Commit When Done
 1. Stage only the files you created or modified — **never `git add .` or `git add -A`**.
@@ -98,7 +94,7 @@ After the last step:
 8. Do NOT push.
 
 ### Step 6: Abstraction-Spotter Fixes
-After your build is committed, the orchestrator runs `taleform-abstraction-spotter` in diff mode over the slice. Its **in-slice** findings come back to you. Apply each as its own commit with the `refactor:` prefix — one finding, one commit — rerunning `npm run check` before each commit. A `refactor:` must not change generated output: rerun the parity check whenever the finding touches a builder, and if the output changes, stop and report — it is not a refactor (sdlc §3). Findings the orchestrator marks out-of-slice are not yours to apply.
+After your build is committed, the orchestrator runs `taleform-abstraction-spotter` in diff mode over the slice. Its **in-slice** findings come back to you. Apply each as its own commit with the `refactor:` prefix — one finding, one commit — rerunning `npm run check` before each commit. A `refactor:` must not change generated output: the parity check in `npm run check` must pass without rebuilding the test vault; if the output changes, stop and report — it is not a refactor (sdlc §3). Findings the orchestrator marks out-of-slice are not yours to apply.
 
 ## Discovering Project Conventions
 

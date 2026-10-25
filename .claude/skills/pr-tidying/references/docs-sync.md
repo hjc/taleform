@@ -6,7 +6,7 @@
 
 Your question is only: **is what this doc says still true, and is what this branch learned written down anywhere.**
 
-**Sibling audits — do not do their work.** Prose quality (render chrome, `description` bloat, verbosity) is Category J. Anything under `docs/features/`, `docs/issues/` or `docs/roadmap.md`, or `.claude/agent-memory/` is Category K. The vault docs that describe Taleform's model are Category G's list, never an edit. A doc that is accurate but bloated is J's finding; note a factual error you spot in a plan as an H cross-reference rather than editing it.
+**Sibling audits — do not do their work.** Prose quality (render chrome, `description` bloat, verbosity) is Category J. Anything under `docs/features/`, `docs/issues/` or `docs/roadmap.md`, or `.claude/agent-memory/` is Category K. Docs inside a DM's vault are Category G's list, never an edit. A doc that is accurate but bloated is J's finding; note a factual error you spot in a plan as an H cross-reference rather than editing it.
 
 ## Run the surface's own checker before auditing it by reading
 
@@ -54,7 +54,8 @@ A green checker settles only the mechanical half — contradictions between copi
   - `README.md` § The typed model (property table) and § Builders (run order) against `src/builders/schema.ts` and `BUILDERS` in `src/builders/index.ts`;
   - `CLAUDE.md` § Architecture — the module-by-module notes and the run order line;
   - `CLAUDE.md` § Commands against `USAGE` in `src/cli/main.ts` and the `package.json` scripts;
-  - `CLAUDE.md` § The vault — the parity expectation (the known warning) when this branch changes it.
+  - `README.md` § Development and `CLAUDE.md` § Commands — the test-vault, deploy and hook instructions, when this branch changes them;
+  - `docs/GLOSSARY.md` — a term this branch introduces, renames or starts using two ways.
 - **Inconsistencies:** the same instruction duplicated with diverging wording, two artifacts contradicting each other, or a section verbatim-duplicated within one artifact. **On a surface with a checker, this bullet is the checker's output, not a re-read.**
 - **Known gaps the branch relied on or revealed:** a non-obvious derivation rule, an invariant, an Obsidian behaviour, or a multi-step workflow the branch depended on — or had to rediscover — that no artifact records. Add it to the most relevant existing artifact. An Obsidian behaviour this branch tested goes in `CLAUDE.md` § Obsidian facts we tested; a new rule a build must keep goes in § Invariants.
 - **New facts worth persisting:** a reusable pattern, a load-bearing constraint, or a footgun the branch introduced that future work must respect.
@@ -77,7 +78,7 @@ Each recommendation must cite concrete branch evidence — a file, a rediscovere
 - Speculative future-proofing ("a skill for X someday") with no evidence in this branch.
 - Anything under `docs/features/`, `docs/issues/` or `docs/roadmap.md`, or `.claude/agent-memory/` — Category K.
 - Prose that is accurate but overlong, or a bloated frontmatter `description` — Category J.
-- Any doc inside the live vault — Category G lists those for the DM.
+- Any doc inside a DM's vault — Category G lists what a DM must change, for the developer.
 
 ## Report shape
 

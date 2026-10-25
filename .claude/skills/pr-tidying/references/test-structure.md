@@ -27,7 +27,7 @@ The suite runs on every `npm run check`. Keep it in-memory.
 **Flag:**
 - A test touching the real filesystem (`node:fs`, `os.tmpdir()`, `mkdtemp`) where a `MemoryVault` would do.
 - A test that spawns `dist/cli.cjs` or any child process, or that depends on `dist/` existing. It runs before the bundle in `npm run check`, so it tests a stale build or none.
-- A test that reads the live vault, or any absolute path on the DM's machine. It fails for another DM and on a clean checkout.
+- A test that reads a DM's vault, or any absolute path on the developer's machine. It fails for anyone else and on a clean checkout.
 - Real timers or sleeps (`setTimeout`, a debounce waited out) where `vi.useFakeTimers()` would do.
 
 **Do not flag:** a fixture that is large because the behavior needs it (a mission with several acts to exercise layout).

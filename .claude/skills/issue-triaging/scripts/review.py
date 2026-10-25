@@ -258,7 +258,7 @@ def render():
     print("  <code>issue-triaging</code> &sect;6 rule that moved it, read off the document&rsquo;s")
     print("  <code>class</code> and <code>reach</code>: <em>p1 &larr; DM-output floor</em>.")
     print("  <em>&larr; definitions</em> means no field-decidable rule explains it &mdash; the")
-    print("  &sect;6 definitions or a live-vault reproduction did, and the document&rsquo;s <code>open</code>")
+    print("  &sect;6 definitions or a vault reproduction did, and the document&rsquo;s <code>open</code>")
     print("  section says which. <em>&hellip; says pN</em> names a rule the written priority")
     print("  departs from. Rows are sorted worst-first by the written priority.")
     print("  <strong>%d document(s) carry a priority; %d sit off the matrix &mdash; %d by a named"

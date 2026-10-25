@@ -11,8 +11,10 @@ it — navigation headers, XP callouts, mission-note regions, and Adventure Map 
 Everything generated can be rebuilt at any time.
 
 Personas:
-- **The DM** — the author, running a D&D 5e (2024) campaign. Their vault is the only live
-  consumer. They prep missions in frontmatter and read the generated output at the table.
+- **The DM** — the end user, running a D&D 5e (2024) campaign in an Obsidian vault. They
+  prep missions in frontmatter and read the generated output at the table.
+- **The developer** — whoever works on Taleform in this repo and approves its PRDs
+  (`docs/GLOSSARY.md`). Not a persona a PRD serves.
 - **Another DM** — a future adopter. Distribution is a goal, so `src/` carries no
   vault-specific names or paths; everything comes from frontmatter.
 
@@ -93,14 +95,14 @@ Other `kind` values the schema accepts: `reference`, `bench`. `beat-status` ∈ 
 ## Public Interfaces
 
 - **Frontmatter** — the DM's notes, and potentially another DM's. Renames go through `RETIRED`.
-- **CLI flags and `--json` shape** — the vault's git `pre-commit` hook and its Claude
-  `PostToolUse` hook (`taleform-hook.mjs`) call `dist/cli.cjs` directly.
+- **CLI flags and `--json` shape** — a DM's vault hooks (git `pre-commit` and the Claude
+  `PostToolUse` hook `claude-hook.mjs`) run the CLI from the plugin folder.
 - **Generated-output stability** — canvas node IDs come from `nid(...)` and must stay stable
   across builds, or maps churn and dragged positions are lost. Region ids are matched by name
   in existing notes.
-- **Vault docs that describe the model** — the story-maps spec, `run-sheet-format.md`,
-  `_tpl/Story Beat.md`, and the vault `CLAUDE.md` § Taleform. A PRD that changes the model
-  lists which are affected; they are never edited from this repo.
+- **Docs that describe the model** — `README.md`, `docs/GLOSSARY.md` and the test vault's
+  templates, plus whatever a DM's vault keeps of its own. A PRD that changes the model lists
+  what a DM must change; a DM's vault is never edited from this repo.
 
 ## Obsidian Facts That Shape the Schema (`CLAUDE.md` § Obsidian facts we tested)
 
@@ -118,21 +120,21 @@ Other `kind` values the schema accepts: `reference`, `bench`. `beat-status` ∈ 
 
 ## Key Patterns
 
-- **Derive, don't declare.** Resume, combat XP and running totals are derived. The DM dislikes
+- **Derive, don't declare.** Resume, combat XP and running totals are derived. The developer dislikes
   implicit wiring (magic names, folder matching); a new rule reads explicit properties.
 - **Opt-in regions.** Mission-note outputs fill a region only where the DM placed its markers,
   and warn otherwise.
 - **Warn on prose/data disagreement, don't fix it.** The ledger's Encounter-line check is the
   precedent: the DM decides.
-- **Propose schema changes before making them.** The DM wants to understand the data model.
+- **Propose schema changes before making them.** The developer wants to understand the data model.
 
 ## Deferred / Out of Scope Items
 
-Do not propose these in a PRD unless the DM asks:
+Do not propose these in a PRD unless the developer asks:
 - **Builders reading through the Bases API** instead of Taleform's own parser ("Bases is our
   Postgres") — parked; needs design before code.
 - **Arc Map and Campaign Map builders** — named (Story Map → Adventure, Arc, Campaign) but not
-  designed; confirm the design with the DM first.
+  designed; confirm the design with the developer first.
 - **Visual tweaks to the Adventure Map** — deferred while the data model settled.
 - **Generating a beat's hand-written RUN CARD XP line as a region** — undecided.
 - **Community-plugin release** (`versions.json`, release workflow) — not set up.

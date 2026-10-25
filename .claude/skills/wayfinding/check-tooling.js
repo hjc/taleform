@@ -200,12 +200,12 @@ const UNREACHABLE_MAP_STATUS = ['implemented'];
 const UNTRACKED_BY_DESIGN = [/^\.tmp\//, /^\.llm-resources\//, /(^|\/)CLAUDE\.local\.md$/, /^dist\//,
   /^\.claude\/reviews\//, /^\.claude\/handoffs\//, /^\.claude\/settings\.local\.json$/];
 
-/* Paths that `CLAUDE.md` and `docs/sdlc.md` cite in the DM's VAULT, not in
-   this repo: the vault's own `.claude/scripts/` (the resync, CLI-client and
-   hook scripts) and the vault skill that holds the story-maps spec. They read
-   as repo-rooted `.claude/…` paths, so without this list every one reports as
-   dead. Keep it to what the instruction docs actually name as vault paths. */
-const IN_THE_VAULT = [/^\.claude\/scripts\//, /^\.claude\/skills\/encounter-building\//];
+/* Paths the instruction docs cite inside a DM's VAULT, not in this repo: the
+   plugin folder `npm run deploy` fills (`.obsidian/plugins/taleform/cli.cjs`,
+   `claude-hook.mjs`). They read as repo-rooted paths, so without this list
+   every one reports as dead. Generic vault layout only: a path from one
+   particular vault belongs in `CLAUDE.local.md`, never in a tracked doc. */
+const IN_THE_VAULT = [/^\.obsidian\//];
 
 /* Header statuses meaning "this document is not yet agreed". A slice row whose
    badge claims the work shipped cannot sit over one of these. Deny-list, and

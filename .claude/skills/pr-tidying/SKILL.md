@@ -5,9 +5,9 @@ description: Tidy a branch before opening its PR: audit the diff against its par
 
 # PR Tidying
 
-Audit and clean up a branch before PR submission. Compare against its **parent**: `main` for a standalone branch, the branch below it in a stack (`docs/sdlc.md` §3). Identify every cleanup issue across the changed files, present findings for approval, and apply fixes. Then drive `npm run check` (typecheck + vitest + bundle) to green and re-run the read-only parity check against the live vault. Resolve every failure, warning and error the branch introduced.
+Audit and clean up a branch before PR submission. Compare against its **parent**: `main` for a standalone branch, the branch below it in a stack (`docs/sdlc.md` §3). Identify every cleanup issue across the changed files, present findings for approval, and apply fixes. Then drive `npm run check` (typecheck + vitest + bundle + the parity check against `test-vault/`) to green. Resolve every failure, warning and error the branch introduced.
 
-Below, `<parent>` is that parent branch and `<vault>` is the live vault path from `CLAUDE.md` § The vault.
+Below, `<parent>` is that parent branch.
 
 A PR is also where the project's living documentation drifts, so the pass treats the instruction and context artifacts as in-scope too — `CLAUDE.md`, `README.md`, `.claude/skills/`, `.claude/agents/` and agent-memory files, the context docs, and `docs/sdlc.md`. Pay EXTRA attention to `docs/sdlc.md`: it is the canonical catalog of the repo's AI infrastructure, so any skill, agent, or context doc this branch introduces, renames, or removes MUST be reflected there.
 
@@ -43,7 +43,7 @@ Eleven audits, one reference file each, one subagent each. The ID prefix is the 
 
 Orchestrator only, before any dispatch.
 
-1. **Establish `<parent>`.** The base the PR targets is the tell; ask the DM if it is not obvious.
+1. **Establish `<parent>`.** The base the PR targets is the tell; ask the developer if it is not obvious.
 2. Run `git log --oneline <parent>..HEAD` to list all branch commits.
 3. Run `git diff --stat <parent>..HEAD` to list all changed files.
 4. **Establish the branch's position in its stack.** Determine whether it is the **final** branch — a standalone branch is its own final branch. Category K depends on this.
@@ -59,7 +59,7 @@ Orchestrator only, before any dispatch.
    | `.tmp/pr-tidying-diff-full.txt` | everything, including `package.json`, `tsconfig.json`, `esbuild.config.mjs`, `scripts/`, `manifest.json` |
 
    A starting point, not a boundary — a reference's stated read-set wins, and an agent needing a file's current contents reads the file.
-7. **Capture the parity baseline** when the branch touches `src/`: `npm run build`, then `node dist/cli.cjs check --vault "<vault>" > .tmp/pr-tidying-parity.txt 2>&1`, recording the exit code. It is read-only. Category G reads it. Rebuilding `dist/` makes this branch's CLI the one the vault's hooks call (`docs/sdlc.md` §1) — say so in the final report if the branch changes CLI behaviour.
+7. **Capture the parity baseline** when the branch touches `src/`: `npm run build`, then `node dist/cli.cjs check --vault test-vault > .tmp/pr-tidying-parity.txt 2>&1`, recording the exit code. It is read-only. Category G reads it, with the branch's diff under `test-vault/`. A DM's hooks get this branch's CLI on their next `npm run deploy` (`docs/sdlc.md` §1) — say so in the final report if the branch changes CLI behaviour.
 
 `.tmp/` is scratch: never stage it.
 
@@ -90,8 +90,9 @@ Run ONE audit from the /pr-tidying pass: [Category <ID> — <Audit name>].
 6. Do not apply any fix. This is an audit; the orchestrator applies fixes after approval.
 
 Scope guardrail: scope every search and read to the project root (`taleform`). Never the parent
-directory, never a sibling checkout. Never write to, build against, or run `build` on the live
-vault; the only vault read is the parity output the orchestrator already captured.
+directory, never a sibling checkout. Never read, write or build a vault
+outside this repo, and never run `build` on `test-vault/`; the only vault output you read is the
+parity output the orchestrator already captured.
 
 Write your complete findings to `<findings file>` using the Write tool as your FINAL action,
 then reply with only that path and a one-line count of findings. If you find nothing, write
@@ -117,11 +118,11 @@ Present ALL findings in one report, grouped by category, in the column shape eac
 
 Four kinds sit outside the fixes table:
 - **New-artifact recommendations** (from `docs-sync.md`) — a proposed context doc, skill, agent, `CLAUDE.md` section or reviewer rule. Advisory: create one only on explicit approval of that specific recommendation.
-- **Affected vault docs** (from `public-interface.md`) — the vault docs that describe Taleform's model and that this branch's model change makes stale. Listed for the DM and carried into the PR body; **never edited from this repo** (`docs/sdlc.md` §3 → Vault docs).
-- **Open questions** — anything an agent flagged as the DM's call rather than a fix: whether a parity diff is intended, the hoisting-vs-duplication question in `docs-hygiene.md`.
+- **Affected vault docs** (from `public-interface.md`) — what a DM must change in their own vault once this branch deploys: notes, templates, hook setup, their own docs on the model. Listed for the developer and carried into the PR body; **a DM's vault is never edited from this repo** (`docs/sdlc.md` §3 → Vault docs).
+- **Open questions** — anything an agent flagged as the developer's call rather than a fix: whether a parity diff is intended, the hoisting-vs-duplication question in `docs-hygiene.md`.
 - **Triage verdicts** (Category M) — approved per issue: approve, amend a field, or reject. Never applied without approval.
 
-Wait for the DM's approval before Phase 4.
+Wait for the developer's approval before Phase 4.
 
 ### Phase 4: Apply Fixes
 
@@ -153,17 +154,16 @@ Run the COMPLETE check — not just the affected tests — and drive it to green
    - **Tests (`vitest run`).** A failure is fixed in the code or the test, whichever is wrong — never by weakening an assertion on generated output to make it pass.
    - **Bundle (esbuild).** Any warning esbuild prints for the branch's code is in scope.
 
-2. **Parity** (any branch touching `src/`). `npm run check` has rebuilt `dist/`, so re-run:
-   ```bash
-   node dist/cli.cjs check --vault "<vault>" > .tmp/pr-tidying-parity.txt 2>&1
-   ```
-   Expect "up to date" with the one known warning `CLAUDE.md` § The vault names. Any other diff or problem is output this branch changed: confirm it is intended (it was reported under G in Phase 3) or fix it. **Never run `build` against the vault from this pass.**
+2. **Parity** (any branch touching `src/`). `npm run check` ends with `node dist/cli.cjs check --vault test-vault`.
+   - When it reports stale output, run `npm run build:vault` and read the regenerated diff under `test-vault/`.
+   - Every changed file must be output this branch means to change (reported under G in Phase 3), or it is a defect to fix. Commit intended regenerations with the branch.
+   - **Never run `build` against a DM's vault from this pass.**
 
 3. **Triage every failure, warning, and error.** For each one, classify it:
    - **Introduced by this branch** (either the feature work or the Phase 4 cleanup) → fix it. This includes test failures, new type errors, Vitest console noise or unhandled-rejection warnings from code this branch added, deprecation notices from APIs this branch started using, and new parity diffs.
-   - **Pre-existing on `<parent>`** → do NOT fix. Out of scope. Note it in the final report so the DM knows it was observed and deliberately left alone.
+   - **Pre-existing on `<parent>`** → do NOT fix. Out of scope. Note it in the final report so the developer knows it was observed and deliberately left alone.
 
-   To decide, compare against the diff (`<parent>..HEAD`): if the failing code path or the test exercising it was added or modified by this branch, it is in scope. When genuinely ambiguous, ask the DM rather than guessing.
+   To decide, compare against the diff (`<parent>..HEAD`): if the failing code path or the test exercising it was added or modified by this branch, it is in scope. When genuinely ambiguous, ask the developer rather than guessing.
 
 4. **Re-run the check and the parity check until green**, with no branch-introduced warnings or errors remaining. Re-run after each batch of fixes, not after every single edit.
 
@@ -220,6 +220,6 @@ The shared floor for the orchestrator and every dispatched agent; each reference
 - Exception: pre-existing tests in a target file that break after merging (Category D) should be fixed as part of the merge.
 - **Exception (G at a landing point):** the public-interface audit reads the whole segment, `<segment base>..HEAD`.
 - **Exception (H, J, K):** the doc and plan audits look beyond the branch's changed files — the artifact being updated usually is NOT in the diff. Each reference states its own widened read-set; stay inside it. New artifacts are recommend-only, on per-item approval.
-- Never edit the live vault, its notes, its hooks or its docs. Vault docs are listed for the DM, never edited.
+- Never edit a DM's vault: its notes, its hooks or its docs. What a DM must change is listed for the developer, never edited.
 - Do not flag borderline cases. Only clear-cut issues where the fix is unambiguous (Category-H new-artifact *recommendations* may be more exploratory, but must cite concrete branch evidence).
 - Do not expand scope beyond the eleven audits above and Category M. A finding outside all of them is filed with `issue-creating`, not fixed here.

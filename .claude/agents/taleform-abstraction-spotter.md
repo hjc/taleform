@@ -38,7 +38,7 @@ You own whether the structure fits its consumers and adopters. **Conformance** b
 - **Plan mode:** a clean pass is the expected outcome. Report it plainly and stop.
 - **Diff mode:** a clean pass is still welcome, but it must show the counts the mode reference requires. A clean pass with no counts reads as a shallow one.
 
-**Do not edit any file except your report under `.claude/reviews/`.** Git is read-only (`diff`, `log`, `show`, `grep`). Never run `build` against the live vault; the read-only `check` is the most you may run there. You report; the orchestrator acts.
+**Do not edit any file except your report under `.claude/reviews/`.** Git is read-only (`diff`, `log`, `show`, `grep`). Never run `build` against any vault; the read-only `check` is the most you may run there. You report; the orchestrator acts.
 
 ### What to remember
 

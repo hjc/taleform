@@ -2,19 +2,22 @@
 
 **Taleform** is declarative storytelling infrastructure for Obsidian, named to echo Terraform: typed frontmatter is the source of truth, and builders generate everything the DM reads from it. One TypeScript core serves two runners: an Obsidian plugin and a headless CLI. `README.md` holds the user-facing model and builder table. Read it first; this file covers what it leaves out.
 
-The author is the DM of a D&D 5e (2024) campaign, and their vault is the only real consumer so far. They want Taleform distributable, because another DM may adopt it. That means no vault-specific names or paths in `src/`; everything comes from frontmatter.
+**Read `docs/GLOSSARY.md` before writing any doc, plan, review or PR body.** It fixes the terms; above all, the **developer** works on Taleform in this repo, and the **DM** is the end user who keeps a campaign in a vault. Taleform targets D&D 5e (2024) and is meant to be adopted by any DM, so `src/` carries no vault-specific names or paths; everything comes from frontmatter.
+
+Machine-specific facts (the developer's own vault, local paths) live in `CLAUDE.local.md`, which is gitignored. **Never write them into a tracked file.**
 
 ## Commands
 
 ```
-npm run check                  # typecheck + vitest + bundle. Run before calling anything done
+npm run check                  # typecheck + vitest + bundle + test-vault parity. Run before calling anything done
+npm run build:vault            # rebuild test-vault/'s generated output after an intended output change
 npm run dev                    # esbuild watch (sourcemaps only here)
-npm run deploy -- "<vault>"    # copy dist/main.js + manifest.json into <vault>/.obsidian/plugins/taleform
+npm run deploy -- [<vault>] [--hooks]   # install main.js, manifest.json, cli.cjs, claude-hook.mjs (default: test-vault)
 node dist/cli.cjs check --vault "<vault>"   # exit 1 on stale output or schema errors; prints warnings
 node dist/cli.cjs build --vault "<vault>" [--mission name] [--relayout] [--threads] [--json]
 ```
 
-Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `yaml`, Node 22. The DM prefers the latest of everything.
+Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `yaml`, Node 22. The developer prefers the latest of everything.
 
 ## Architecture
 
@@ -26,7 +29,7 @@ Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `
   - `regions.ts`: `%% taleform:<id> %%` … `%% /taleform:<id> %%` generated regions. `setRegion` with empty content removes the region.
   - `canvas.ts`: `sameCanvas` compares canonically, ignoring key order, formatting and the default `toEnd: "arrow"`. That is because Obsidian re-saves canvases in its own format.
   - `sha1.ts`: the hash behind deterministic node IDs (`nid(...)`, defined in `src/builders/adventureMap.ts`). These must stay stable across builds, or maps churn.
-- **`src/builders/`**: `BUILDERS` in `index.ts` sets the run order: schema → navigation → awards → resume → ledger → adventure-map. A builder is `{id, description, run(ctx)}`. Add a new kind of builder here; the DM expects many (Arc and Campaign maps, and more).
+- **`src/builders/`**: `BUILDERS` in `index.ts` sets the run order: schema → navigation → awards → resume → ledger → adventure-map. A builder is `{id, description, run(ctx)}`. Add a new kind of builder here; the developer expects many (Arc and Campaign maps, and more).
 - **`src/cli/main.ts`**: `FsVault` skips dot dirs and the Templates folder (from `.obsidian/templates.json`). It has the commands `build`, `check` and `pre-commit`.
 - **`src/plugin/main.ts`**: `ObsidianVault` over `app.vault`. It debounces a 1500 ms auto-build on `metadataCache` "changed" (`prefs.autoBuild`) and shows status in the status bar. `run(options, write, loud)` is the scripting entry point. The setting is named `prefs`, because `settings` clashes with the Plugin base class.
 - **`test/`**: `memoryVault.ts` is an in-memory `VaultIO`. Builder tests go through `build()` on fixture vaults.
@@ -50,40 +53,32 @@ Toolchain: TypeScript 7 (strict, `noUncheckedIndexedAccess`), esbuild, Vitest, `
 - **Lists of objects stay top-level.** make.md's properties panel shows nested ones as "[object Object]", and editing there loses data. That is why `entry` / `branches` / `outcomes` / `awards` are flat top-level keys.
 - **YAML `[[X]]` unquoted parses as a nested array.** `frontmatter.ts` folds it back to `"[[X]]"`.
 - **Obsidian canvas keeps unknown node keys** on save, which is why the `generated` marker works. It drops a default `toEnd: "arrow"`.
-- **The Windows file watcher drops events** when many files are written externally at once. Obsidian then shows stale embeds ("Unable to find ^card"). The vault's `.claude/scripts/obsidian-resync.js` re-feeds disk text through `app.vault.modify`. Prefer writing through the plugin when Obsidian is open.
+- **The Windows file watcher drops events** when many files are written externally at once. Obsidian then shows stale embeds ("Unable to find ^card"). Re-feeding the disk text through `app.vault.modify` recovers it. Prefer writing through the plugin when Obsidian is open.
 - **Bases API (Obsidian 1.14):** `registerBasesView`, `BasesView`, `QueryController` (the undocumented `setQuery`/`runQuery`), `BasesEntry.getValue`, `ObjectValue`/`ListValue`. `prepareQuery` is fuzzy search only. Bases formulas can read object lists, for example `awards.filter(value.type != "optional").map(value.xp).reduce(acc + value, 0)`.
 
-## The vault (live consumer)
+## Vaults
 
-- **Vault:** `<vault>`. It is git-tracked, with its own `CLAUDE.md` and strict commit rules. **Never edit vault content from this repo's sessions** unless the DM asks. Taleform's job is to generate it.
-- **Worked example:** `<mission folder>/`.
-  - The mission note carries `kind: mission`, `party-size: 6`, `party-xp`, `handoff`, and the `resume` and `xp` regions.
-  - There are four act folders with 33 beat notes. Each beat has a `^card` block, which is what its Adventure Map card embeds.
-  - `<mission> — Adventure Map.canvas` sits beside them.
-- **Parity check after any builder change:** run `npm run check`, then `node dist/cli.cjs check --vault "<vault>"`. Expect "up to date" with one known warning: 3.03's Encounter line says 14,700 XP against a block total of 12,040, which is the DM's call. Any other diff means the change altered output. Decide whether that is intended before running `build`.
-- **Deploying:** `npm run deploy -- "<vault>"`, then reload the plugin in the running Obsidian through the vault's CLI client:
-  ```
-  node "<vault>/.claude/scripts/obsidian-cli.js" "vault=<vault name>" eval "code=..."
-  ```
-  An async eval returns empty output on success, so verify by reading state back. Before bulk-migrating vault notes, pause auto-build: `app.plugins.plugins.taleform.prefs.autoBuild=false` (in memory only; a reload restores it).
-- **What else calls Taleform:**
-  - The vault's `.git/hooks/pre-commit` runs `dist/cli.cjs pre-commit`.
-  - The vault's `.claude/scripts/taleform-hook.mjs` is a Claude PostToolUse hook. It runs `build --json` only when Obsidian is closed and exits 2 on errors.
-  - Both default to `<repo>/dist/cli.cjs` (override with `TALEFORM_CLI`), so **the CLI flags and the `--json` shape are a public interface**.
-- **Vault docs that describe Taleform's model** must change when the model changes. They are `.claude/skills/encounter-building/references/story-maps.md` (the spec), `run-sheet-format.md`, `_tpl/Story Beat.md`, and the vault `CLAUDE.md` § Taleform. Tell the DM which ones are affected rather than editing them silently.
-- Installed alongside: **Nested Properties** (editing objects in frontmatter) and **make.md**.
+- **The test vault** (`test-vault/`) is a committed, fictional campaign covering every builder, with its generated output committed too. It is the development and parity target:
+  - `npm run check` ends with `node dist/cli.cjs check --vault test-vault`, so any change to generated output fails the check until it is rebuilt.
+  - **After a builder change**, decide whether an output diff is intended. If it is, run `npm run build:vault` and commit the regenerated files with the change, so review sees them. If not, the change is a bug.
+  - Grow it when a feature needs a case it lacks; never hand-edit generated text there.
+- **A DM's vault is never edited from this repo's sessions** unless the developer asks. Taleform's job is to generate it.
+- **Deploying:** `npm run deploy -- "<vault>" [--hooks]` fills the vault's plugin folder (`.obsidian/plugins/taleform/`): the plugin, `cli.cjs` and `claude-hook.mjs`. `--hooks` installs the git `pre-commit` hook (`hooks/pre-commit`). Then reload the plugin in Obsidian. Before bulk-migrating notes in a vault where it runs, pause auto-build: `app.plugins.plugins.taleform.prefs.autoBuild=false` (in memory only; a reload restores it).
+- **What calls Taleform:** a vault's git `pre-commit` hook runs `cli.cjs pre-commit`, and its Claude `PostToolUse` hook runs `claude-hook.mjs`, which runs `build --json` only when Obsidian is closed and exits 2 on errors. Both use the CLI in the plugin folder (`TALEFORM_CLI` overrides it), so **the CLI flags and the `--json` shape are a public interface**, reaching a vault on its next deploy.
+- **Docs that describe Taleform's model** must change when the model changes: `README.md`, `docs/GLOSSARY.md`, `test-vault/` (including `Templates/`). A DM's vault may keep its own (`CLAUDE.local.md` lists the developer's); tell the developer which are affected rather than editing them.
+- The schema is designed to stay editable with **Nested Properties** (editing objects in frontmatter) and **make.md** installed.
 
 ## Roadmap and open questions
 
-- **Parked, but the DM cares:** builders should read through the **Bases API** rather than Taleform's own frontmatter parser, so a Bases format change can't desync them. "Bases is our Postgres." One idea is for the plugin to run `.base` queries and hand rows to builders, with the CLI delegating to the running plugin (or the plugin writing scratch views). It needs design before code.
-- **Arc Map and Campaign Map builders:** they are named but not designed. Confirm the design with the DM before building. The terms are Story Map (the umbrella), then Adventure (one mission), Arc and Campaign.
-- **Visual tweaks to the Adventure Map:** the DM deferred them while the data model settled, so expect them.
-- **Undecided:** whether a beat's hand-written RUN CARD XP line should become a generated region.
+- **Parked, but the developer cares:** builders should read through the **Bases API** rather than Taleform's own frontmatter parser, so a Bases format change can't desync them. "Bases is our Postgres." One idea is for the plugin to run `.base` queries and hand rows to builders, with the CLI delegating to the running plugin (or the plugin writing scratch views). It needs design before code.
+- **Arc Map and Campaign Map builders:** they are named but not designed. Confirm the design with the developer before building. The terms are Story Map (the umbrella), then Adventure (one mission), Arc and Campaign.
+- **Visual tweaks to the Adventure Map:** the developer deferred them while the data model settled, so expect them.
+- **Undecided:** whether a beat's hand-written XP line should become a generated region.
 
 ## Working style
 
-- The DM likes to understand the data model. Explain the rules (what derives what) when they ask, and propose before restructuring the schema.
-- Prefer deriving to declaring. Resume, combat XP and running totals are all derived, and the DM explicitly dislikes implicit wiring (magic names, folder matching).
+- The developer likes to understand the data model. Explain the rules (what derives what) when they ask, and propose before restructuring the schema.
+- Prefer deriving to declaring. Resume, combat XP and running totals are all derived, and the developer explicitly dislikes implicit wiring (magic names, folder matching).
 - Commit here with plain conventional messages. End each with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 - Windows plus Git Bash gotchas:
   - multi-line `python -c` fails;

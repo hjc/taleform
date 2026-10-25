@@ -295,12 +295,16 @@ const NOT_AN_ID = new Set(['d3']);
                               id SHAPES as examples to state the rule at all —
                               closing.md's own `C15, D37, q08` and the register
                               templates' scaffolded `D01`/`q01`/`E01` rows
-     .tmp/                    scratch output                                  */
+     .claude/planr-templates/ where those register templates now live (outside
+                              the synced html-planning folder): placeholders,
+                              never citations
+     .tmp/                   scratch output                                  */
 const NOT_A_SURVIVING_DOC = [
   /^docs\/features\//,
   /^\.claude\/handoffs\//,
   /^\.claude\/reviews\//,
   /^\.claude\/skills\//,
+  /^\.claude\/planr-templates\//,
   /^\.tmp\//,
 ];
 

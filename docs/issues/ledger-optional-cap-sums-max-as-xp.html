@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XP ledger sums an optional award's max (a count) as XP</title>
+  <!-- ── highlight.js (syntax highlighting) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <!-- ── Inline loader: resolves .claude/ from any plan depth ── -->
+  <script>
+    (function() {
+      var segs = location.pathname.split('/');
+      var idx = segs.indexOf('.claude');
+      if (idx === -1) { /* fallback: try parent dirs */
+        var base = location.pathname.substring(0, location.pathname.lastIndexOf('/'));
+        while (base && !base.endsWith('.claude')) base = base.substring(0, base.lastIndexOf('/'));
+        if (base) idx = base.split('/').indexOf('.claude');
+      }
+      var root = idx !== -1 ? segs.slice(0, idx + 1).join('/') : '.claude';
+      var skillBase = root + '/skills/html-planning';
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = skillBase + '/plan-styles.css';
+      document.head.appendChild(link);
+      var script = document.createElement('script');
+      script.src = skillBase + '/plan-runtime.js';
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+<body>
+
+<plan-nav></plan-nav>
+
+<plan-header
+  title="XP ledger sums an optional award's max (a count) as XP"
+  subtitle=""
+  status="draft"
+  date="2026-10-25">
+</plan-header>
+
+<main>
+
+  <plan-meta>
+    <plan-field key="type">issue</plan-field>
+    <plan-field key="reference-paths" hidden>src/builders,test-vault/Missions</plan-field>
+    <plan-field key="class" tone="warn">material-bug</plan-field>
+    <plan-field key="reach" tone="warn">dm</plan-field>
+    <plan-field key="detection" tone="warn">silent</plan-field>
+    <plan-field key="source">parity baseline for the generic-data-model wayfinding inventory; test-vault ledger output</plan-field>
+    <plan-field key="impact" tone="warn">high</plan-field>
+    <plan-field key="urgency" tone="info">medium</plan-field>
+    <plan-field key="effort" tone="ok">small</plan-field>
+  </plan-meta>
+
+  <plan-section id="overview" title="Overview"><plan-callout type="danger">
+  The XP ledger header on a mission note adds each optional award's <code>max</code> (a repeat count) into a sum labelled as XP, so a repeatable optional award reads as a few XP instead of its real cap. Silent; true since the ledger shipped.
+</plan-callout>
+</plan-section>
+
+  <plan-section id="root-cause" title="Root cause"><p><code>awardsOf</code> documents <code>max</code> as the repeat limit of an optional award (<code>per</code> names the repeated action). The ledger treats it as an XP amount: <code>optionalMax</code> sums <code>a.max ?? a.xp</code>, and the header prints that sum next to "optional". The award line in the same ledger, the Adventure Map card and the award callout all print <code>max</code> as a count, so only the header total is wrong.</p>
+<plan-file path="src/builders/ledger.ts" lines="45-49">
+          } else {
+            const max = a.max ?? a.xp;
+            bits.push(`optional ${fmt(a.xp)}${a.per ? ` per ${a.per}` : ""}${a.max ? ` (max ${fmt(a.max)})` : ""}`);
+            optionalMax += max;
+          }
+</plan-file>
+<p>Measured on the committed test vault: the award <code>xp: 25, per: lantern relit, max: 3</code> in <code>Road 1.03 — The hermit's shortcut.md</code> (frontmatter line 15) yields this header in <code>test-vault/Missions/The Lantern Road/The Lantern Road.md</code> line 17, while its own row on line 22 correctly says "(max 3)":</p>
+<pre><code>&gt; [!abstract]- XP ledger — 537 each, plus up to 3 optional</code></pre>
+<p>The real cap is 25 × 3 = 75 XP. Checked by reading the code and the committed output; <code>node dist/cli.cjs check --vault test-vault</code> passes, because the committed output already contains the wrong figure. No fixture test pins the header (<code>plus up to</code> appears only in <code>ledger.ts</code> and the vault output).</p>
+</plan-section>
+
+  <plan-section id="impact" title="Impact"><plan-table>
+  <table>
+    <thead><tr><th>Area</th><th>What breaks</th><th>Consequence</th><th>Severity</th></tr></thead>
+    <tbody>
+      <tr><td>Ledger header, repeatable optional award with <code>max</code></td><td>"plus up to N optional" is <code>max</code>, not XP</td><td>The DM reads a cap far below the real one (3 for 75 in the test vault); nothing flags it</td><td>high (medium raised one level: DM-facing and silent)</td></tr>
+      <tr><td>Optional award with <code>xp</code> but no <code>max</code></td><td>Sum uses <code>xp</code></td><td>Correct for a single-use award</td><td>none</td></tr>
+    </tbody>
+  </table>
+</plan-table>
+<plan-callout type="info">The generic-data-model wayfinding map requires config-driven builders to reproduce today's output byte for byte, so this figure is currently part of the parity baseline (<code>docs/features/generic-data-model/wayfinding/assets/todays-model-inventory.md</code>, lines 197 and 441). Fixing it changes committed output and needs <code>npm run build:vault</code>.</plan-callout>
+</plan-section>
+
+  <plan-section id="remediation" title="Remediation"><plan-table>
+  <table>
+    <thead><tr><th>#</th><th>Step</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Add the cap as <code>a.xp * (a.max ?? 1)</code> to <code>optionalMax</code></td><td>The reading of an award with no <code>max</code> as one use is the existing behaviour; see Open for an unbounded <code>per</code> award.</td></tr>
+      <tr><td>2</td><td>Add a <code>build()</code> fixture test on <code>test/memoryVault.ts</code> pinning the header for <code>xp: 25, max: 3</code></td><td>None exists today.</td></tr>
+      <tr><td>3</td><td>Run <code>npm run build:vault</code> and commit the regenerated test-vault ledger line</td><td>Coordinate with the wayfinding parity baseline before landing.</td></tr>
+    </tbody>
+  </table>
+</plan-table>
+</plan-section>
+
+  <plan-section id="not-affected" title="What is not affected"><plan-callout type="warn">Only the ledger header total is wrong. The per-beat ledger rows, the Adventure Map card (<code>adventureMap.ts:248</code>) and the beat award callout (<code>awards.ts:79</code>) print <code>max</code> as a count. Story XP, combat XP, running totals and the party-XP line are untouched, and optional XP is excluded from the running total by design.</plan-callout>
+</plan-section>
+
+  <plan-section id="open" title="Open"><ul>
+  <li>An optional award with <code>per</code> but no <code>max</code> is unbounded; should the header then omit it from the "up to" total, or count one use?</li>
+  <li>Should the header say "optional" alone or "optional XP" once the figure is XP?</li>
+</ul>
+</plan-section>
+
+
+</main>
+
+</body>
+</html>

@@ -52,7 +52,8 @@ Names are `\w+`. Values are substituted through a function replacer, so a `$` in
 |---|---|
 | `title` | `--title`, defaulting to `Untitled Plan` |
 | `date` | today, `YYYY-MM-DD` |
-| `skillSubpath` | the skill's install path, baked into the loader — **do not repurpose this name** |
+| `skillSubpath` | the skill's install path under `.claude/` — **do not repurpose this name** |
+| `runtimeBase` | the path from the new doc's folder to the skill folder, baked into the loader — **do not repurpose this name** |
 | `body` | the selected body template; consumed before substitution, so it is not a knob |
 
 The shell also declares `lang`, `subtitle` and `status`. Reuse those names in a body only if you mean the same thing — they share one namespace.

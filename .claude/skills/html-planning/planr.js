@@ -10,6 +10,7 @@
      node planr.js templates  [<name>]   (list templates; with a name, print its guidance)
      node planr.js list        <file> [--no-outline]
      node planr.js check       <file> [--strict]
+     node planr.js relink      <file> [<file> ...]   (re-point a moved doc's loader at the skill)
      node planr.js tasks       <file> [--all | --status <s>]
      node planr.js read        <file> <address> [--body] [--text]
      node planr.js meta        <file> [--format text|json]
@@ -52,7 +53,7 @@
    Templates live in ./templates/ — `_shell.html` is the shared document +
    runtime loader (with a `{{body}}` slot); every other `<name>.html` is a body
    selectable via `--template <name>`. Values fill via `{{var}}` substitution:
-   {{title}}, {{date}}, {{skillSubpath}}, plus any BARE `--set key=value`.
+   {{title}}, {{date}}, {{skillSubpath}}, {{runtimeBase}}, plus any BARE `--set key=value`.
    A consuming repo adds bodies in .claude/planr-templates/ (beside skills/);
    one there shadows a ./templates/ body of the same name.
    Writing a template: references/template-authoring.md.
@@ -129,6 +130,15 @@ function resolveSkillSubpath(invoked = process.argv[1] || __filename) {
   return 'skills/' + path.basename(path.dirname(invoked));
 }
 const TEMPLATE_DIR = path.join(__dirname, 'templates');
+// The skill folder as invoked (argv[1] keeps a symlinked path), and the POSIX
+// path from a doc's folder to it. Baked into the doc's loader, so a doc renders
+// wherever it lives, inside .claude/ or not; `relink` re-bakes it after a move.
+const SKILL_DIR = path.dirname(path.resolve(process.argv[1] || __filename));
+function runtimeBase(docPath) {
+  return path.relative(path.dirname(path.resolve(docPath)), SKILL_DIR).replace(/\\/g, '/') || '.';
+}
+// The shell's inline loader: one comment plus one script, replaced whole by `relink`.
+const LOADER = /<!-- ── Inline loader[\s\S]*?<\/script>/;
 // The consumer-owned template directory: `planr-templates/` beside `skills/`
 // under claudeRoot, or null when planr runs outside any .claude tree. Pure —
 // whether the directory exists is the shell's question.
@@ -196,7 +206,7 @@ function templateProblems(body, shellTpl, schema = null) {
     problems.push('its leading comment contains a literal <plan-*> tag — refer to components in prose');
   let html;
   try {
-    html = planNew(shellTpl, body, { title: 'Template probe', date: '2000-01-01', skillSubpath: 'skills/probe', schema });
+    html = planNew(shellTpl, body, { title: 'Template probe', date: '2000-01-01', skillSubpath: 'skills/probe', runtimeBase: '.', schema });
   } catch (e) {
     if (!(e instanceof PlanError)) throw e;
     problems.push(`cannot be scaffolded — ${e.message}`);
@@ -2008,9 +2018,9 @@ function removeItem(html, el) {
      · a BARE key fills a {{placeholder}}, and must name one that this template
        actually offers, or it throws (it used to be written into the var map and
        never read). */
-function planNew(shellTpl, bodyTpl, { title, date, skillSubpath, sets = [], schema = null } = {}) {
+function planNew(shellTpl, bodyTpl, { title, date, skillSubpath, runtimeBase = '.', sets = [], schema = null } = {}) {
   const composed = shellTpl.split('{{body}}').join(stripTemplateDoc(bodyTpl));
-  const vars = { title: title || 'Untitled Plan', date, skillSubpath };
+  const vars = { title: title || 'Untitled Plan', date, skillSubpath, runtimeBase };
   const nodeSets = [];
   for (const pair of sets) {
     const eq = String(pair).indexOf('=');
@@ -3699,6 +3709,7 @@ function cmdNew(outPath, flags) {
     title: flagValue(flags, 'title'),
     date: new Date().toISOString().slice(0, 10),
     skillSubpath: resolveSkillSubpath(),
+    runtimeBase: runtimeBase(outPath),
     sets: flags.set == null ? [] : [].concat(flags.set),
     schema: loadSchema().schema,
   });
@@ -3714,12 +3725,42 @@ function cmdList(file, flags)        { process.stdout.write(planList(read(file),
 function cmdTasks(file, flags)       { process.stdout.write(planTasks(read(file), flags)); }
 function cmdRead(file, addr, flags)  { process.stdout.write(planRead(read(file), addr, flags)); }
 function cmdCheck(file, flags) {
-  const { ok, report, warnings } = planCheck(read(file), loadSchema().schema, { docPath: file, readDoc: readBlocker });
+  const html = read(file);
+  const { ok, report, warnings } = planCheck(html, loadSchema().schema, { docPath: file, readDoc: readBlocker });
   if (!ok) throw new PlanError(report);      // → stderr + exit 1, so CI can gate on it
+  const unloaded = loaderProblem(file, html);
+  if (unloaded) throw new PlanError(unloaded);
   process.stdout.write(report + '\n');
   if (warnings.length) process.stdout.write(warningReport(warnings) + '\n');
   if (flags.strict && warnings.length)
     throw new PlanError(`check --strict: ${warnings.length} warning(s), listed above`);
+}
+// Why the doc's loader cannot reach the skill's runtime, or null. A loader
+// from before relative paths searched the URL for `.claude/`, so it only
+// works for a doc inside one.
+function loaderProblem(file, html) {
+  const loader = LOADER.exec(html);
+  if (!loader) return null;
+  const base = /var skillBase = '([^']*)';/.exec(loader[0]);
+  const fix = `run \`planr relink ${file}\``;
+  if (!base) {
+    const insideClaude = path.resolve(file).replace(/\\/g, '/').split('/').includes('.claude');
+    return insideClaude ? null : `${file}: its loader looks for .claude/ in the path, which this doc is not under — ${fix}`;
+  }
+  const runtime = path.join(path.dirname(path.resolve(file)), base[1], 'plan-runtime.js');
+  return fs.existsSync(runtime) ? null : `${file}: its loader points at ${base[1]}, where there is no plan-runtime.js — ${fix}`;
+}
+function cmdRelink(files) {
+  const block = LOADER.exec(loadTemplates().shell);
+  if (!block) throw new PlanError('_shell.html has no inline loader to relink with');
+  for (const file of files) {
+    const html = read(file);
+    if (!LOADER.test(html)) throw new PlanError(`${file}: no inline loader found`);
+    const base = runtimeBase(file);
+    const next = html.replace(LOADER, () => render(block[0], { runtimeBase: base }));
+    if (next !== html) write(file, next);
+    process.stdout.write(`${next === html ? 'Unchanged' : 'Relinked'} ${file} → ${base}\n`);
+  }
 }
 function cmdTemplates(name) {
   const { shell, entries } = loadTemplates();
@@ -3798,6 +3839,7 @@ const COMMAND_FLAGS = {
   templates:      {},
   list:           { 'no-outline': 'bool' },
   check:          { strict: 'bool' },
+  relink:         {},
   tasks:          { all: 'bool', status: 'value' },
   read:           { body: 'bool', text: 'bool' },
   meta:           { format: 'value', set: 'value', unset: 'value', stamp: 'bool' },
@@ -3834,7 +3876,7 @@ function assertKnownFlags(cmd, flags) {
 // Which positional a command requires, for main()'s missing-argument message.
 // Together with `templates` (which takes an optional name) these are exactly
 // COMMAND_FLAGS's keys — a test holds the two to each other.
-const NEEDS_FILE = ['new', 'list', 'check', 'tasks', 'read', 'meta', 'set', 'set-body', 'prepend', 'append',
+const NEEDS_FILE = ['new', 'list', 'check', 'relink', 'tasks', 'read', 'meta', 'set', 'set-body', 'prepend', 'append',
   'insert', 'badge', 'rm-item', 'strike', 'replace', 'add-section', 'rm-section', 'move-section'];
 // The corpus commands take a <dir|glob> in the same slot, so they need their
 // own required-argument message rather than one that says <file>. `wordy`
@@ -3936,6 +3978,7 @@ function main() {
       case 'templates':    return cmdTemplates(positional[0]);
       case 'list':         return cmdList(file, flags);
       case 'check':        return cmdCheck(file, flags);
+      case 'relink':       return cmdRelink(positional);
       case 'tasks':        return cmdTasks(file, flags);
       case 'meta':         return cmdMeta(file, flags);
       case 'query':        return cmdQuery(file, flags);

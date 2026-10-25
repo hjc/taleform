@@ -290,7 +290,11 @@ Eight templates are selectable:
 
 Context docs do not tell the AI what or how to do something. They capture the sticky parts of the codebase that are hard to learn and expensive for an LLM to rediscover. `CLAUDE.md` points here, so an agent knows to search this directory for prior art.
 
-There are none yet. Candidates as the code grows:
+| Doc | Covers |
+|---|---|
+| `story-model.md` | The concepts the declarative model is built from: families, open nesting, Moment and Beat as recipe and instance, Cast & world, Encounter as a relation |
+
+Candidates as the code grows:
 
 - the story model's derivation rules (sequence order, resume, combat XP);
 - the canvas layout and node-ID stability rules behind the Adventure Map;

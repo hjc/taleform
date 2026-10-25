@@ -64,7 +64,7 @@
     </tbody>
   </table>
 </plan-table>
-<p>Prior art: the issue <a href="../../../issues/vault-conventions-hardcoded-in-src.html">src/ hard-codes one vault's conventions</a> inventories 17 conventions; its line references are stale, and <a href="q01-todays-model-as-data.html">Today's model as data</a> replaces them.</p></plan-section>
+<p>Prior art: the issue <a href="../../../issues/vault-conventions-hardcoded-in-src.html">src/ hard-codes one vault's conventions</a> inventories 27 conventions, corrected against <a href="q01-todays-model-as-data.html">Today's model as data</a> .</p></plan-section>
 
   <plan-section id="documents" title="Documents">
     <p>
@@ -117,9 +117,9 @@
       <table>
         <thead><tr><th>#</th><th>Title</th><th>Question</th><th>Type</th><th>Status</th><th>Blocked by</th><th>Answer landed in</th><th>Built in</th></tr></thead>
         <tbody>
-          <tr><td><code>q01</code></td><td><a href="q01-todays-model-as-data.html">Today's model as data</a></td><td>What does Taleform model today, written down as data: every kind, property, enum value, relation, ordering rule, derived value, table, and every piece of text a builder generates?</td><td>Research</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-          <tr><td><code>q02</code></td><td><a href="q02-prior-art-declarative-models.html">Prior art for declarative models</a></td><td>How do existing declarative systems let users define types, compose and extend them, and compute derived values, and which of their choices fit a YAML-first model config for Obsidian notes?</td><td>Research</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
-          <tr><td><code>q03</code></td><td><a href="q03-obsidian-view-api.html">Obsidian view API</a></td><td>What does the Obsidian plugin API offer for a view that shows a data model (custom views, settings tabs, modals), and how does such a view refresh when notes change?</td><td>Research</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q01</code></td><td><a href="q01-todays-model-as-data.html">Today's model as data</a></td><td>What does Taleform model today, written down as data: every kind, property, enum value, relation, ordering rule, derived value, table, and every piece of text a builder generates?</td><td>Research</td><td><plan-badge type="decided"></plan-badge></td><td>&mdash;</td><td><a href="assets/todays-model-inventory.md">todays-model-inventory.md</a></td><td>&mdash;</td></tr>
+          <tr><td><code>q02</code></td><td><a href="q02-prior-art-declarative-models.html">Prior art for declarative models</a></td><td>How do existing declarative systems let users define types, compose and extend them, and compute derived values, and which of their choices fit a YAML-first model config for Obsidian notes?</td><td>Research</td><td><plan-badge type="decided"></plan-badge></td><td>&mdash;</td><td><a href="assets/prior-art-declarative-models.md">prior-art-declarative-models.md</a></td><td>&mdash;</td></tr>
+          <tr><td><code>q03</code></td><td><a href="q03-obsidian-view-api.html">Obsidian view API</a></td><td>What does the Obsidian plugin API offer for a view that shows a data model (custom views, settings tabs, modals), and how does such a view refresh when notes change?</td><td>Research</td><td><plan-badge type="decided"></plan-badge></td><td>&mdash;</td><td><a href="assets/obsidian-view-api.md">obsidian-view-api.md</a></td><td>&mdash;</td></tr>
           <tr><td><code>q04</code></td><td><a href="q04-base-concepts.html">The base concepts</a></td><td>At its simplest, what is each of Mission, Act, Beat, Encounter, NPC, Arc and Campaign: which are kinds of note, which are relations or groupings, and which are blocks inside a note?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q01-todays-model-as-data.html">q01</a></td><td>&mdash;</td><td>&mdash;</td></tr>
           <tr><td><code>q05</code></td><td><a href="q05-composition-model.html">The composition model</a></td><td>What is a data element (the unit a config defines): what does it declare (properties, relations, ordering, derived values, generated output), and how does one element extend or compose another?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q04-base-concepts.html">q04</a>, <a href="q02-prior-art-declarative-models.html">q02</a></td><td>&mdash;</td><td>&mdash;</td></tr>
           <tr><td><code>q06</code></td><td><a href="q06-config-language.html">The config language</a></td><td>What can the first-cut YAML config express on its own, how are expressions (sums, min, max, filters) written inside it, and what would trigger the move to a language of our own?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q05-composition-model.html">q05</a>, <a href="q02-prior-art-declarative-models.html">q02</a></td><td>&mdash;</td><td>&mdash;</td></tr>
@@ -128,6 +128,7 @@
           <tr><td><code>q09</code></td><td><a href="q09-bases-alignment.html">Bases alignment</a></td><td>Does the new type system align with Obsidian Bases (its property types, .base views, formula language) in this effort, or does reading through Bases stay parked?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td><a href="q02-prior-art-declarative-models.html">q02</a>, <a href="q05-composition-model.html">q05</a></td><td>&mdash;</td><td>&mdash;</td></tr>
           <tr><td><code>q10</code></td><td><a href="q10-model-view.html">The model view</a></td><td>What does the first plugin view of the data model show and how is it laid out: the element definitions from config, the notes that match each, derived values, problems?</td><td>Prototype</td><td><plan-badge type="open"></plan-badge></td><td><a href="q05-composition-model.html">q05</a>, <a href="q03-obsidian-view-api.html">q03</a></td><td>&mdash;</td><td>&mdash;</td></tr>
           <tr><td><code>q11</code></td><td><a href="q11-view-in-test-vault.html">A view in the test vault</a></td><td>Does a minimal registered view open in Obsidian against a scratch copy of test-vault, render the StoryIndex, and refresh when a note's frontmatter changes?</td><td>Probe</td><td><plan-badge type="open"></plan-badge></td><td><a href="q03-obsidian-view-api.html">q03</a></td><td>&mdash;</td><td>&mdash;</td></tr>
+          <tr><td><code>q12</code></td><td><a href="q12-parity-baseline.html">The parity baseline</a></td><td>Are the three known output bugs fixed before the rewrite or carried through it, and which unexercised paths must the test vault gain first?</td><td>Grilling</td><td><plan-badge type="open"></plan-badge></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
         </tbody>
       </table>
     </plan-table>
@@ -161,7 +162,6 @@
           <tr><td>Versioning and migrating config</td><td>How a shipped default evolves without breaking a DM's overrides, and whether the <code>RETIRED</code> map becomes config. Sharpens once where config lives is decided.</td></tr>
           <tr><td>From YAML to a language of our own</td><td>What would force the upgrade and how a YAML config converts. Sharpens from the config language decision.</td></tr>
           <tr><td>Editing through the UI</td><td>The view starts read-only; which edits it takes on next. Sharpens from the model view prototype.</td></tr>
-          <tr><td>Proving parity during the rewrite</td><td>Whether the test vault covers every config path, or needs a second mission and NPC and arc notes. Sharpens once the base concepts and builders-as-config are decided.</td></tr>
         </tbody>
       </table>
     </plan-table>
@@ -193,6 +193,7 @@
       <table>
         <thead><tr><th>Date</th><th>What changed</th><th>Where</th></tr></thead>
         <tbody>
+          <tr><td>2026-10-25</td><td>Research tickets q01-q03 answered (E01-E03). Three output bugs filed; the conventions issue doc corrected. New ticket: the parity baseline, sharpened from the horizon.</td><td><a href="q01-todays-model-as-data.html">q01</a>, <a href="q12-parity-baseline.html">q12</a>, <a href="evidence.html">evidence</a></td></tr>
           <tr><td>2026-10-25</td><td>Map charted: destination, 11 tickets (3 research on the frontier), horizon</td><td>&mdash;</td></tr>
         </tbody>
       </table>

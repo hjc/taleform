@@ -36,7 +36,7 @@
 <plan-header
   title="q01 — Today's model as data"
   subtitle=""
-  status="draft"
+  status="approved"
   date="2026-10-25">
 </plan-header>
 
@@ -52,76 +52,34 @@
   <plan-section id="context" title="Context"><p>Every later ticket designs a config that must reproduce today's output byte for byte, so it needs an exact inventory of what that config must be able to say. The issue <a href="../../../issues/vault-conventions-hardcoded-in-src.html">src/ hard-codes one vault's conventions</a> lists 17 conventions, but its <code>file:line</code> references do not match the current files (it cites <code>resume.ts:204</code>; the file is 32 lines) and it calls <code>test-vault/</code> untracked. Treat it as a lead, not evidence.</p>
 <p>Read <plan-file path="src/core/story.ts"></plan-file>, <plan-file path="src/core/index.ts"></plan-file>, <plan-file path="src/builders/schema.ts"></plan-file> and every builder in <plan-file path="src/builders/"></plan-file>. Blocks <a href="q04-base-concepts.html">The base concepts</a> and <a href="q08-builders-as-config.html">Builders as config</a>.</p></plan-section>
 
-  <plan-section id="findings" title="Findings">
-    <p>
-      What the world turned out to be. Measurements, portal reads, probe output, quoted code &mdash; each
-      with its evidence id, or marked as read live with the date. <strong>This section survives its own
-      resolution being overturned</strong>, which is why it is kept apart from it.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>What is true, stated flatly</td>
-            <td>Measured, read from the portal, quoted from the code, or told to us by someone with access</td>
-            <td><code>E01</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </plan-table>
-    <plan-callout type="warn">
-      <strong>An unverified assumption is not a finding.</strong> If the answer rests on external behaviour
-      nobody has measured, that is a blocker to raise now &mdash; not a caveat to record here and not a step
-      to defer to whoever builds it.
-    </plan-callout>
-  </plan-section>
+  <plan-section id="findings" title="Findings"><p>Research, dispatched 2026-10-25. The full report is linked from each row's evidence id in <a href="evidence.html">the evidence manifest</a>.</p>
+<plan-table>
+  <table>
+    <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>The inventory covers kinds, properties, enums, relations, ordering, derived values, tables, indexing, parse conventions, and every literal each builder emits, with refs against the current tree.</td><td>Read every file in <code>src/core/</code>, <code>src/builders/</code> and both runners; parity check on <code>test-vault</code> clean (0 changes, 0 problems)</td><td><code>E01</code></td></tr>
+      <tr><td>The ledger's "plus up to N optional" adds an award's <code>max</code> (a count) as XP: the test vault prints "plus up to 3 optional" where the cap is 75 (<code>src/builders/ledger.ts:46</code>).</td><td>Code read, confirmed in the committed mission ledger</td><td><code>E01</code></td></tr>
+      <tr><td>A beat's IF cards all land at one position and stack; a long-jump branch label and the award-XP card overlap at <code>(-340, 400)</code> (<code>src/builders/adventureMap.ts:199,235,249</code>).</td><td>Code read, confirmed in the committed canvas</td><td><code>E01</code></td></tr>
+      <tr><td>The map's resume-marker text describes the first planned beat after the furthest played one, which is wrong when the resume beat is <code>partial</code>, as in the test vault (<code>src/builders/adventureMap.ts:129</code>).</td><td>Compared <code>resumeBeat</code> with the canvas</td><td><code>E01</code></td></tr>
+      <tr><td>Schema checks only notes with a <code>kind</code> and a <code>mission</code> link (or <code>kind: mission</code>); a beat missing either is skipped silently. <code>bench</code> passes the schema but no builder reads it (<code>src/builders/schema.ts:11,36</code>).</td><td>Code read</td><td><code>E01</code></td></tr>
+      <tr><td>Membership accepts a <code>mission</code> link anywhere in the value, while <code>prev</code>, <code>next</code> and <code>branches</code> must be whole values; navigation ignores a link's alias and labels with the target's H1.</td><td>Code read: <code>src/core/index.ts:85-87</code>, <code>src/builders/schema.ts:64</code>, <code>src/builders/navigation.ts:31-33</code></td><td><code>E01</code></td></tr>
+      <tr><td>The CLI and the plugin index different files: the CLI skips <code>node_modules</code> and reads <code>templates.json</code> even with the Templates plugin off; the plugin does neither.</td><td>Code read: <code>src/cli/main.ts:40-42</code>, <code>src/plugin/main.ts:20</code></td><td><code>E01</code></td></tr>
+      <tr><td>Two orderings break ties differently (<code>sequence()</code> default sort on paths, the map <code>localeCompare</code>), and the map keys beats by basename, so same-named members merge.</td><td>Code read: <code>src/core/story.ts:17</code>, <code>src/builders/adventureMap.ts:55,62</code></td><td><code>E01</code></td></tr>
+      <tr><td>Byte parity hangs on easily missed details: key order per canvas node type, tab indentation, omitting a default <code>toEnd</code>, and <code>÷ party</code> printed without <code>fmt</code>.</td><td>Node construction compared with the committed canvas</td><td><code>E01</code></td></tr>
+      <tr><td>The test vault never exercises <code>reference</code>, <code>bench</code>, <code>skipped</code>, <code>related</code>, a level-up line or a missing <code>party-size</code>, so the parity check cannot see output drift on those paths.</td><td>Coverage read against the inventory</td><td><code>E01</code></td></tr>
+      <tr><td>The conventions issue doc's refs are wrong for 13 of its 17 rows, its row 13 claim is wrong (the awards region goes only where awards exist, <code>src/core/regions.ts:42</code>), and it misses about 10 conventions.</td><td>Each row checked against the current tree</td><td><code>E01</code></td></tr>
+    </tbody>
+  </table>
+</plan-table></plan-section>
 
-  <plan-section id="resolution" title="Resolution">
-    <p>
-      The decision, and why this option and not the others. Name who made it: a call that turns on product
-      or architecture belongs to the user, and a ticket that quietly made one on their behalf is a defect
-      in the process even when the answer is right.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
-        <tbody>
-          <tr><td>The one taken</td><td><plan-badge type="decided">chosen</plan-badge></td><td>What decided it</td></tr>
-          <tr><td>The one not taken</td><td>Rejected</td><td>What ruled it out &mdash; kept so it is not re-litigated</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
+  <plan-section id="resolution" title="Resolution"><p>Answered: <a href="assets/todays-model-inventory.md">the inventory</a> is the seed for the default config. Its three output bugs are filed as issue docs; the conventions issue doc was corrected against it.</p>
+<p><strong>No decision.</strong> A research ticket fixes facts; the calls they inform are made in <a href="q04-base-concepts.html">The base concepts</a>, <a href="q08-builders-as-config.html">Builders as config</a> and <a href="q12-parity-baseline.html">The parity baseline</a>.</p>
 
-    <h3>For the register</h3>
-    <plan-callout type="success">
-      The rule in one normative sentence, exactly as it will appear in
-      <a href="decisions.html"><code>decisions.html</code></a>. Then: what it rests on, what it binds, and which
-      <code>docs/context/</code> doc it graduates into.
-    </plan-callout>
+<h3>For the register</h3>
+<plan-callout type="success">Nothing for the register: this ticket decided nothing.</plan-callout>
 
-    <h3>What would change this answer</h3>
-    <p>
-      The observation that would reopen it. A ticket that
-      cannot name one has usually not been pushed hard enough.
-    </p>
-  </plan-section>
-
-  <plan-section id="obligations" title="Obligations">
-    <p>
-      What this answer commits a <em>downstream</em> artifact to &mdash; a PRD requirement, a build check, a
-      context-doc rule, an amendment another ticket needs. At map close these are the PRD's structured input.
-      <strong>Optional: delete this section if the ticket earned none.</strong>
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Owes</th><th>What</th></tr></thead>
-        <tbody>
-          <tr><td>The artifact that must carry it</td><td>The requirement, check or rule it is now committed to</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
-  </plan-section>
+<h3>What would change this answer</h3>
+<p>A change to <code>src/</code> before the rewrite starts; re-run the inventory's parity check and its refs.</p></plan-section>
 
 
 </main>

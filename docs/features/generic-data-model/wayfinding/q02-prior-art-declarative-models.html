@@ -36,7 +36,7 @@
 <plan-header
   title="q02 — Prior art for declarative models"
   subtitle=""
-  status="draft"
+  status="approved"
   date="2026-10-25">
 </plan-header>
 
@@ -51,76 +51,35 @@
 
   <plan-section id="context" title="Context"><p>The developer's reference point is HCL for Terraform: data first, with functions (<code>min</code>, <code>max</code>) added only when needed. Candidates to study: HCL and Terraform (blocks, variables, functions, modules), CUE (types as values, unification), JSON Schema and YAML schema tooling (validation, editor support), Obsidian Bases <code>.base</code> files (YAML views with a formula language), and Obsidian type systems in plugins: Metadata Menu fileClasses, make.md, and Obsidian's own property types. Blocks <a href="q05-composition-model.html">The composition model</a>, <a href="q06-config-language.html">The config language</a> and <a href="q09-bases-alignment.html">Bases alignment</a>.</p></plan-section>
 
-  <plan-section id="findings" title="Findings">
-    <p>
-      What the world turned out to be. Measurements, portal reads, probe output, quoted code &mdash; each
-      with its evidence id, or marked as read live with the date. <strong>This section survives its own
-      resolution being overturned</strong>, which is why it is kept apart from it.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>What is true, stated flatly</td>
-            <td>Measured, read from the portal, quoted from the code, or told to us by someone with access</td>
-            <td><code>E01</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </plan-table>
-    <plan-callout type="warn">
-      <strong>An unverified assumption is not a finding.</strong> If the answer rests on external behaviour
-      nobody has measured, that is a blocker to raise now &mdash; not a caveat to record here and not a step
-      to defer to whoever builds it.
-    </plan-callout>
-  </plan-section>
+  <plan-section id="findings" title="Findings"><p>Research, dispatched 2026-10-25. The full report is linked from each row's evidence id in <a href="evidence.html">the evidence manifest</a>.</p>
+<plan-table>
+  <table>
+    <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>A <code>.base</code> file is YAML with <code>filters</code>, <code>formulas</code> (name to expression string, formulas may reference each other), <code>properties</code>, <code>summaries</code> and <code>views</code>.</td><td>obsidian.md/help/bases/syntax</td><td><code>E02</code></td></tr>
+      <tr><td>Bases formulas have <code>filter</code>/<code>map</code>/<code>reduce</code> but no list <code>sum</code> or <code>mean</code>, scalar-only <code>min</code>/<code>max</code>, and no type system.</td><td>obsidian.md/help/bases/functions</td><td><code>E02</code></td></tr>
+      <tr><td>Bases has no rollup across linked notes; <code>link.asFile().properties</code> is slow and does not refresh, so mission totals and running totals stay built in.</td><td>Obsidian forum thread on cross-note lookups</td><td><code>E02</code></td></tr>
+      <tr><td>The only official Bases evaluator runs inside Obsidian (<code>BasesViewConfig.getEvaluatedFormula</code>); a headless CLI needs its own.</td><td>docs.obsidian.md API reference</td><td><code>E02</code></td></tr>
+      <tr><td>Obsidian types a property name once per vault, and its Properties panel does not support nested properties.</td><td>obsidian.md/help/properties</td><td><code>E02</code></td></tr>
+      <tr><td>Metadata Menu composes fileClasses with single-parent <code>extends</code>, <code>excludes</code> and same-name override; its successor dropped formula fields in favour of Bases views.</td><td>Metadata Menu and Fileclass docs</td><td><code>E02</code></td></tr>
+      <tr><td>mdbase (spec v0.3.0) is the closest prior art: types as Markdown files holding JSON Schema, CEL expressions, and a Bases adapter only where semantics match exactly.</td><td>github.com/mdbase-dev/mdbase-spec</td><td><code>E02</code></td></tr>
+      <tr><td>Terraform separates blocking <code>validation</code> from warning <code>check</code> blocks, with fixed override precedence.</td><td>developer.hashicorp.com</td><td><code>E02</code></td></tr>
+      <tr><td>CUE defaults cannot be overridden by a concrete value; Pkl separates <code>amends</code> (override known keys, typos error) from <code>extends</code> (a new subtype).</td><td>cuelang.org, pkl-lang.org</td><td><code>E02</code></td></tr>
+      <tr><td>Kubernetes CRDs embed CEL <code>rule</code> + <code>message</code> in a YAML schema and apply defaults on read without writing them back, matching invariant 1.</td><td>kubernetes.io CRD docs</td><td><code>E02</code></td></tr>
+      <tr><td>A <code># yaml-language-server: $schema=</code> modeline gives completion, hover and validation for a YAML file; JSON Schema <code>allOf</code> cannot express inheritance.</td><td>redhat-developer/yaml-language-server, json-schema.org</td><td><code>E02</code></td></tr>
+    </tbody>
+  </table>
+</plan-table>
+<p>Options the report puts forward are inputs to <a href="q05-composition-model.html">The composition model</a>, <a href="q06-config-language.html">The config language</a>, <a href="q07-where-config-lives.html">Where config lives</a> and <a href="q09-bases-alignment.html">Bases alignment</a>; they are not decided here.</p></plan-section>
 
-  <plan-section id="resolution" title="Resolution">
-    <p>
-      The decision, and why this option and not the others. Name who made it: a call that turns on product
-      or architecture belongs to the user, and a ticket that quietly made one on their behalf is a defect
-      in the process even when the answer is right.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
-        <tbody>
-          <tr><td>The one taken</td><td><plan-badge type="decided">chosen</plan-badge></td><td>What decided it</td></tr>
-          <tr><td>The one not taken</td><td>Rejected</td><td>What ruled it out &mdash; kept so it is not re-litigated</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
+  <plan-section id="resolution" title="Resolution"><p>Answered: <a href="assets/prior-art-declarative-models.md">the prior-art report</a>. Claims tagged <code>[known]</code> there were not re-fetched and need a check before a decision rests on them.</p>
+<p><strong>No decision.</strong> A research ticket fixes facts; the calls they inform are made in <a href="q05-composition-model.html">The composition model</a>, <a href="q06-config-language.html">The config language</a>, <a href="q07-where-config-lives.html">Where config lives</a> and <a href="q09-bases-alignment.html">Bases alignment</a>.</p>
 
-    <h3>For the register</h3>
-    <plan-callout type="success">
-      The rule in one normative sentence, exactly as it will appear in
-      <a href="decisions.html"><code>decisions.html</code></a>. Then: what it rests on, what it binds, and which
-      <code>docs/context/</code> doc it graduates into.
-    </plan-callout>
+<h3>For the register</h3>
+<plan-callout type="success">Nothing for the register: this ticket decided nothing.</plan-callout>
 
-    <h3>What would change this answer</h3>
-    <p>
-      The observation that would reopen it. A ticket that
-      cannot name one has usually not been pushed hard enough.
-    </p>
-  </plan-section>
-
-  <plan-section id="obligations" title="Obligations">
-    <p>
-      What this answer commits a <em>downstream</em> artifact to &mdash; a PRD requirement, a build check, a
-      context-doc rule, an amendment another ticket needs. At map close these are the PRD's structured input.
-      <strong>Optional: delete this section if the ticket earned none.</strong>
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Owes</th><th>What</th></tr></thead>
-        <tbody>
-          <tr><td>The artifact that must carry it</td><td>The requirement, check or rule it is now committed to</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
-  </plan-section>
+<h3>What would change this answer</h3>
+<p>A Bases release adding cross-note rollups or a headless evaluator.</p></plan-section>
 
 
 </main>

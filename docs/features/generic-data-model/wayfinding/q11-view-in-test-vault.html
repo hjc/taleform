@@ -50,7 +50,9 @@
   <strong>Does a minimal registered view open in Obsidian against a scratch copy of test-vault, render the StoryIndex, and refresh when a note's frontmatter changes?</strong>
 </plan-callout></plan-section>
 
-  <plan-section id="context" title="Context"><p>Measures what <a href="q03-obsidian-view-api.html">Obsidian view API</a> documents. Runs against a scratch copy of <code>test-vault/</code>, deployed with <code>npm run deploy -- "&lt;scratch copy&gt;"</code>; never the developer's vault. Needs the developer to open Obsidian on the copy.</p></plan-section>
+  <plan-section id="context" title="Context"><p>Measures what <a href="q03-obsidian-view-api.html">Obsidian view API</a> documents. Runs against a scratch copy of <code>test-vault/</code>, deployed with <code>npm run deploy -- "&lt;scratch copy&gt;"</code>; never the developer's vault. Needs the developer to open Obsidian on the copy.</p>
+    <p>Also measure the ten behaviours <a href="q03-obsidian-view-api.html">Obsidian view API</a> could not settle from docs (its report, <a href="assets/obsidian-view-api.md">"needs a live probe"</a>): the event order for one frontmatter edit, whether Taleform's own writes re-fire events, deferred-view restore, rename and canvas events, <code>MarkdownRenderer</code> component leaks, <code>registerBasesView</code> with Bases off, the untyped <code>QueryController</code> methods, a <code>getSettingDefinitions</code> tab bound to <code>prefs</code>, and mobile.</p>
+</plan-section>
 
   <plan-section id="findings" title="Findings">
     <p>

@@ -36,7 +36,7 @@
 <plan-header
   title="q03 — Obsidian view API"
   subtitle=""
-  status="draft"
+  status="approved"
   date="2026-10-25">
 </plan-header>
 
@@ -51,76 +51,32 @@
 
   <plan-section id="context" title="Context"><p>The destination includes a plugin UI that at least dumps the current data model. Today <plan-file path="src/plugin/main.ts"></plan-file> registers only a status-bar item, commands and a debounced auto-build on <code>metadataCache</code> "changed". Look up <code>registerView</code> / <code>ItemView</code>, <code>PluginSettingTab</code>, <code>Modal</code>, workspace leaves, and how views subscribe to vault and metadata events. Blocks <a href="q10-model-view.html">The model view</a> and <a href="q11-view-in-test-vault.html">A view in the test vault</a>.</p></plan-section>
 
-  <plan-section id="findings" title="Findings">
-    <p>
-      What the world turned out to be. Measurements, portal reads, probe output, quoted code &mdash; each
-      with its evidence id, or marked as read live with the date. <strong>This section survives its own
-      resolution being overturned</strong>, which is why it is kept apart from it.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
-        <tbody>
-          <tr>
-            <td>What is true, stated flatly</td>
-            <td>Measured, read from the portal, quoted from the code, or told to us by someone with access</td>
-            <td><code>E01</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </plan-table>
-    <plan-callout type="warn">
-      <strong>An unverified assumption is not a finding.</strong> If the answer rests on external behaviour
-      nobody has measured, that is a blocker to raise now &mdash; not a caveat to record here and not a step
-      to defer to whoever builds it.
-    </plan-callout>
-  </plan-section>
+  <plan-section id="findings" title="Findings"><p>Research, dispatched 2026-10-25. The full report is linked from each row's evidence id in <a href="evidence.html">the evidence manifest</a>.</p>
+<plan-table>
+  <table>
+    <thead><tr><th>Finding</th><th>How it was established</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Installed <code>obsidian</code> is 1.14.4 (latest on npm); <code>manifest.json</code> declares <code>minAppVersion</code> 1.10.3, so 1.13+ APIs need a bump or a fallback.</td><td>npm registry; <code>package.json</code></td><td><code>E03</code></td></tr>
+      <tr><td>A model view fits an <code>ItemView</code> in the right sidebar: reuse an existing leaf or <code>getRightLeaf</code>, then <code>revealLeaf</code>; <code>ensureSideLeaf</code> (1.7.2+) does both.</td><td><code>obsidian.d.ts</code> 5391, 10919, 10928, 10992; docs.obsidian.md Views</td><td><code>E03</code></td></tr>
+      <tr><td>Plugin guidelines: hold no references to views, do not detach leaves in <code>onunload</code>; find views with <code>getLeavesOfType</code> and <code>instanceof</code>.</td><td>docs.obsidian.md plugin guidelines</td><td><code>E03</code></td></tr>
+      <tr><td>Since 1.7.2, background leaves load as deferred placeholders; await <code>revealLeaf</code> before touching the view.</td><td><code>obsidian.d.ts</code> 11261, 11267; defer-views guide</td><td><code>E03</code></td></tr>
+      <tr><td>Settings tabs use <code>getSettingDefinitions()</code> from 1.13; <code>display()</code> is deprecated; default binding reads <code>this.plugin.settings</code>, so <code>prefs</code> needs <code>getControlValue</code>/<code>setControlValue</code>.</td><td><code>obsidian.d.ts</code> 7431-7460, 9300; Settings docs</td><td><code>E03</code></td></tr>
+      <tr><td>No UI framework is needed for a read-only dump; <code>MarkdownRenderer.render</code> ties output to a component, so re-renders need a fresh child component (inferred).</td><td><code>obsidian.d.ts</code> 6069, 6079; docs</td><td><code>E03</code></td></tr>
+      <tr><td><code>metadataCache</code> "changed" does not fire on rename; today's auto-build misses a pure rename.</td><td><code>obsidian.d.ts</code> 6508-6515</td><td><code>E03</code></td></tr>
+      <tr><td>A Bases view is the wrong host for the whole dump (rows are files; needs a DM-made <code>.base</code>; <code>registerBasesView</code> returns false with Bases off). <code>QueryController</code> is empty in the typings, so <code>setQuery</code>/<code>runQuery</code> are untyped.</td><td><code>obsidian.d.ts</code> 7283, 2054-2105, 7643; bases-view guide</td><td><code>E03</code></td></tr>
+    </tbody>
+  </table>
+</plan-table>
+<p>Ten behaviours need a live run in Obsidian, listed in the report under "needs a live probe"; they are carried into <a href="q11-view-in-test-vault.html">A view in the test vault</a>.</p></plan-section>
 
-  <plan-section id="resolution" title="Resolution">
-    <p>
-      The decision, and why this option and not the others. Name who made it: a call that turns on product
-      or architecture belongs to the user, and a ticket that quietly made one on their behalf is a defect
-      in the process even when the answer is right.
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Option</th><th>Verdict</th><th>Why</th></tr></thead>
-        <tbody>
-          <tr><td>The one taken</td><td><plan-badge type="decided">chosen</plan-badge></td><td>What decided it</td></tr>
-          <tr><td>The one not taken</td><td>Rejected</td><td>What ruled it out &mdash; kept so it is not re-litigated</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
+  <plan-section id="resolution" title="Resolution"><p>Answered: <a href="assets/obsidian-view-api.md">the view-API report</a>. Its suggestion that the view subscribe to a plugin "built" event rather than watch the vault is an input, not a decision.</p>
+<p><strong>No decision.</strong> A research ticket fixes facts; the calls they inform are made in <a href="q10-model-view.html">The model view</a> and <a href="q11-view-in-test-vault.html">A view in the test vault</a>.</p>
 
-    <h3>For the register</h3>
-    <plan-callout type="success">
-      The rule in one normative sentence, exactly as it will appear in
-      <a href="decisions.html"><code>decisions.html</code></a>. Then: what it rests on, what it binds, and which
-      <code>docs/context/</code> doc it graduates into.
-    </plan-callout>
+<h3>For the register</h3>
+<plan-callout type="success">Nothing for the register: this ticket decided nothing.</plan-callout>
 
-    <h3>What would change this answer</h3>
-    <p>
-      The observation that would reopen it. A ticket that
-      cannot name one has usually not been pushed hard enough.
-    </p>
-  </plan-section>
-
-  <plan-section id="obligations" title="Obligations">
-    <p>
-      What this answer commits a <em>downstream</em> artifact to &mdash; a PRD requirement, a build check, a
-      context-doc rule, an amendment another ticket needs. At map close these are the PRD's structured input.
-      <strong>Optional: delete this section if the ticket earned none.</strong>
-    </p>
-    <plan-table>
-      <table>
-        <thead><tr><th>Owes</th><th>What</th></tr></thead>
-        <tbody>
-          <tr><td>The artifact that must carry it</td><td>The requirement, check or rule it is now committed to</td></tr>
-        </tbody>
-      </table>
-    </plan-table>
-  </plan-section>
+<h3>What would change this answer</h3>
+<p>A live probe contradicting the documented lifecycle or event behaviour.</p></plan-section>
 
 
 </main>

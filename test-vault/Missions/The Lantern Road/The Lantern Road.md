@@ -14,7 +14,7 @@ handoff: "**Then:** the guild pays out and offers the next road"
 %% /taleform:resume %%
 
 %% taleform:xp %%
-> [!abstract]- XP ledger — 537 each, plus up to 3 optional
+> [!abstract]- XP ledger — 537 each, plus up to 75 optional
 > **Party now:** 900 each · **after this mission:** 1,337 · level 4 at 2,700
 >
 > - ✓ [[Road 1.01 — Hired at the inn|Hired at the inn]] — Took the guild contract **50**

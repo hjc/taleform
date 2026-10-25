@@ -43,9 +43,8 @@ export const ledger: Builder = {
             bits.push(`${a.for ?? "award"} **${fmt(a.xp)}**`);
             earned += a.xp;
           } else {
-            const max = a.max ?? a.xp;
             bits.push(`optional ${fmt(a.xp)}${a.per ? ` per ${a.per}` : ""}${a.max ? ` (max ${fmt(a.max)})` : ""}`);
-            optionalMax += max;
+            optionalMax += a.xp * (a.max ?? 1); // max counts uses, so the cap is xp × max
           }
         }
         if (!bits.length) continue;

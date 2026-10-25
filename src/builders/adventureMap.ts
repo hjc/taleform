@@ -118,6 +118,11 @@ function buildMap(ctx: BuildContext, mission: Note) {
     node(nid("n", s), { ...kw, x: p.x, y: p.y, width: W, height: H, ...colored(STATUS_COLOR[str(b.note.fm["beat-status"]) ?? ""]) });
   }
 
+  // The left margin: each beat's resume marker, long-jump labels, XP awards and combat, queued
+  // here and laid out last, down one column in beat order, so no card lands on another.
+  const margin: Array<{ s: string; id: string; height: number; color: string; text: string }> = [];
+  const left = (s: string, id: string, height: number, color: string, text: string) => margin.push({ s, id, height, color, text });
+
   // ---- mission, references and legend to the left; resume marker -------------------------
   const hubId = nid("hub");
   node(hubId, { type: "file", file: mission.path, x: HX, y: 0, width: W + 40, height: H + 160 });
@@ -125,8 +130,10 @@ function buildMap(ctx: BuildContext, mission: Note) {
   edge(hubId, nid("n", order[0]!));
   if (resume && beats.has(resume)) {
     const rid = nid("resume");
-    node(rid, { type: "text", x: LX, y: pos.get(resume)!.y + 140, width: LW, height: 90, color: RESUME,
-                text: "## ▶ RESUME HERE\nthe first planned beat after the furthest one played" });
+    const why = str(beats.get(resume)!.note.fm["beat-status"]) === "partial"
+      ? "the table stopped partway through this beat"
+      : "the first planned beat after the furthest one played";
+    left(resume, rid, 90, RESUME, `## ▶ RESUME HERE\n${why}`);
     edge(rid, nid("n", resume), null, RESUME);
   }
   node(nid("legend"), {
@@ -196,7 +203,7 @@ function buildMap(ctx: BuildContext, mission: Note) {
     if (sides[0] === "left" && label) {
       // a long jump's label lands mid-curve, on whatever is there: pin it at the source
       const lid = nid("jump", f, t);
-      node(lid, { type: "text", x: LX, y: pos.get(f)!.y + 60, width: LW, height: 120, text: label, color });
+      left(f, lid, 120, color, label);
       edge(nid("n", f), lid, null, color, "left", "right");
       edge(lid, nid("n", t), null, color, "left", "left");
     } else {
@@ -221,6 +228,7 @@ function buildMap(ctx: BuildContext, mission: Note) {
   }
 
   // ---- IF cards (right), XP awards (left), hand-off (below) -------------------------------
+  let freeRight = -Infinity; // IF cards stack down their column, as the left margin does
   for (const s of order) {
     list(beats.get(s)!.note.fm.outcomes).forEach((item, k) => {
       const o = (item ?? {}) as { if?: unknown; then?: unknown; to?: unknown };
@@ -232,7 +240,9 @@ function buildMap(ctx: BuildContext, mission: Note) {
       const cond = str(o.if);
       const color = cond ? RED : null;
       const tid = nid("if", s, String(k));
-      node(tid, { type: "text", x: 2 * SIDE, y: pos.get(s)!.y + 50, width: W, height: 140,
+      const y = Math.max(pos.get(s)!.y + 50, freeRight);
+      freeRight = y + 150;
+      node(tid, { type: "text", x: 2 * SIDE, y, width: W, height: 140,
                   text: cond ? `**IF ${cond}**\n${str(o.then) ?? ""}` : str(o.then) ?? "", ...colored(color) });
       edge(nid("n", s), tid, null, color);
       if (to) edge(tid, nid("n", to), null, color, "bottom", "right");
@@ -246,21 +256,27 @@ function buildMap(ctx: BuildContext, mission: Note) {
     const story = list_.filter((a) => a.type === "story").reduce((t, a) => t + a.xp, 0);
     const optional = list_.filter((a) => a.type === "optional")
       .map((a) => `🟥 OPTIONAL ${fmt(a.xp)} each${a.per ? ` per ${a.per}` : ""}${a.max ? ` (max ${fmt(a.max)})` : ""}`);
-    let y = pos.get(s)!.y + 60;
     if (story || optional.length) {
       const xid = nid("xp", s);
       const text = [story ? `## 🟥 AWARD XP\n**${fmt(story)} each**` : "", ...optional].filter(Boolean).join("\n");
-      node(xid, { type: "text", x: LX, y, width: LW, height: 120, color: RED, text });
+      left(s, xid, 120, RED, text);
       edge(xid, nid("n", s), null, RED);
-      y += 130;
     }
     const combat = combatOf(index, b.note, () => undefined); // the ledger reports unreadable blocks
     if (combat?.total) {
       const cid = nid("combat", s);
       const each = party ? ` · **${fmt(Math.floor(combat.total / party))} each**` : "";
-      node(cid, { type: "text", x: LX, y, width: LW, height: 120, color: RED,
-                  text: `## ⚔ COMBAT XP\n${fmt(combat.total)}${each}` });
+      left(s, cid, 120, RED, `## ⚔ COMBAT XP\n${fmt(combat.total)}${each}`);
       edge(cid, nid("n", s), null, RED);
+    }
+  }
+
+  let free = -Infinity;
+  for (const s of order) {
+    for (const m of margin.filter((m) => m.s === s)) {
+      const y = Math.max(pos.get(s)!.y + 60, free);
+      node(m.id, { type: "text", x: LX, y, width: LW, height: m.height, color: m.color, text: m.text });
+      free = y + m.height + 10;
     }
   }
 
